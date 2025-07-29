@@ -1,3 +1,4 @@
+// vite config file for remoteapp 1
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import federation from "@originjs/vite-plugin-federation";
@@ -7,11 +8,12 @@ export default defineConfig({
   plugins: [
     react(),
     federation({
-      name: "host_app",
-      remotes: {
-        // remote_app: "http://localhost:5001/assets/remoteEntry.js",
+      name: "remoteapp_1",
+      filename: "remoteEntry.js",
+      exposes: {
+        "./RemoteComponent": "./src/App.tsx",
       },
-      shared: ["react", "react-dom"],
+      shared: ["vue", "primevue"],
     }),
     tailwindcss(), // ✅ official plugin
   ],
@@ -22,5 +24,6 @@ export default defineConfig({
   },
   server: {
     port: 5251,
+    cors: true,
   },
 });
