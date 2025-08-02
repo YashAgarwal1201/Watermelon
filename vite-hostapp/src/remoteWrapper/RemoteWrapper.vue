@@ -13,7 +13,8 @@ const reactRoot = ref<HTMLElement | null>(null);
 let root: ReactDOM.Root | null = null;
 
 onMounted(async () => {
-  const RemoteComponent = (await import("remoteapp_1/RemoteComponent")).default;
+  const RemoteComponent = (await import("remoteapp_1/RemoteComponent"))
+    ?.default;
   if (reactRoot.value) {
     root = ReactDOM.createRoot(reactRoot.value);
     root.render(React.createElement(RemoteComponent));
