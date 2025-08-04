@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import Navbar from "./components/Navbar/NavBar.vue";
 import RemoteWrapper from "./remoteWrapper/RemoteWrapper.vue";
+import SideMenu from "./components/SideMenu/SideMenu.vue";
 </script>
 
 <template>
   <div class="w-dvw h-dvh flex items-center justify-center">
-    <div class="w-full md:w-16 h-16 md:h-full flex-shrink-0 border">
+    <div class="w-full md:w-16 h-16 md:h-full flex-shrink-0">
       <Navbar />
     </div>
 
@@ -15,6 +16,8 @@ import RemoteWrapper from "./remoteWrapper/RemoteWrapper.vue";
       remote app container
       <RemoteWrapper />
     </div>
+
+    <SideMenu />
   </div>
 </template>
 
