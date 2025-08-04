@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Home, Menu } from "lucide-vue-next";
 import { useNavbarStore } from "../../stores/navbarStore";
+import { Button } from "primevue";
 // import { storeToRefs } from "pinia";
 // import { ref } from "vue";
 
@@ -16,17 +17,17 @@ const navbarStore = useNavbarStore();
   >
     <RouterLink
       to="/"
-      class="w-auto md:w-full h-full md:h-auto aspect-square flex justify-center items-center rounded-2xl border cursor-pointer"
+      class="p-button w-auto md:w-full h-full md:h-auto aspect-square flex justify-center items-center !rounded-2xl border cursor-pointer"
     >
       <Home :size="16" />
     </RouterLink>
 
-    <button
-      class="w-auto md:w-full h-full md:h-auto aspect-square flex justify-center items-center rounded-2xl border cursor-pointer"
-      @click="navbarStore.showSideMenu = false"
+    <Button
+      class="w-auto md:w-full h-full md:h-auto aspect-square flex justify-center items-center !rounded-2xl border cursor-pointer"
+      @click="navbarStore.showSideMenu = true"
     >
       <Menu :size="16" />
-    </button>
+    </Button>
   </div>
 </template>
 

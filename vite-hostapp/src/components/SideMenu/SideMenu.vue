@@ -9,13 +9,15 @@
     >
       <template #header>
         <div class="flex justify-between items-center w-full">
-          <h3 class="text-lg sm:text-xl md:text-2xl">Your Shopping Cart</h3>
+          <h3 class="text-lg sm:text-xl md:text-2xl">Menu</h3>
 
           <Button icon="pi pi-heart" class="p-button-text" rounded />
         </div>
       </template>
       <div class="w-full h-full">
-        <div class="w-full h-[calc(100%-100px)]"></div>
+        <div class="flex-grow-1 overflow-y-auto">
+          <!-- display list of remote apps -->
+        </div>
       </div>
     </Drawer>
   </div>
