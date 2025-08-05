@@ -13,7 +13,7 @@ export default defineConfig({
       filename: "remoteEntry.js",
       remoteType: "module",
       exposes: {
-        "./RemoteComponent": "./src/App.tsx",
+        "./RemoteComponent1": "./src/App.tsx",
       },
       shared: ["react", "react-dom"],
     }),

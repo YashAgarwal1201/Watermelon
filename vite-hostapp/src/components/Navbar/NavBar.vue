@@ -2,6 +2,7 @@
 import { Home, Menu } from "lucide-vue-next";
 import { useNavbarStore } from "../../stores/navbarStore";
 import { Button } from "primevue";
+import { RouterLink } from "vue-router";
 // import { storeToRefs } from "pinia";
 // import { ref } from "vue";
 

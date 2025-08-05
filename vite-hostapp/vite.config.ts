@@ -19,6 +19,7 @@ export default defineConfig({
       name: "host_app",
       remotes: {
         remoteapp_1: "http://localhost:5251/assets/remoteEntry.js",
+        remoteapp_2: "http://localhost:5252/assets/remoteEntry.js",
       },
     }),
     tailwindcss(),

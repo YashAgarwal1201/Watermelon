@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { RouterView } from "vue-router";
 import Navbar from "./components/Navbar/NavBar.vue";
-import RemoteWrapper from "./remoteWrapper/RemoteWrapper.vue";
 import SideMenu from "./components/SideMenu/SideMenu.vue";
 </script>
 
@@ -13,8 +13,7 @@ import SideMenu from "./components/SideMenu/SideMenu.vue";
     <div
       class="h-full flex-grow overflow-y-auto flex justify-center items-center"
     >
-      remote app container
-      <RemoteWrapper />
+      <RouterView />
     </div>
 
     <SideMenu />

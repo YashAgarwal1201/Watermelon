@@ -16,7 +16,15 @@
       </template>
       <div class="w-full h-full">
         <div class="flex-grow-1 overflow-y-auto">
-          <!-- display list of remote apps -->
+          <RouterLink
+            v-for="app in remoteApps"
+            :key="app.key"
+            :to="`/remote/${app.key}`"
+            class="block text-lg text-blue-600 hover:underline"
+            @click="navbarStore.showSideMenu = false"
+          >
+            {{ app.label }}
+          </RouterLink>
         </div>
       </div>
     </Drawer>
@@ -24,11 +32,16 @@
 </template>
 
 <script setup lang="ts">
-import { Drawer } from "primevue";
+import { Button, Drawer } from "primevue";
 import { useNavbarStore } from "../../stores/navbarStore";
+import { RouterLink } from "vue-router";
 
 const navbarStore = useNavbarStore();
-// const { showSideMenu } = navbarStore;
+
+const remoteApps = [
+  { key: "remoteapp_1", label: "Remote App 1" },
+  { key: "remoteapp_2", label: "Remote App 2" },
+];
 </script>
 
 <style lang="css" scoped></style>
