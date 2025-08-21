@@ -1,98 +1,142 @@
 <template>
-  <div v-if="remoteName && componentPath">
-    <div ref="reactRoot" />
-  </div>
-  <div v-else class="p-6 text-red-600 text-xl font-bold">
-    Unknown remote app: {{ appName }}
+  <div class="remote-wrapper" style="height: 100%; width: 100%">
+    <div
+      v-if="isLoading"
+      class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
+    >
+      <svg
+        class="animate-spin h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+        <path d="M22 12a10 10 0 0 1-10 10" />
+      </svg>
+      <span>Loading...</span>
+    </div>
+
+    <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
+      <p>Error loading remote app: {{ error }}</p>
+      <button
+        @click="retryLoad"
+        class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Retry
+      </button>
+    </div>
+
+    <div ref="container" class="remote-container"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { useRoute } from "vue-router";
-import React from "react";
-import ReactDOM from "react-dom/client";
 
-// Get route param
 const route = useRoute();
-const appName = computed(() => route.params.appName as string);
+const appName = ref(route.params.appName as string);
 
-// Mapping from route param to actual remote info
-const remoteMap: Record<string, { remoteName: string; componentPath: string }> =
-  {
-    remoteapp_1: {
-      remoteName: "remoteapp_1",
-      componentPath: "RemoteComponent1",
-    },
-    remoteapp_2: {
-      remoteName: "remoteapp_2",
-      componentPath: "RemoteComponent2",
-    },
-  };
+const container = ref<HTMLElement | null>(null);
+const isLoading = ref(false);
+const error = ref<string | null>(null);
 
-const config = computed(() => remoteMap[appName?.value]);
-const remoteName = computed(() => config.value?.remoteName);
-const componentPath = computed(() => config.value?.componentPath);
+let vueAppInstance: any = null;
+let reactRoot: any = null;
 
-const reactRoot = ref<HTMLElement | null>(null);
-let root: ReactDOM.Root | null = null;
+async function loadRemote() {
+  error.value = null;
+  if (!container.value) return;
 
-// Function to load remote component
-async function loadRemoteComponent(remoteName: string, componentPath: string) {
+  isLoading.value = true;
+
   try {
-    // For @originjs/vite-plugin-federation, use direct import with proper path
-    const moduleSpecifier = `${remoteName}/${componentPath}`;
-    console.log(`Attempting to load: ${moduleSpecifier}`);
+    if (appName.value === "remoteapp_1") {
+      const module = await import("remoteapp_1/RemoteComponent1");
+      const component = module.default;
 
-    // Direct dynamic import for Vite federation
-    const module = await import(/* @vite-ignore */ moduleSpecifier);
-    return module.default || module;
-  } catch (error) {
-    console.error(
-      `Failed to load remote component ${remoteName}/${componentPath}:`,
-      error
-    );
+      const [React, ReactDOM] = await Promise.all([
+        import("react"),
+        import("react-dom/client"),
+      ]);
+      reactRoot = ReactDOM.createRoot(container.value);
+      reactRoot.render(React.createElement(component));
+    } else if (appName.value === "remoteapp_2") {
+      const module = await import("remoteapp_2/RemoteComponent2");
+      const component = module.default;
 
-    // Fallback: Try alternative import patterns
-    try {
-      const altModuleSpecifier = `./${remoteName}/${componentPath}`;
-      console.log(`Trying alternative: ${altModuleSpecifier}`);
-      const module = await import(/* @vite-ignore */ altModuleSpecifier);
-      return module.default || module;
-    } catch (altError) {
-      console.error(`Alternative import also failed:`, altError);
-      throw new Error(
-        `Could not load ${remoteName}/${componentPath}. Make sure the remote app is running on the correct port and the component is properly exported.`
-      );
+      const { createApp } = await import("vue");
+      vueAppInstance = createApp(component);
+      vueAppInstance.mount(container.value);
+    } else {
+      throw new Error(`Unknown remote app: ${appName.value}`);
     }
+
+    console.info(`Remote app "${appName.value}" loaded successfully`);
+  } catch (e: any) {
+    error.value = e.message || "Error loading remote app";
+    console.error(`Failed to load remote app "${appName.value}":`, e);
+  } finally {
+    isLoading.value = false;
   }
 }
 
-onMounted(async () => {
-  if (!remoteName.value || !componentPath.value || !reactRoot.value) return;
-
-  try {
-    const RemoteComponent = await loadRemoteComponent(
-      remoteName.value,
-      componentPath.value
-    );
-    root = ReactDOM.createRoot(reactRoot.value);
-    root.render(React.createElement(RemoteComponent));
-  } catch (error) {
-    console.error("Error loading remote component:", error);
-    // Render error state
-    root = ReactDOM.createRoot(reactRoot.value);
-    root.render(
-      React.createElement(
-        "div",
-        { className: "p-6 text-red-600" },
-        `Failed to load remote component: ${error ?? ""}`
-      )
-    );
+function cleanup() {
+  if (vueAppInstance) {
+    vueAppInstance.unmount();
+    vueAppInstance = null;
   }
+  if (reactRoot) {
+    reactRoot.unmount();
+    reactRoot = null;
+  }
+  if (container.value) {
+    container.value.innerHTML = "";
+  }
+}
+
+async function retryLoad() {
+  cleanup();
+  await loadRemote();
+}
+
+onMounted(() => {
+  loadRemote();
 });
 
 onBeforeUnmount(() => {
-  root?.unmount();
+  cleanup();
 });
+
+watch(
+  () => route.params.appName,
+  async (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      appName.value = newVal as string;
+      cleanup();
+      await loadRemote();
+    }
+  }
+);
 </script>
+
+<style scoped>
+.remote-container {
+  width: 100%;
+  height: 100%;
+  /* Ensure child remote app fills this container */
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>

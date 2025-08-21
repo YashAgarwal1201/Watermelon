@@ -29,13 +29,13 @@ export default defineConfig({
     // cors: true,
     cors: {
       origin: "*",
-      methods: ["GET", "OPTIONS"],
+      methods: ["GET", "OPTIONS", "POST"],
       allowedHeaders: ["Content-Type"],
     },
     headers: {
       // This is critical for module loading
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET,OPTIONS",
+      "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
       "Access-Control-Allow-Headers": "*",
       "Content-Type": "application/javascript",
     },

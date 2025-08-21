@@ -1,3 +1,4 @@
+// import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import federation from "@originjs/vite-plugin-federation";
@@ -23,15 +24,16 @@ export default defineConfig({
   },
   server: {
     port: 5252, // Use a unique port
+    // cors: true,
     cors: {
       origin: "*",
-      methods: ["GET", "OPTIONS"],
+      methods: ["GET", "OPTIONS", "POST"],
       allowedHeaders: ["Content-Type"],
     },
     headers: {
       // This is critical for module loading
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET,OPTIONS",
+      "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
       "Access-Control-Allow-Headers": "*",
       "Content-Type": "application/javascript",
     },

@@ -2,6 +2,9 @@
 import { RouterView } from "vue-router";
 import Navbar from "./components/Navbar/NavBar.vue";
 import SideMenu from "./components/SideMenu/SideMenu.vue";
+import RemoteComponent from "remoteapp_2/RemoteComponent2";
+
+console.log(RemoteComponent);
 </script>
 
 <template>
