@@ -5,3 +5,5 @@
 
 declare module "remoteapp_2/RemoteComponent2";
 declare module "remoteapp_1/RemoteComponent1";
+declare module "remoteapp_3/RemoteComponent3";
+declare module "remoteapp_4/RemoteComponent4";
