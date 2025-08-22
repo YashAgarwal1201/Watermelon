@@ -143,7 +143,7 @@ watch(
 
 <!-- 2 new remote apps -->
 <template>
-  <div class="remote-wrapper" style="height: 100%; width: 100%">
+  <div class="remote-wrapper w-full h-full">
     <div
       v-if="isLoading"
       class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
@@ -171,7 +171,7 @@ watch(
       </button>
     </div>
 
-    <div ref="container" class="remote-container"></div>
+    <div v-else ref="container" class="remote-container"></div>
   </div>
 </template>
 
@@ -219,17 +219,30 @@ async function loadRemote() {
       vueAppInstance.mount(container.value);
       console.info(`Remote app "remoteapp_2" loaded successfully`);
     } else if (appName.value === "remoteapp_3") {
-      // Svelte remote
+      // Svelte remote - more compatible approach
       const module = await import("remoteapp_3/RemoteComponent3");
       const SvelteComponent = module.default;
 
-      // Svelte components can be instantiated with new
-      // See: https://svelte.dev/docs#client-side-component-api
-      svelteInstance = new SvelteComponent({
-        target: container.value,
-        props: {},
-      });
-      console.info(`Remote app "svelte_remote" loaded successfully`);
+      // Create a clean wrapper element
+      const wrapper = document.createElement("div");
+      wrapper.style.width = "100%";
+      wrapper.style.height = "100%";
+      container.value.appendChild(wrapper);
+
+      // Mount with error handling
+      try {
+        svelteInstance = new SvelteComponent({
+          target: wrapper,
+          props: {},
+          hydrate: false, // Ensure client-side only rendering
+        });
+        console.info(`Remote app "remoteapp_3" loaded successfully`);
+      } catch (mountError) {
+        console.error("Svelte mount error:", mountError);
+        throw new Error(
+          `Failed to mount Svelte component: ${mountError?.message ?? ""}`
+        );
+      }
     } else if (appName.value === "remoteapp_4") {
       // SolidJS remote
       const module = await import("remoteapp_4/RemoteComponent4");
@@ -300,10 +313,9 @@ watch(
 
 <style scoped>
 .remote-container {
+  flex-grow: 1;
   width: 100%;
   height: 100%;
-  min-height: 100%;
-  min-width: 100%;
   /* Ensure child remote app fills this container */
   box-sizing: border-box;
 }

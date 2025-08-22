@@ -4,12 +4,7 @@ import federation from "@originjs/vite-plugin-federation";
 
 export default defineConfig({
   plugins: [
-    svelte({
-      compilerOptions: {
-        dev: true, // enable for dev, disable for prod
-        // hydratable: true // useful for SSR and interop cases
-      },
-    }),
+    svelte(),
     federation({
       name: "remoteapp_3",
       filename: "remoteEntry.js",
@@ -19,9 +14,24 @@ export default defineConfig({
       shared: ["svelte"],
     }),
   ],
+  build: {
+    target: "esnext",
+    minify: false,
+    cssCodeSplit: false,
+    rollupOptions: {
+      output: {
+        format: "esm",
+        inlineDynamicImports: false,
+      },
+    },
+  },
   server: {
     port: 5253,
-    cors: true,
+    cors: {
+      origin: "*",
+      methods: ["GET", "OPTIONS", "POST"],
+      allowedHeaders: ["Content-Type"],
+    },
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "*",
