@@ -52,8 +52,8 @@ async function loadRemote() {
   isLoading.value = true;
 
   try {
-    if (appName.value === "remoteapp_1") {
-      const module = await import("remoteapp_1/RemoteComponent1");
+    if (appName.value === "vite_react_remoteapp") {
+      const module = await import("vite_react_remoteapp/ViteReactRemoteComponent");
       const component = module.default;
 
       const [React, ReactDOM] = await Promise.all([
@@ -62,8 +62,8 @@ async function loadRemote() {
       ]);
       reactRoot = ReactDOM.createRoot(container.value);
       reactRoot.render(React.createElement(component));
-    } else if (appName.value === "remoteapp_2") {
-      const module = await import("remoteapp_2/RemoteComponent2");
+    } else if (appName.value === "vite_vue_remoteapp") {
+      const module = await import("vite_vue_remoteapp/ViteVueRemoteComponent");
       const component = module.default;
 
       const { createApp } = await import("vue");
@@ -199,9 +199,11 @@ async function loadRemote() {
   isLoading.value = true;
 
   try {
-    if (appName.value === "remoteapp_1") {
+    if (appName.value === "vite_react_remoteapp") {
       // React remote
-      const module = await import("remoteapp_1/RemoteComponent1");
+      const module = await import(
+        "vite_react_remoteapp/ViteReactRemoteComponent"
+      );
       const component = module.default;
       const [React, ReactDOM] = await Promise.all([
         import("react"),
@@ -209,15 +211,15 @@ async function loadRemote() {
       ]);
       reactRoot = ReactDOM.createRoot(container.value);
       reactRoot.render(React.createElement(component));
-      console.info(`Remote app "remoteapp_1" loaded successfully`);
-    } else if (appName.value === "remoteapp_2") {
+      console.info(`Remote app "vite_react_remoteapp" loaded successfully`);
+    } else if (appName.value === "vite_vue_remoteapp") {
       // Vue remote
-      const module = await import("remoteapp_2/RemoteComponent2");
+      const module = await import("vite_vue_remoteapp/ViteVueRemoteComponent");
       const component = module.default;
       const { createApp } = await import("vue");
       vueAppInstance = createApp(component);
       vueAppInstance.mount(container.value);
-      console.info(`Remote app "remoteapp_2" loaded successfully`);
+      console.info(`Remote app "vite_vue_remoteapp" loaded successfully`);
     } else if (appName.value === "remoteapp_3") {
       // Svelte remote - more compatible approach
       const module = await import("remoteapp_3/RemoteComponent3");
@@ -243,9 +245,11 @@ async function loadRemote() {
           `Failed to mount Svelte component: ${mountError?.message ?? ""}`
         );
       }
-    } else if (appName.value === "remoteapp_4") {
+    } else if (appName.value === "vite_solidjs_remoteapp") {
       // SolidJS remote
-      const module = await import("remoteapp_4/RemoteComponent4");
+      const module = await import(
+        "vite_solidjs_remoteapp/ViteSolidRemoteComponent"
+      );
       const SolidComponent = module.default;
       const { render } = await import("solid-js/web");
       // Clean the container before mounting (Solid needs empty node)

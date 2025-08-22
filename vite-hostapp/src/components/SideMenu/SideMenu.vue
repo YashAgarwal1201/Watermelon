@@ -16,11 +16,14 @@
       <div class="w-full">
         <div class="flex flex-col">
           <div
-            class="w-full flex flex-col rounded-xl !bg-stone-100 dark:!bg-stone-800 p-4"
+            class="w-full flex flex-col rounded-xl bg-stone-100 dark:bg-stone-800 p-4"
           >
             <div v-for="app in remoteApps" :key="app.key">
               <RouterLink :class="buttonStyles" :to="`/remote/${app.key}`">
-                <Home :size="16" class="text-yellow-600 dark:text-yellow-500" />
+                <Folder
+                  :size="16"
+                  class="!text-yellow-600 dark:!text-yellow-500"
+                />
                 <span>{{ app.label }}</span>
               </RouterLink>
 
@@ -28,6 +31,30 @@
                 class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-stone-300 dark:bg-stone-600"
               ></div>
             </div>
+
+            <div :class="buttonStyles">
+              <Palette
+                :size="16"
+                class="text-yellow-600 dark:text-yellow-500"
+              />
+              <span>Theme</span>
+              <Select
+                :modelValue="theme"
+                :options="[
+                  { label: 'System', value: 'system' },
+                  { label: 'Dark', value: 'dark' },
+                  { label: 'Light', value: 'light' },
+                ]"
+                class="ml-auto w-auto !text-sm !rounded-lg !bg-stone-50 dark:!bg-stone-900"
+                optionLabel="label"
+                optionValue="value"
+                @update:modelValue="handleThemeChange"
+              />
+            </div>
+
+            <div
+              class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-stone-300 dark:bg-stone-600"
+            ></div>
 
             <a
               :class="buttonStyles"
@@ -50,23 +77,37 @@
 </template>
 
 <script setup lang="ts">
-import { Home, UserCircle } from "lucide-vue-next";
-import { Button, Drawer } from "primevue";
+import { Folder, Home, Palette, UserCircle } from "lucide-vue-next";
+import { Button, Drawer, Select } from "primevue";
 import { useNavbarStore } from "../../stores/navbarStore";
 import { RouterLink } from "vue-router";
 import { DEVELOPER_PROFILE } from "../../services/constants";
+import { useTheme } from "../../composables/theme";
+import toastHandler from "../../composables/toastHandeler";
 
 const navbarStore = useNavbarStore();
+const { showToast } = toastHandler();
+const { theme, updateTheme } = useTheme();
 
 const remoteApps = [
-  { key: "remoteapp_1", label: "Remote App 1" },
-  { key: "remoteapp_2", label: "Remote App 2" },
-  { key: "remoteapp_3", label: "Remote App 3" },
-  { key: "remoteapp_4", label: "Remote App 4" },
+  { key: "vite_react_remoteapp", label: "Vite + React" },
+  { key: "vite_vue_remoteapp", label: "Vite + Vue" },
+  // { key: "remoteapp_3", label: "Remote App 3" },
+  { key: "vite_solidjs_remoteapp", label: "Vite + SolidJs" },
 ];
 
 const buttonStyles =
-  "!px-2 !py-4 !bg-transparent !!text-green-700 dark:!text-green-300 flex items-center !gap-x-3 !rounded-xl *:text-lg font-normal font-content";
+  "!px-2 !py-4 !bg-transparent !text-green-700 dark:!text-green-300 flex items-center !gap-x-3 !rounded-xl *:text-lg font-normal font-content";
+
+// Theme change handler
+const handleThemeChange = (selectedTheme: string) => {
+  updateTheme((selectedTheme as "light" | "dark" | "system") || "system");
+  showToast(
+    "info",
+    "Theme Changed",
+    `Switched to ${selectedTheme === "system" ? "system" : selectedTheme} mode`
+  );
+};
 </script>
 
 <style lang="css" scoped></style>

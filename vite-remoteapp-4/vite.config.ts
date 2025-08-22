@@ -6,10 +6,10 @@ export default defineConfig({
   plugins: [
     solid(),
     federation({
-      name: "remoteapp_4",
+      name: "vite_solidjs_remoteapp",
       filename: "remoteEntry.js",
       exposes: {
-        "./RemoteComponent4": "./src/App.tsx", // or another .tsx you'd like to expose
+        "./ViteSolidRemoteComponent": "./src/App.tsx", // or another .tsx you'd like to expose
       },
       shared: ["solid-js"],
     }),
