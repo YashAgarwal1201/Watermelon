@@ -18,10 +18,10 @@ export default defineConfig({
     federation({
       name: "host_app",
       remotes: {
-        remoteapp_1: "http://localhost:5251/assets/remoteEntry.js",
-        remoteapp_2: "http://localhost:5252/assets/remoteEntry.js",
+        vite_react_remoteapp: "http://localhost:5251/assets/remoteEntry.js",
+        vite_vue_remoteapp: "http://localhost:5252/assets/remoteEntry.js",
         remoteapp_3: "http://localhost:5253/assets/remoteEntry.js",
-        remoteapp_4: "http://localhost:5254/assets/remoteEntry.js",
+        vite_solidjs_remoteapp: "http://localhost:5254/assets/remoteEntry.js",
       },
     }),
     tailwindcss(),
@@ -50,8 +50,8 @@ export default defineConfig({
 //     federation({
 //       name: "host_app",
 //       remotes: {
-//         remoteapp_1: "/remoteapp_1/assets/remoteEntry.js", // Use relative paths
-//         remoteapp_2: "/remoteapp_2/assets/remoteEntry.js",
+//         vite_react_remoteapp: "/vite_react_remoteapp/assets/remoteEntry.js", // Use relative paths
+//         vite_vue_remoteapp: "/vite_vue_remoteapp/assets/remoteEntry.js",
 //       },
 //       shared: ["react", "react-dom"],
 //     }),
@@ -61,17 +61,17 @@ export default defineConfig({
 //     port: 5150,
 //     cors: true,
 //     proxy: {
-//       "^/remoteapp_1/assets": {
+//       "^/vite_react_remoteapp/assets": {
 //         target: "http://localhost:5251",
 //         changeOrigin: true,
 //         secure: false,
-//         rewrite: (path) => path.replace(/^\/remoteapp_1/, ""),
+//         rewrite: (path) => path.replace(/^\/vite_react_remoteapp/, ""),
 //       },
-//       "^/remoteapp_2/assets": {
+//       "^/vite_vue_remoteapp/assets": {
 //         target: "http://localhost:5252",
 //         changeOrigin: true,
 //         secure: false,
-//         rewrite: (path) => path.replace(/^\/remoteapp_2/, ""),
+//         rewrite: (path) => path.replace(/^\/vite_vue_remoteapp/, ""),
 //       },
 //     },
 //   },

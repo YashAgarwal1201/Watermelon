@@ -9,10 +9,10 @@ export default defineConfig({
     vue(),
     tailwindcss(),
     federation({
-      name: "remoteapp_2", // Unique name for this remote
+      name: "vite_vue_remoteapp", // Unique name for this remote
       filename: "remoteEntry.js",
       exposes: {
-        "./RemoteComponent2": "./src/App.vue", // Adjust path if needed
+        "./ViteVueRemoteComponent": "./src/App.vue", // Adjust path if needed
       },
       shared: ["vue"],
     }),

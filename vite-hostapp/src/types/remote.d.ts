@@ -1,9 +1,9 @@
-// declare module "remoteapp_1/RemoteComponent" {
+// declare module "vite_react_remoteapp/RemoteComponent" {
 //   const Component: React.ComponentType;
 //   export default Component;
 // }
 
-declare module "remoteapp_2/RemoteComponent2";
-declare module "remoteapp_1/RemoteComponent1";
+declare module "vite_vue_remoteapp/ViteVueRemoteComponent";
+declare module "vite_react_remoteapp/ViteReactRemoteComponent";
 declare module "remoteapp_3/RemoteComponent3";
-declare module "remoteapp_4/RemoteComponent4";
+declare module "vite_solidjs_remoteapp/ViteSolidRemoteComponent";

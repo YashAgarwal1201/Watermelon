@@ -9,11 +9,11 @@ export default defineConfig({
     react(),
     federation({
       mode: "dev",
-      name: "remoteapp_1",
+      name: "vite_react_remoteapp",
       filename: "remoteEntry.js",
       remoteType: "module",
       exposes: {
-        "./RemoteComponent1": "./src/App.tsx",
+        "./ViteReactRemoteComponent": "./src/App.tsx",
       },
       shared: ["react", "react-dom"],
     }),

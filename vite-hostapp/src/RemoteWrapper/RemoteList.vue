@@ -20,8 +20,8 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const remoteApps = [
-  { name: "remoteapp_1", displayName: "Remote App 1 (React)" },
-  { name: "remoteapp_2", displayName: "Remote App 2 (Vue)" },
+  { name: "vite_react_remoteapp", displayName: "Remote App 1 (React)" },
+  { name: "vite_vue_remoteapp", displayName: "Remote App 2 (Vue)" },
 ];
 
 function goToRemote(appName: string) {
