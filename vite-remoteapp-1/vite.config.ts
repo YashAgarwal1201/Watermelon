@@ -13,7 +13,7 @@ export default defineConfig({
       filename: "remoteEntry.js",
       remoteType: "module",
       exposes: {
-        "./ViteReactRemoteComponent": "./src/App.tsx",
+        "./ViteReactRemoteComponent": "./src/RemoteApp.tsx",
       },
       shared: ["react", "react-dom"],
     }),
@@ -40,4 +40,6 @@ export default defineConfig({
       "Content-Type": "application/javascript",
     },
   },
+  root: process.cwd(),
+  base: "/",
 });
