@@ -5,18 +5,18 @@
       @hide="navbarStore.showSideMenu = false"
       :dismissable="true"
       position="right"
-      class="!w-full md:!w-[768px] rounded-none md:!rounded-l-xl"
+      class="!w-full md:!w-[768px] rounded-none md:!rounded-l-xl !bg-white dark:!bg-gray-950 !text-gray-900 dark:!text-white"
     >
       <template #header>
-        <div class="flex justify-between items-center w-full">
+        <div class="flex justify-between items-center w-full font-heading">
           <h3 class="text-lg sm:text-xl md:text-2xl">Menu</h3>
         </div>
       </template>
 
-      <div class="w-full">
+      <div class="w-full font-content">
         <div class="flex flex-col">
           <div
-            class="w-full flex flex-col rounded-xl bg-stone-100 dark:bg-stone-800 p-4"
+            class="w-full flex flex-col rounded-xl bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 p-4"
           >
             <div v-for="app in remoteApps" :key="app.key">
               <RouterLink :class="buttonStyles" :to="`/remote/${app.key}`">
@@ -45,7 +45,8 @@
                   { label: 'Dark', value: 'dark' },
                   { label: 'Light', value: 'light' },
                 ]"
-                class="ml-auto w-auto !text-sm !rounded-lg !bg-stone-50 dark:!bg-stone-900"
+                class="ml-auto w-auto !text-sm !rounded-lg !bg-stone-50 dark:!bg-stone-900 !text-gray-900 dark:!text-white"
+                labelClass="!text-gray-900 dark:!text-white"
                 optionLabel="label"
                 optionValue="value"
                 @update:modelValue="handleThemeChange"

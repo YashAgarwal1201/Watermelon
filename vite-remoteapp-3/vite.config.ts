@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     svelte(),
     federation({
-      name: "remoteapp_3",
+      name: "vite_svelte_remoteapp",
       filename: "remoteEntry.js",
       exposes: {
         "./RemoteComponent3": "./src/App.svelte", // or another .svelte file you'd like to expose

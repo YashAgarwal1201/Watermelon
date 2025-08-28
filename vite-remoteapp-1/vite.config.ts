@@ -13,9 +13,9 @@ export default defineConfig({
       filename: "remoteEntry.js",
       remoteType: "module",
       exposes: {
-        "./ViteReactRemoteComponent": "./src/RemoteApp.tsx",
+        "./ViteReactRemoteComponent": "./src/App.tsx",
       },
-      shared: ["react", "react-dom"],
+      shared: ["react", "react-dom", "primereact"],
     }),
     tailwindcss(),
   ],
@@ -23,6 +23,9 @@ export default defineConfig({
     target: "esnext",
     minify: false,
     cssCodeSplit: false,
+    rollupOptions: {
+      external: ["chart.js/auto", "chart.js", "quill"], // Externalize chart.js
+    },
   },
   server: {
     port: 5251,

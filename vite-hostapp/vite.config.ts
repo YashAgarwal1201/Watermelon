@@ -20,9 +20,10 @@ export default defineConfig({
       remotes: {
         vite_react_remoteapp: "http://localhost:5251/assets/remoteEntry.js",
         vite_vue_remoteapp: "http://localhost:5252/assets/remoteEntry.js",
-        remoteapp_3: "http://localhost:5253/assets/remoteEntry.js",
+        vite_svelte_remoteapp: "http://localhost:5253/assets/remoteEntry.js",
         vite_solidjs_remoteapp: "http://localhost:5254/assets/remoteEntry.js",
       },
+      shared: ["react", "react-dom", "primereact"],
     }),
     tailwindcss(),
   ],
@@ -30,6 +31,9 @@ export default defineConfig({
     target: "esnext",
     minify: true,
     cssCodeSplit: false,
+    rollupOptions: {
+      external: ["chart.js/auto", "chart.js", "quill"], // Externalize chart.js
+    },
   },
 
   server: {

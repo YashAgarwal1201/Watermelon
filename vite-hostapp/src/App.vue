@@ -5,7 +5,9 @@ import SideMenu from "./components/SideMenu/SideMenu.vue";
 </script>
 
 <template>
-  <div class="w-dvw h-dvh flex flex-col md:flex-row font-content">
+  <div
+    class="w-dvw h-dvh flex flex-col md:flex-row font-content bg-white dark:bg-gray-950 text-gray-900 dark:text-white"
+  >
     <div class="w-full md:w-16 h-16 md:h-full flex-shrink-0">
       <Navbar />
     </div>
