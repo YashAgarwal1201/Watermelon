@@ -18,13 +18,13 @@ const navbarStore = useNavbarStore();
   >
     <RouterLink
       to="/"
-      class="p-button w-auto md:w-full h-full md:h-auto aspect-square flex justify-center items-center !rounded-2xl border cursor-pointer"
+      class="p-button w-auto md:w-full h-full md:h-auto aspect-square !bg-green-700 dark:!bg-green-400 flex justify-center items-center !rounded-2xl !border-none cursor-pointer"
     >
       <Home :size="16" />
     </RouterLink>
 
     <Button
-      class="w-auto md:w-full h-full md:h-auto aspect-square flex justify-center items-center !rounded-2xl border cursor-pointer"
+      class="w-auto md:w-full h-full md:h-auto aspect-square !bg-green-700 dark:!bg-green-400 flex justify-center items-center !rounded-2xl !border-none cursor-pointer"
       @click="navbarStore.showSideMenu = true"
     >
       <Menu :size="16" />

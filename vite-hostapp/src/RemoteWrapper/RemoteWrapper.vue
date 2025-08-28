@@ -220,9 +220,9 @@ async function loadRemote() {
       vueAppInstance = createApp(component);
       vueAppInstance.mount(container.value);
       console.info(`Remote app "vite_vue_remoteapp" loaded successfully`);
-    } else if (appName.value === "remoteapp_3") {
+    } else if (appName.value === "vite_svelte_remoteapp") {
       // Svelte remote - more compatible approach
-      const module = await import("remoteapp_3/RemoteComponent3");
+      const module = await import("vite_svelte_remoteapp/RemoteComponent3");
       const SvelteComponent = module.default;
 
       // Create a clean wrapper element

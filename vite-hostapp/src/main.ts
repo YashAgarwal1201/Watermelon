@@ -5,6 +5,10 @@ import PrimeVue from "primevue/config";
 import Aura from "@primeuix/themes/aura";
 import App from "./App.vue";
 import "./style.css";
+
+// import "primereact/resources/themes/lara-light-blue/theme.css";
+// import "primereact/resources/primereact.min.css";
+// import "primeicons/primeicons.css";
 import { ToastService } from "primevue";
 
 if (typeof window !== "undefined") {
