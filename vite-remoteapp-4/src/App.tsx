@@ -1,10 +1,10 @@
 import "./App.css";
+import Home from "./components/Homes";
 
 function App() {
   return (
     <div class="app">
-      <p>Hey this is remote app 4</p>
-      <p>Vite + SolidJS + TS</p>
+      <Home />
     </div>
   );
 }
