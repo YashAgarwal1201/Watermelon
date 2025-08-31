@@ -1,149 +1,5 @@
-<!-- <template>
-  <div class="remote-wrapper" style="height: 100%; width: 100%">
-    <div
-      v-if="isLoading"
-      class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
-    >
-      <svg
-        class="animate-spin h-5 w-5"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-        <path d="M22 12a10 10 0 0 1-10 10" />
-      </svg>
-      <span>Loading...</span>
-    </div>
-
-    <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
-      <p>Error loading remote app: {{ error }}</p>
-      <button
-        @click="retryLoad"
-        class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-      >
-        Retry
-      </button>
-    </div>
-
-    <div ref="container" class="remote-container"></div>
-  </div>
-</template>
-
-<script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
-import { useRoute } from "vue-router";
-
-const route = useRoute();
-const appName = ref(route.params.appName as string);
-
-const container = ref<HTMLElement | null>(null);
-const isLoading = ref(false);
-const error = ref<string | null>(null);
-
-let vueAppInstance: any = null;
-let reactRoot: any = null;
-
-async function loadRemote() {
-  error.value = null;
-  if (!container.value) return;
-
-  isLoading.value = true;
-
-  try {
-    if (appName.value === "vite_react_remoteapp") {
-      const module = await import("vite_react_remoteapp/ViteReactRemoteComponent");
-      const component = module.default;
-
-      const [React, ReactDOM] = await Promise.all([
-        import("react"),
-        import("react-dom/client"),
-      ]);
-      reactRoot = ReactDOM.createRoot(container.value);
-      reactRoot.render(React.createElement(component));
-    } else if (appName.value === "vite_vue_remoteapp") {
-      const module = await import("vite_vue_remoteapp/ViteVueRemoteComponent");
-      const component = module.default;
-
-      const { createApp } = await import("vue");
-      vueAppInstance = createApp(component);
-      vueAppInstance.mount(container.value);
-    } else {
-      throw new Error(`Unknown remote app: ${appName.value}`);
-    }
-
-    console.info(`Remote app "${appName.value}" loaded successfully`);
-  } catch (e: any) {
-    error.value = e.message || "Error loading remote app";
-    console.error(`Failed to load remote app "${appName.value}":`, e);
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-function cleanup() {
-  if (vueAppInstance) {
-    vueAppInstance.unmount();
-    vueAppInstance = null;
-  }
-  if (reactRoot) {
-    reactRoot.unmount();
-    reactRoot = null;
-  }
-  if (container.value) {
-    container.value.innerHTML = "";
-  }
-}
-
-async function retryLoad() {
-  cleanup();
-  await loadRemote();
-}
-
-onMounted(() => {
-  loadRemote();
-});
-
-onBeforeUnmount(() => {
-  cleanup();
-});
-
-watch(
-  () => route.params.appName,
-  async (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-      appName.value = newVal as string;
-      cleanup();
-      await loadRemote();
-    }
-  }
-);
-</script>
-
-<style scoped>
-.remote-container {
-  width: 100%;
-  height: 100%;
-  /* Ensure child remote app fills this container */
-}
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-</style> -->
-
-<!-- 2 new remote apps -->
 <template>
-  <div class="remote-wrapper w-full h-full">
+  <div class="remote-wrapper w-full h-full p-2">
     <div
       v-if="isLoading"
       class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
@@ -171,7 +27,11 @@ watch(
       </button>
     </div>
 
-    <div v-else ref="container" class="remote-container"></div>
+    <!-- container that hosts the shadowRoot -->
+    <div
+      ref="hostContainer"
+      class="remote-container rounded-none md:rounded-lg"
+    ></div>
   </div>
 </template>
 
@@ -182,25 +42,97 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 const appName = ref(route.params.appName as string);
 
-const container = ref<HTMLElement | null>(null);
+const hostContainer = ref<HTMLElement | null>(null);
+let shadowRoot: ShadowRoot | null = null;
+let mountPoint: HTMLElement | null = null;
+
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 
-// Track instances for cleanup
+// Instances for cleanup
 let vueAppInstance: any = null;
 let reactRoot: any = null;
 let svelteInstance: any = null;
 let solidRoot: any = null;
 
+// restore fn for head patch
+let restoreHeadPatch: (() => void) | null = null;
+
+/** -------- style interception utils -------- */
+function shouldIntercept(node: Node) {
+  if (!(node instanceof HTMLElement)) return false;
+  const tag = node.tagName.toLowerCase();
+  return (
+    tag === "style" ||
+    (tag === "link" && (node as HTMLLinkElement).rel === "stylesheet")
+  );
+}
+
+function patchHeadToShadow(shadow: ShadowRoot) {
+  const docHead: any = document.head;
+  const origAppend = docHead.appendChild;
+  const origInsertBefore = docHead.insertBefore;
+
+  async function moveToShadow(node: HTMLElement) {
+    if (node.tagName.toLowerCase() === "style") {
+      const s = document.createElement("style");
+      s.textContent = node.textContent;
+      shadow.appendChild(s);
+    } else if (node.tagName.toLowerCase() === "link") {
+      const link = node as HTMLLinkElement;
+      try {
+        const res = await fetch(link.href, { mode: "cors" });
+        if (res.ok) {
+          const css = await res.text();
+          const s = document.createElement("style");
+          s.textContent = css;
+          shadow.appendChild(s);
+        } else {
+          origAppend.call(docHead, node);
+        }
+      } catch {
+        origAppend.call(docHead, node);
+      }
+    } else {
+      origAppend.call(docHead, node);
+    }
+  }
+
+  docHead.appendChild = function (node: Node) {
+    if (shouldIntercept(node)) {
+      moveToShadow(node as HTMLElement);
+      return node;
+    }
+    return origAppend.call(this, node);
+  };
+
+  docHead.insertBefore = function (node: Node, refNode: Node | null) {
+    if (shouldIntercept(node)) {
+      moveToShadow(node as HTMLElement);
+      return node;
+    }
+    return origInsertBefore.call(this, node, refNode);
+  };
+
+  return () => {
+    docHead.appendChild = origAppend;
+    docHead.insertBefore = origInsertBefore;
+  };
+}
+
+/** -------- remote loader -------- */
 async function loadRemote() {
   error.value = null;
-  if (!container.value) return;
+  if (!mountPoint) return;
 
   isLoading.value = true;
+  mountPoint.innerHTML = ""; // clear old content
+
+  // patch head styles during load
+  restoreHeadPatch = patchHeadToShadow(shadowRoot!);
 
   try {
     if (appName.value === "vite_react_remoteapp") {
-      // React remote
       const module = await import(
         "vite_react_remoteapp/ViteReactRemoteComponent"
       );
@@ -209,64 +141,45 @@ async function loadRemote() {
         import("react"),
         import("react-dom/client"),
       ]);
-      reactRoot = ReactDOM.createRoot(container.value);
+      reactRoot = ReactDOM.createRoot(mountPoint);
       reactRoot.render(React.createElement(component));
-      console.info(`Remote app "vite_react_remoteapp" loaded successfully`);
     } else if (appName.value === "vite_vue_remoteapp") {
-      // Vue remote
       const module = await import("vite_vue_remoteapp/ViteVueRemoteComponent");
       const component = module.default;
       const { createApp } = await import("vue");
       vueAppInstance = createApp(component);
-      vueAppInstance.mount(container.value);
-      console.info(`Remote app "vite_vue_remoteapp" loaded successfully`);
+      vueAppInstance.mount(mountPoint);
     } else if (appName.value === "vite_svelte_remoteapp") {
-      // Svelte remote - more compatible approach
-      const module = await import("vite_svelte_remoteapp/RemoteComponent3");
+      const module = await import(
+        "vite_svelte_remoteapp/ViteSvelteRemoteComponent"
+      );
       const SvelteComponent = module.default;
-
-      // Create a clean wrapper element
-      const wrapper = document.createElement("div");
-      wrapper.style.width = "100%";
-      wrapper.style.height = "100%";
-      container.value.appendChild(wrapper);
-
-      // Mount with error handling
-      try {
-        svelteInstance = new SvelteComponent({
-          target: wrapper,
-          props: {},
-          hydrate: false, // Ensure client-side only rendering
-        });
-        console.info(`Remote app "remoteapp_3" loaded successfully`);
-      } catch (mountError) {
-        console.error("Svelte mount error:", mountError);
-        throw new Error(
-          `Failed to mount Svelte component: ${mountError?.message ?? ""}`
-        );
-      }
+      svelteInstance = new SvelteComponent({ target: mountPoint });
     } else if (appName.value === "vite_solidjs_remoteapp") {
-      // SolidJS remote
       const module = await import(
         "vite_solidjs_remoteapp/ViteSolidRemoteComponent"
       );
       const SolidComponent = module.default;
       const { render } = await import("solid-js/web");
-      // Clean the container before mounting (Solid needs empty node)
-      container.value.innerHTML = "";
-      solidRoot = render(() => SolidComponent({}), container.value);
-      console.info(`Remote app "solid_remote" loaded successfully`);
+      solidRoot = render(() => SolidComponent({}), mountPoint);
     } else {
       throw new Error(`Unknown remote app: ${appName.value}`);
     }
+
+    console.info(`Remote app "${appName?.value}" loaded successfully`);
   } catch (e: any) {
     error.value = e.message || "Error loading remote app";
-    console.error(`Failed to load remote app "${appName.value}":`, e);
+    console.error(`Failed to load remote app "${appName?.value}":`, e);
   } finally {
+    if (restoreHeadPatch) {
+      restoreHeadPatch();
+      restoreHeadPatch = null;
+    }
     isLoading.value = false;
   }
 }
 
+/** -------- cleanup -------- */
 function cleanup() {
   if (vueAppInstance) {
     vueAppInstance.unmount();
@@ -280,23 +193,30 @@ function cleanup() {
     svelteInstance.$destroy();
     svelteInstance = null;
   }
-  if (solidRoot && container.value) {
-    // For Solid, remove all children
-    container.value.innerHTML = "";
+  if (solidRoot) {
+    mountPoint!.innerHTML = "";
     solidRoot = null;
   }
-  if (container.value) {
-    container.value.innerHTML = "";
-  }
+  if (mountPoint) mountPoint.innerHTML = "";
 }
 
+/** -------- retry -------- */
 async function retryLoad() {
   cleanup();
   await loadRemote();
 }
 
+/** -------- lifecycle -------- */
 onMounted(() => {
-  loadRemote();
+  if (hostContainer.value) {
+    // attach shadow root once
+    if (!shadowRoot) {
+      shadowRoot = hostContainer.value.attachShadow({ mode: "open" });
+      mountPoint = document.createElement("div");
+      shadowRoot.appendChild(mountPoint);
+    }
+    loadRemote();
+  }
 });
 
 onBeforeUnmount(() => {

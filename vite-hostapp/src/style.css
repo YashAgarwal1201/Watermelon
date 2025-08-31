@@ -2,12 +2,15 @@
 
 @import "tailwindcss";
 
-
-@import 'primeicons/primeicons.css';
+@import "primeicons/primeicons.css";
 
 @theme {
-    --font-heading: "Space Mono", monospace;
-    --font-content: "Work Sans", sans-serif;
+  --font-heading: "Space Mono", monospace;
+  --font-content: "Work Sans", sans-serif;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+* {
+  box-sizing: border-box;
+}

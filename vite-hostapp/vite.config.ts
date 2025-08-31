@@ -23,7 +23,7 @@ export default defineConfig({
         vite_svelte_remoteapp: "http://localhost:5253/assets/remoteEntry.js",
         vite_solidjs_remoteapp: "http://localhost:5254/assets/remoteEntry.js",
       },
-      shared: ["react", "react-dom", "primereact"],
+      shared: ["react", "react-dom"],
     }),
     tailwindcss(),
   ],
