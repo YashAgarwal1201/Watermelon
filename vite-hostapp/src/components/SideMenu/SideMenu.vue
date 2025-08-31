@@ -93,7 +93,7 @@ const { theme, updateTheme } = useTheme();
 const remoteApps = [
   { key: "vite_react_remoteapp", label: "Vite + React" },
   { key: "vite_vue_remoteapp", label: "Vite + Vue" },
-  // { key: "remoteapp_3", label: "Remote App 3" },
+  { key: "vite_svelte_remoteapp", label: "Vite + Svelte" },
   { key: "vite_solidjs_remoteapp", label: "Vite + SolidJs" },
 ];
 

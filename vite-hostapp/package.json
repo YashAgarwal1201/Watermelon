@@ -27,11 +27,15 @@
   },
   "devDependencies": {
     "@originjs/vite-plugin-federation": "^1.4.1",
+    "@tailwindcss/postcss": "^4.1.12",
     "@types/node": "^24.1.0",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
+    "postcss": "^8.5.6",
+    "postcss-prefix-selector": "^2.1.1",
+    "postcss-prefixwrap": "^1.56.2",
     "typescript": "~5.8.3",
     "vite": "^7.0.4",
     "vue-tsc": "^2.2.12"

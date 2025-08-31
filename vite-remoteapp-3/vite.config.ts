@@ -9,7 +9,7 @@ export default defineConfig({
       name: "vite_svelte_remoteapp",
       filename: "remoteEntry.js",
       exposes: {
-        "./RemoteComponent3": "./src/App.svelte", // or another .svelte file you'd like to expose
+        "./ViteSvelteRemoteComponent": "./src/App.svelte", // or another .svelte file you'd like to expose
       },
       shared: ["svelte"],
     }),
