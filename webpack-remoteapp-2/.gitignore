@@ -1,0 +1,34 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# production build
+/dist
+/build
+
+# misc
+.DS_Store
+Thumbs.db
+
+# local env files
+.env.local
+.env.*.local
+
+# editor files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# cache
+.cache/
+.temp/
+*.tsbuildinfo
+webpack-cache/

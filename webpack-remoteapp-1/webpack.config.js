@@ -11,7 +11,7 @@ module.exports = (env, argv) => {
     devtool: isProduction ? "source-map" : "inline-source-map",
 
     devServer: {
-      port: 3001,
+      port: 5261,
       hot: true,
       open: true,
       historyApiFallback: true,
@@ -31,7 +31,7 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, "dist"),
       filename: isProduction ? "[name].[contenthash].js" : "[name].js",
       clean: true,
-      publicPath: isProduction ? "/static/" : "http://localhost:3001/",
+      publicPath: isProduction ? "/static/" : "http://localhost:5261/",
     },
 
     resolve: {
@@ -70,20 +70,8 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.css$/i,
-          use: [
-            "style-loader",
-            "css-loader",
-            {
-              loader: "postcss-loader",
-              options: {
-                postcssOptions: {
-                  plugins: ["@tailwindcss/postcss"],
-                },
-              },
-            },
-          ],
+          use: ["style-loader", "css-loader", "postcss-loader"],
         },
-
         {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
           type: "asset/resource",

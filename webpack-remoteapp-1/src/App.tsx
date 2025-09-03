@@ -1,11 +1,12 @@
 import React from "react";
 // import Dashboard from '@/components/Dashboard/Dashboard';
-import "@/styles/globals.css";
+import "./index.css";
+import LandingSection from "./components/LandingSection";
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* <Dashboard title="React Remote Module Federation App" /> */}
+    <div className="w-full h-full bg-gray-100">
+      <LandingSection />
     </div>
   );
 };
