@@ -95,6 +95,7 @@ const remoteApps = [
   { key: "vite_vue_remoteapp", label: "Vite + Vue" },
   { key: "vite_svelte_remoteapp", label: "Vite + Svelte" },
   { key: "vite_solidjs_remoteapp", label: "Vite + SolidJs" },
+  { key: "webpack_react_remoteapp", label: "Webpack + React" },
 ];
 
 const buttonStyles =

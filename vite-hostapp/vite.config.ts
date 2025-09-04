@@ -22,6 +22,8 @@ export default defineConfig({
         vite_vue_remoteapp: "http://localhost:5252/assets/remoteEntry.js",
         vite_svelte_remoteapp: "http://localhost:5253/assets/remoteEntry.js",
         vite_solidjs_remoteapp: "http://localhost:5254/assets/remoteEntry.js",
+        webpack_react_remoteapp:
+          "http://localhost:5261/remoteEntry.js?webpack_react_remoteapp",
       },
       shared: ["react", "react-dom"],
     }),

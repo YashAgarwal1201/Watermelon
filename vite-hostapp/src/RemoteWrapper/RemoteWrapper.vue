@@ -162,6 +162,20 @@ async function loadRemote() {
       const SolidComponent = module.default;
       const { render } = await import("solid-js/web");
       solidRoot = render(() => SolidComponent({}), mountPoint);
+    } else if (appName.value === "webpack_react_remoteapp") {
+      // 🆕 Webpack React remote
+      debugger;
+      const module = await import(
+        "webpack_react_remoteapp/WebpackReactRemoteComponent"
+      );
+      debugger;
+      const component = module.default;
+      const [React, ReactDOM] = await Promise.all([
+        import("react"),
+        import("react-dom/client"),
+      ]);
+      reactRoot = ReactDOM.createRoot(mountPoint);
+      reactRoot.render(React.createElement(component));
     } else {
       throw new Error(`Unknown remote app: ${appName.value}`);
     }

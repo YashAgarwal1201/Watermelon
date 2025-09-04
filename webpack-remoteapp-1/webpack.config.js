@@ -1,13 +1,16 @@
+// webpack.config.js
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const webpack = require("webpack");
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === "production";
 
   return {
     mode: isProduction ? "production" : "development",
-    entry: "./src/index.tsx",
+    entry: path.resolve(__dirname, "src", "index.tsx"),
     devtool: isProduction ? "source-map" : "inline-source-map",
 
     devServer: {
@@ -31,11 +34,12 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, "dist"),
       filename: isProduction ? "[name].[contenthash].js" : "[name].js",
       clean: true,
-      publicPath: isProduction ? "/static/" : "http://localhost:5261/",
+      // publicPath: isProduction ? "/static/" : "/",
+      publicPath: "auto",
     },
 
     resolve: {
-      extensions: [".tsx", ".ts", ".jsx", ".js"],
+      extensions: [".tsx", ".ts", ".jsx", ".js", ".scss", ".css"],
       alias: {
         "@": path.resolve(__dirname, "src"),
         "@/components": path.resolve(__dirname, "src/components"),
@@ -44,6 +48,7 @@ module.exports = (env, argv) => {
 
     module: {
       rules: [
+        // Typescript
         {
           test: /\.(ts|tsx)$/,
           exclude: /node_modules/,
@@ -54,6 +59,8 @@ module.exports = (env, argv) => {
             },
           },
         },
+
+        // Babel for JS/JSX (optional but kept from your original)
         {
           test: /\.(js|jsx)$/,
           exclude: /node_modules/,
@@ -68,10 +75,102 @@ module.exports = (env, argv) => {
             },
           },
         },
+
+        // CSS (including Tailwind v4)
         {
           test: /\.css$/i,
-          use: ["style-loader", "css-loader", "postcss-loader"],
+          exclude: /\.module\.css$/,
+          use: [
+            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
+            {
+              loader: "css-loader",
+              options: {
+                importLoaders: 1,
+              },
+            },
+            {
+              loader: "postcss-loader",
+            },
+          ],
         },
+
+        // CSS Modules
+        {
+          test: /\.module\.css$/,
+          use: [
+            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
+            {
+              loader: "css-loader",
+              options: {
+                modules: {
+                  localIdentName: "[name]__[local]___[hash:base64:5]",
+                },
+                importLoaders: 1,
+              },
+            },
+            {
+              loader: "postcss-loader",
+            },
+          ],
+        },
+
+        // SCSS Modules
+        {
+          test: /\.module\.(scss|sass)$/,
+          use: [
+            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
+            {
+              loader: "css-loader",
+              options: {
+                modules: {
+                  localIdentName: "[name]__[local]___[hash:base64:5]",
+                },
+                importLoaders: 2,
+              },
+            },
+            {
+              loader: "postcss-loader",
+            },
+            "sass-loader",
+          ],
+        },
+
+        // Global SCSS
+        {
+          test: /\.(scss|sass)$/,
+          exclude: /\.module\.(scss|sass)$/,
+          use: [
+            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
+            {
+              loader: "css-loader",
+              options: {
+                importLoaders: 2,
+              },
+            },
+            {
+              loader: "postcss-loader",
+            },
+            "sass-loader",
+          ],
+        },
+
+        {
+          test: /\.module\.s[ac]ss$/i,
+          use: [
+            "style-loader",
+            {
+              loader: "css-loader",
+              options: {
+                modules: {
+                  localIdentName: "[name]__[local]___[hash:base64:5]",
+                },
+              },
+            },
+            "sass-loader",
+          ],
+        },
+
+        // Assets
         {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
           type: "asset/resource",
@@ -86,22 +185,16 @@ module.exports = (env, argv) => {
     plugins: [
       new CleanWebpackPlugin(),
 
-      // Native Webpack 5 Module Federation Plugin
-      new (require("webpack").container.ModuleFederationPlugin)({
-        name: "reactRemoteApp",
+      // Module Federation
+      new webpack.container.ModuleFederationPlugin({
+        name: "webpack_react_remoteapp",
         filename: "remoteEntry.js",
         exposes: {
           "./WebpackReactRemoteComponent": "./src/App.tsx",
         },
         shared: {
-          react: {
-            singleton: true,
-            requiredVersion: "^18.0.0",
-          },
-          "react-dom": {
-            singleton: true,
-            requiredVersion: "^18.0.0",
-          },
+          react: { singleton: true, requiredVersion: "^18.0.0" },
+          "react-dom": { singleton: true, requiredVersion: "^18.0.0" },
         },
       }),
 
@@ -123,12 +216,26 @@ module.exports = (env, argv) => {
             }
           : false,
       }),
+
+      // Extract CSS files in production
+      ...(isProduction
+        ? [
+            new MiniCssExtractPlugin({
+              filename: "[name].[contenthash].css",
+              chunkFilename: "[id].[contenthash].css",
+            }),
+          ]
+        : []),
     ],
 
     optimization: {
       splitChunks: {
         chunks: "all",
       },
+    },
+
+    performance: {
+      hints: isProduction ? "warning" : false,
     },
   };
 };
