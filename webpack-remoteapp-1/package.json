@@ -1,5 +1,5 @@
 {
-  "name": "react-remote-app",
+  "name": "webpack_react_remoteapp",
   "version": "1.0.0",
   "description": "React Remote App with Module Federation, TypeScript, and Tailwind CSS v4",
   "main": "src/index.tsx",
@@ -23,8 +23,8 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",
@@ -32,8 +32,8 @@
     "@babel/preset-react": "^7.22.0",
     "@babel/preset-typescript": "^7.23.0",
     "@tailwindcss/postcss": "^4.1.12",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
     "autoprefixer": "^10.4.21",
     "babel-loader": "^9.1.0",
     "clean-webpack-plugin": "^4.0.0",

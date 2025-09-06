@@ -12,6 +12,7 @@ export default defineConfig({
       vue: "vue/dist/vue.esm-bundler.js",
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
+    dedupe: ["react", "react-dom"], // Force single React instance
   },
   plugins: [
     vue(),
@@ -22,19 +23,28 @@ export default defineConfig({
         vite_vue_remoteapp: "http://localhost:5252/assets/remoteEntry.js",
         vite_svelte_remoteapp: "http://localhost:5253/assets/remoteEntry.js",
         vite_solidjs_remoteapp: "http://localhost:5254/assets/remoteEntry.js",
-        webpack_react_remoteapp:
-          "http://localhost:5261/remoteEntry.js?webpack_react_remoteapp",
-      },
+        webpack_react_remoteapp: {
+          external: "http://localhost:5261/remoteEntry.js",
+          from: "webpack",
+          format: "var",
+        },
+      } as any,
       shared: ["react", "react-dom"],
     }),
     tailwindcss(),
   ],
+
   build: {
     target: "esnext",
     minify: true,
     cssCodeSplit: false,
     rollupOptions: {
       external: ["chart.js/auto", "chart.js", "quill"], // Externalize chart.js
+      output: {
+        format: "esm",
+        entryFileNames: "assets/[name].js",
+        minifyInternalExports: false,
+      },
     },
   },
 

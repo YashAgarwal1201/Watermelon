@@ -10,6 +10,7 @@ module.exports = (env, argv) => {
 
   return {
     mode: isProduction ? "production" : "development",
+    target: "web",
     entry: path.resolve(__dirname, "src", "index.tsx"),
     devtool: isProduction ? "source-map" : "inline-source-map",
 
@@ -18,6 +19,10 @@ module.exports = (env, argv) => {
       hot: true,
       open: true,
       historyApiFallback: true,
+      compress: true,
+      client: {
+        overlay: false, // This fixes the overlay error
+      },
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods":
@@ -35,6 +40,7 @@ module.exports = (env, argv) => {
       filename: isProduction ? "[name].[contenthash].js" : "[name].js",
       clean: true,
       // publicPath: isProduction ? "/static/" : "/",
+      libraryExport: "main",
       publicPath: "auto",
     },
 
@@ -43,6 +49,8 @@ module.exports = (env, argv) => {
       alias: {
         "@": path.resolve(__dirname, "src"),
         "@/components": path.resolve(__dirname, "src/components"),
+        react: path.resolve("./node_modules/react"),
+        "react-dom": path.resolve("./node_modules/react-dom"),
       },
     },
 
@@ -182,6 +190,11 @@ module.exports = (env, argv) => {
       ],
     },
 
+    // externals: {
+    //   react: "react",
+    //   "react-dom": "react-dom",
+    // },
+
     plugins: [
       new CleanWebpackPlugin(),
 
@@ -189,12 +202,29 @@ module.exports = (env, argv) => {
       new webpack.container.ModuleFederationPlugin({
         name: "webpack_react_remoteapp",
         filename: "remoteEntry.js",
+        runtime: false,
         exposes: {
           "./WebpackReactRemoteComponent": "./src/App.tsx",
         },
+        // shared: {
+        //   react: { singleton: true, requiredVersion: "^18.0.0", eager: true },
+        //   "react-dom": {
+        //     singleton: true,
+        //     requiredVersion: "^18.0.0",
+        //     eager: true,
+        //   },
+        // },
         shared: {
-          react: { singleton: true, requiredVersion: "^18.0.0" },
-          "react-dom": { singleton: true, requiredVersion: "^18.0.0" },
+          react: {
+            singleton: true,
+            requiredVersion: "^19.1.1", // Match host version
+            eager: false,
+          },
+          "react-dom": {
+            singleton: true,
+            requiredVersion: "^19.1.1", // Match host version
+            eager: false,
+          },
         },
       }),
 
@@ -229,8 +259,13 @@ module.exports = (env, argv) => {
     ],
 
     optimization: {
+      // splitChunks: {
+      //   chunks: "all",
+      // },
+      runtimeChunk: false,
       splitChunks: {
-        chunks: "all",
+        // Only split async chunks, not all chunks
+        chunks: "async",
       },
     },
 

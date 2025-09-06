@@ -163,17 +163,40 @@ async function loadRemote() {
       const { render } = await import("solid-js/web");
       solidRoot = render(() => SolidComponent({}), mountPoint);
     } else if (appName.value === "webpack_react_remoteapp") {
-      // 🆕 Webpack React remote
-      debugger;
       const module = await import(
         "webpack_react_remoteapp/WebpackReactRemoteComponent"
       );
-      debugger;
       const component = module.default;
+
+      // Get all stylesheets as text
+      const stylesheets = Array.from(document.styleSheets);
+      const cssTexts = await Promise.all(
+        stylesheets.map(async (sheet) => {
+          try {
+            return Array.from(sheet.cssRules)
+              .map((rule) => rule.cssText)
+              .join("\n");
+          } catch (e) {
+            // For external stylesheets, fetch the CSS
+            if (sheet.href) {
+              const response = await fetch(sheet.href);
+              return response.text();
+            }
+            return "";
+          }
+        })
+      );
+
+      // Create adopted stylesheet for shadow DOM
+      const adoptedSheet = new CSSStyleSheet();
+      await adoptedSheet.replace(cssTexts.join("\n"));
+      shadowRoot!.adoptedStyleSheets = [adoptedSheet];
+
       const [React, ReactDOM] = await Promise.all([
         import("react"),
         import("react-dom/client"),
       ]);
+
       reactRoot = ReactDOM.createRoot(mountPoint);
       reactRoot.render(React.createElement(component));
     } else {
