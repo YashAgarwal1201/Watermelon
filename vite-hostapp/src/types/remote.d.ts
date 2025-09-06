@@ -8,3 +8,4 @@ declare module "vite_react_remoteapp/ViteReactRemoteComponent";
 declare module "vite_svelte_remoteapp/ViteSvelteRemoteComponent";
 declare module "vite_solidjs_remoteapp/ViteSolidRemoteComponent";
 declare module "webpack_react_remoteapp/WebpackReactRemoteComponent";
+declare module "webpack_vue_remoteapp/WebpackVueRemoteComponent";

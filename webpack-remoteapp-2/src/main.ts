@@ -1,4 +1,9 @@
 // src/main.ts
-import { mount } from "./bootstrap";
+import("./boobstrap");
 
-mount("#app"); // standalone only
+// src/main.ts (for standalone app)
+// import { createApp } from "vue";
+// import App from "./App.vue";
+
+// const app = createApp(App);
+// app.mount("#app");
