@@ -108,6 +108,18 @@ const remoteApps = [
     description: "Solid components with signals",
     icon: "🔷",
   },
+  {
+    name: "webpack_react_remoteapp",
+    displayName: "Webpack + React Remote",
+    description: "React 19 + Module Federation",
+    icon: "⚛️",
+  },
+  {
+    name: "webpack_vue_remoteapp",
+    displayName: "Webpack + Vue Remote",
+    description: "Vue 3 + TypeScript + SCSS + Module Federation",
+    icon: "🟢",
+  },
 ];
 
 function goToRemote(appName: string) {

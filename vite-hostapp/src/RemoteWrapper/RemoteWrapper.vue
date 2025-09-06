@@ -199,6 +199,26 @@ async function loadRemote() {
 
       reactRoot = ReactDOM.createRoot(mountPoint);
       reactRoot.render(React.createElement(component));
+    } // In your loadRemote() function, add this case:
+    else if (appName.value === "webpack_vue_remoteapp") {
+      try {
+        // Import the Vue remote
+        const module = await import(
+          "webpack_vue_remoteapp/WebpackVueRemoteComponent"
+        );
+        const remoteBootstrap = module.default;
+
+        // Mount the remote Vue app
+        const remoteApp = remoteBootstrap.mount(mountPoint);
+
+        // Store reference for cleanup
+        vueAppInstance = remoteApp;
+
+        console.info('Remote app "webpack_vue_remoteapp" loaded successfully');
+      } catch (e: any) {
+        error.value = e.message || "Error loading webpack vue remote";
+        console.error(`Failed to load remote app "${appName.value}":`, e);
+      }
     } else {
       throw new Error(`Unknown remote app: ${appName.value}`);
     }
@@ -218,8 +238,18 @@ async function loadRemote() {
 
 /** -------- cleanup -------- */
 function cleanup() {
+  // if (vueAppInstance) {
+  //   vueAppInstance.unmount();
+  //   vueAppInstance = null;
+  // }
   if (vueAppInstance) {
-    vueAppInstance.unmount();
+    // For regular Vue remotes
+    if (typeof vueAppInstance.unmount === "function") {
+      vueAppInstance.unmount();
+    } else {
+      // For webpack Vue remotes with custom unmount
+      vueAppInstance.unmount();
+    }
     vueAppInstance = null;
   }
   if (reactRoot) {

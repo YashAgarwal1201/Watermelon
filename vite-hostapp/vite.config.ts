@@ -28,6 +28,11 @@ export default defineConfig({
           from: "webpack",
           format: "var",
         },
+        webpack_vue_remoteapp: {
+          external: "http://localhost:5162/remoteEntry.js",
+          from: "webpack",
+          format: "var",
+        },
       } as any,
       shared: ["react", "react-dom"],
     }),

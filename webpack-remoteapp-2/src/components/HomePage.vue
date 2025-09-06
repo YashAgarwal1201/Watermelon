@@ -122,5 +122,8 @@ mount("#remote-container");
 </template>
 
 <script setup lang="ts">
-import styles from "./../styles/Home.module.scss";
+// import styles from "./../styles/Home.module.scss";
+import styles from "./../styles/Home.module.css";
+
+console.log("Test styles:", styles);
 </script>

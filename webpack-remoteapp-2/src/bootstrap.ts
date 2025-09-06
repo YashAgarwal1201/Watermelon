@@ -1,22 +1,35 @@
-// src/bootstrap.ts
-import { createApp, App as VueApp } from "vue";
-import App from "./App.vue";
+// // src/bootstrap.ts
+import { createApp, App } from "vue";
+import AppComponent from "./App.vue";
 import "./styles/globals.scss";
+import "./styles/Home.module.scss";
 
-let app: VueApp<Element> | null = null;
+let app: App<Element> | null = null;
 
-export function mount(selectorOrEl: string | Element) {
-  const el = typeof selectorOrEl === "string" ? document.querySelector(selectorOrEl)! : selectorOrEl;
-  if (!el) throw new Error("Mount target not found.");
-  if (app) return app;
-  app = createApp(App);
-  app.mount(el);
-  return app;
-}
+export default {
+  mount: (element: HTMLElement) => {
+    if (app) {
+      // If already mounted, unmount first
+      app.unmount();
+    }
 
-export function unmount() {
-  if (app) {
-    app.unmount();
-    app = null;
-  }
-}
+    app = createApp(AppComponent);
+    app.mount(element);
+    return app;
+  },
+  unmount: () => {
+    if (app) {
+      app.unmount();
+      app = null;
+    }
+  },
+};
+
+// src/bootstrap.ts
+// import { createApp } from "vue";
+// import App from "./App.vue";
+
+// const app = createApp(App);
+// app.mount("#app");
+
+// export default app;
