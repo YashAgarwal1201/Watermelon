@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
+    "lucide-react": "^0.544.0",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-router-dom": "^7.9.1",
     "tailwindcss": "^4.1.11",
     "vite-plugin-css-injected-by-js": "^3.5.2"
   },

@@ -85,13 +85,17 @@ module.exports = (env, argv) => {
           },
         },
 
-        // CSS MODULES FIRST - this is crucial
+        // Replace your CSS modules rule with this:
         {
           test: /\.module\.(scss|sass|css)$/,
           use: [
             {
               loader: "vue-style-loader",
-              options: { sourceMap: false, shadowMode: false },
+              options: {
+                sourceMap: false,
+                shadowMode: false,
+                esModule: false, // Add this for Module Federation compatibility
+              },
             },
             {
               loader: "css-loader",
@@ -99,9 +103,12 @@ module.exports = (env, argv) => {
                 modules: {
                   localIdentName: "[name]__[local]___[hash:base64:5]",
                   exportLocalsConvention: "camelCase",
+                  // This is crucial for vue-loader compatibility
+                  auto: true,
                 },
                 importLoaders: 1,
                 sourceMap: false,
+                esModule: false, // Add this for Module Federation compatibility
               },
             },
             "sass-loader",
