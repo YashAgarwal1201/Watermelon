@@ -1,4 +1,4 @@
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 
@@ -22,29 +22,13 @@ const SubPage2 = () => {
 
       {/* Description */}
       <p className="text-stone-600 dark:text-stone-300 text-base md:text-lg max-w-2xl">
-        This is a sample subpage. You can use it as a template to display more
-        detailed content, widgets, or feature-specific information.
+        The Empire is a disease that thrives in darkness, it is never more alive
+        than when we asleep. It's easy for the dead to tell you to fight, and
+        maybe it's true, maybe fighting is useless. Perhaps it's too late. But
+        I'll tell you this, if I could do it again, I'd wake up early and be
+        fighting those bastards from the start! Fight the Empire!" - Maarva
+        Andor
       </p>
-
-      {/* Content Section */}
-      <div className="bg-rose-50 dark:bg-stone-700 rounded-xl p-6 shadow-sm">
-        <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2 mb-3">
-          <Info size={18} /> Quick Highlights
-        </h2>
-        <ul className="list-disc pl-6 text-stone-700 dark:text-stone-200 space-y-2">
-          <li>Reusable layout pattern</li>
-          <li>Dark mode ready</li>
-          <li>Responsive design with Tailwind</li>
-        </ul>
-      </div>
-
-      {/* Action Section */}
-      <div className="flex justify-end">
-        <Button
-          label="Learn More"
-          className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-full"
-        />
-      </div>
     </div>
   );
 };

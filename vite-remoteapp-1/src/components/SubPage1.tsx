@@ -1,4 +1,4 @@
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
 
@@ -22,29 +22,11 @@ const SubPage1 = () => {
 
       {/* Description */}
       <p className="text-stone-600 dark:text-stone-300 text-base md:text-lg max-w-2xl">
-        This is a sample subpage. You can use it as a template to display more
-        detailed content, widgets, or feature-specific information.
+        I burn my decency for someone else's future. I burn my life to make a
+        sunrise that I know I'll never see. And the ego that started this fight
+        will never have a mirror or an audience or the light of gratitude. So
+        what do I sacrifice? Everything!" - Luthen Rael
       </p>
-
-      {/* Content Section */}
-      <div className="bg-rose-50 dark:bg-stone-700 rounded-xl p-6 shadow-sm">
-        <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2 mb-3">
-          <Info size={18} /> Quick Highlights
-        </h2>
-        <ul className="list-disc pl-6 text-stone-700 dark:text-stone-200 space-y-2">
-          <li>Reusable layout pattern</li>
-          <li>Dark mode ready</li>
-          <li>Responsive design with Tailwind</li>
-        </ul>
-      </div>
-
-      {/* Action Section */}
-      <div className="flex justify-end">
-        <Button
-          label="Learn More"
-          className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-full"
-        />
-      </div>
     </div>
   );
 };

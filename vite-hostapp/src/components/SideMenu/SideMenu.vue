@@ -1,3 +1,5 @@
+// File: components/SideMenu/SideMenu.vue
+
 <template>
   <div>
     <Drawer

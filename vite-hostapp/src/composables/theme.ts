@@ -1,3 +1,5 @@
+// File: composables/theme.ts
+
 import { onMounted, ref, watch } from "vue";
 
 export const useTheme = () => {

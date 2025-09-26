@@ -1,3 +1,5 @@
+// File: components/Navbar/NavBar.vue
+
 <script lang="ts" setup>
 import { Home, Menu } from "lucide-vue-next";
 import { useNavbarStore } from "../../stores/navbarStore";

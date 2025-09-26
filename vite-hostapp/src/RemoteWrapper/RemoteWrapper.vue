@@ -1,3 +1,5 @@
+// File: RemoteWrapper/RemoteWrapper.vue
+
 <template>
   <div class="remote-wrapper w-full h-full p-2">
     <div
@@ -132,6 +134,8 @@ async function loadRemote() {
   restoreHeadPatch = patchHeadToShadow(shadowRoot!);
 
   try {
+    window.BASENAME = `/remote/${appName.value}`;
+
     if (appName.value === "vite_react_remoteapp") {
       const module = await import(
         "vite_react_remoteapp/ViteReactRemoteComponent"
@@ -143,11 +147,17 @@ async function loadRemote() {
       ]);
       reactRoot = ReactDOM.createRoot(mountPoint);
       reactRoot.render(React.createElement(component));
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
     } else if (appName.value === "vite_vue_remoteapp") {
       const module = await import("vite_vue_remoteapp/ViteVueRemoteComponent");
       const component = module.default;
       const { createApp } = await import("vue");
+
       vueAppInstance = createApp(component);
+      // In the vite_vue_remoteapp case, add this line:
+      vueAppInstance.config.globalProperties.$shadowRoot = shadowRoot;
+
       vueAppInstance.mount(mountPoint);
     } else if (appName.value === "vite_svelte_remoteapp") {
       const module = await import(

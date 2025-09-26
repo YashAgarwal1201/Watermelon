@@ -1,3 +1,5 @@
+// File: RemoteWrapper/RemoteList.vue
+
 <template>
   <div class="w-full min-h-screen bg-white dark:bg-gray-950 py-8">
     <div class="max-w-2xl mx-auto p-6">
