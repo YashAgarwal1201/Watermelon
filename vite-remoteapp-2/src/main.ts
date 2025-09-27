@@ -14,3 +14,5 @@ app.use(PrimeVue, {
 });
 app.use(router);
 app.mount("#app");
+
+export { app, router };

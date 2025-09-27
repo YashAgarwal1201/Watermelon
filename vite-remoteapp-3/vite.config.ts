@@ -4,7 +4,14 @@ import federation from "@originjs/vite-plugin-federation";
 
 export default defineConfig({
   plugins: [
-    svelte(),
+    svelte({
+      compilerOptions: {
+        // Force Svelte 4 compatibility to avoid effect_orphan
+        compatibility: {
+          componentApi: 4,
+        },
+      },
+    }),
     federation({
       name: "vite_svelte_remoteapp",
       filename: "remoteEntry.js",

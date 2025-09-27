@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RouterView } from "vue-router";
 import NavBar from "./components/NavBar.vue";
 </script>
 
@@ -10,7 +11,7 @@ import NavBar from "./components/NavBar.vue";
       <NavBar />
     </div>
     <div class="w-full flex-grow overflow-y-auto">
-      <router-view />
+      <RouterView />
     </div>
   </div>
 </template>

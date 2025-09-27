@@ -37,6 +37,21 @@ app.use(PrimeVue, {
     preset: Aura,
   },
 });
+
+// Make router globally available for remote Vue components
+// window.__VUE_ROUTER_INSTANCE__ = router;
+// window.__VUE_PROVIDE_ROUTER__ = (vueApp: any) => {
+//   vueApp.provide("$router", router);
+//   vueApp.provide("router", router);
+
+//   // Provide route context that RouterView expects
+//   const routeContext = {
+//     value: router.currentRoute.value,
+//   };
+//   vueApp.provide("Symbol(route location)", routeContext);
+//   vueApp.provide("injectedRoute", routeContext);
+// };
+
 app.use(ToastService);
 app.use(router);
 app.mount("#app");

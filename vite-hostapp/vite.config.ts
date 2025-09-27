@@ -1,5 +1,4 @@
 // // vite config file for hostapp
-import { fileURLToPath, URL } from "node:url";
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
@@ -7,13 +6,6 @@ import tailwindcss from "@tailwindcss/vite";
 import federation from "@originjs/vite-plugin-federation";
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      vue: "vue/dist/vue.esm-bundler.js",
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
-    dedupe: ["react", "react-dom"], // Force single React instance
-  },
   plugins: [
     vue(),
     federation({
@@ -34,7 +26,7 @@ export default defineConfig({
           format: "var",
         },
       } as any,
-      shared: ["react", "react-dom"],
+      shared: ["react", "react-dom", "vue", "vue-router"],
     }),
     tailwindcss(),
   ],

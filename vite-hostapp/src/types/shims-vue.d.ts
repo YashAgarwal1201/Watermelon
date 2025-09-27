@@ -9,6 +9,8 @@ declare module "*.vue" {
 declare global {
   interface Window {
     BASENAME: string;
+    __VUE_ROUTER_INSTANCE__: any;
+    __VUE_PROVIDE_ROUTER__: any;
   }
 }
 

@@ -15,6 +15,11 @@ const routes = [
     component: RemoteList,
   },
   {
+    path: "/remote/:appName/:pathMatch(.*)*",
+    component: NewRemoteWrapper, // Your loader component
+    props: true,
+  },
+  {
     path: "/remote/:appName",
     name: "RemoteApp",
     component: NewRemoteWrapper,

@@ -5,7 +5,7 @@ import SubPage2 from "../components/SubPage2.vue";
 
 const basename = window.BASENAME || "/";
 
-const routes = [
+export const routes = [
   {
     path: "/",
     name: "Home",
@@ -25,9 +25,9 @@ const routes = [
   },
 ];
 
-const router = createRouter({
+const routers = createRouter({
   history: createWebHistory(basename),
   routes,
 });
 
-export default router;
+export default routers;

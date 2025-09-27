@@ -255,7 +255,7 @@ async function loadRemote() {
 
   try {
     // expose basename for remotes who read window.BASENAME
-    (window as any).BASENAME = `/remote/${appName.value}`;
+    (window as any).BASENAME = `/remote/${appName.value}/`;
 
     // reset last module reference
     lastRemoteModule = null;
@@ -290,13 +290,40 @@ async function loadRemote() {
         vueAppInstance = (createApp as any)(component);
         vueAppInstance.mount(mountPoint);
       }
+      // } else if (appName.value === "vite_svelte_remoteapp") {
+      //   const module = await import(
+      //     "vite_svelte_remoteapp/ViteSvelteRemoteComponent"
+      //   );
+      //   lastRemoteModule = module;
+      //   const SvelteComponent = module.default;
+      //   svelteInstance = new SvelteComponent({ target: mountPoint! });
+      // }
+
+      // In your loader's loadRemote function, update the Svelte section:
     } else if (appName.value === "vite_svelte_remoteapp") {
       const module = await import(
         "vite_svelte_remoteapp/ViteSvelteRemoteComponent"
       );
       lastRemoteModule = module;
-      const SvelteComponent = module.default;
-      svelteInstance = new SvelteComponent({ target: mountPoint! });
+
+      // Check if it's a Svelte 5 component with mount function
+      if (typeof module.mount === "function") {
+        // Use the exported mount function (Svelte 5 style)
+        svelteInstance = module.mount(mountPoint!, {
+          props: {
+            basename: (window as any).BASENAME,
+          },
+        });
+      } else {
+        // Fallback to legacy Svelte constructor
+        const SvelteComponent = module.default;
+        svelteInstance = new SvelteComponent({
+          target: mountPoint!,
+          props: {
+            basename: (window as any).BASENAME,
+          },
+        });
+      }
     } else if (appName.value === "vite_solidjs_remoteapp") {
       const module = await import(
         "vite_solidjs_remoteapp/ViteSolidRemoteComponent"
@@ -425,11 +452,15 @@ function cleanup() {
 
   // svelte
   try {
-    if (
-      svelteInstance &&
-      typeof (svelteInstance as any).$destroy === "function"
-    ) {
-      (svelteInstance as any).$destroy();
+    if (svelteInstance) {
+      // Svelte 5 mount returns object with unmount method
+      if (typeof svelteInstance.unmount === "function") {
+        svelteInstance.unmount();
+      }
+      // Legacy Svelte has $destroy method
+      else if (typeof svelteInstance.$destroy === "function") {
+        svelteInstance.$destroy();
+      }
       svelteInstance = null;
     }
   } catch {}
