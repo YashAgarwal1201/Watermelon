@@ -9,34 +9,32 @@
     >
       <template #header>
         <div class="flex justify-between items-center w-full font-heading">
-          <h3 class="text-lg sm:text-xl md:text-2xl">Menu</h3>
+          <h3
+            class="text-lg sm:text-xl md:text-2xl bg-gradient-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent"
+          >
+            Menu
+          </h3>
         </div>
       </template>
 
       <div class="w-full font-content">
         <div class="flex flex-col">
           <div
-            class="w-full flex flex-col rounded-xl bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 p-4"
+            class="w-full flex flex-col rounded-xl bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 p-4 border border-pink-200 dark:border-gray-700"
           >
             <div v-for="app in remoteApps" :key="app.key">
               <RouterLink :class="buttonStyles" :to="`/remote/${app.key}`">
-                <Folder
-                  :size="16"
-                  class="!text-yellow-600 dark:!text-yellow-500"
-                />
+                <Folder :size="16" class="!text-pink-600 dark:!text-pink-400" />
                 <span>{{ app.label }}</span>
               </RouterLink>
 
               <div
-                class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-stone-300 dark:bg-stone-600"
+                class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-pink-200 dark:bg-red-800"
               ></div>
             </div>
 
             <div :class="buttonStyles">
-              <Palette
-                :size="16"
-                class="text-yellow-600 dark:text-yellow-500"
-              />
+              <Palette :size="16" class="text-pink-600 dark:text-pink-400" />
               <span>Theme</span>
               <Select
                 :modelValue="theme"
@@ -45,8 +43,8 @@
                   { label: 'Dark', value: 'dark' },
                   { label: 'Light', value: 'light' },
                 ]"
-                class="ml-auto w-auto !text-sm !rounded-lg !bg-stone-50 dark:!bg-stone-900 !text-gray-900 dark:!text-white"
-                labelClass="!text-gray-900 dark:!text-white"
+                class="ml-auto w-auto !text-sm !rounded-lg !bg-red-50 dark:!bg-red-900/30 !text-red-800 dark:!text-red-300 !border-red-200 dark:!border-red-700"
+                labelClass="!text-red-800 dark:!text-red-300"
                 optionLabel="label"
                 optionValue="value"
                 @update:modelValue="handleThemeChange"
@@ -54,20 +52,17 @@
             </div>
 
             <div
-              class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-stone-300 dark:bg-stone-600"
+              class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-pink-200 dark:bg-red-800"
             ></div>
 
             <a
               :class="buttonStyles"
               :href="DEVELOPER_PROFILE"
-              class="!text-green-700 dark:!text-green-300 !border-none !flex !items-center !justify-start shadow-none"
+              class="!text-pink-700 dark:!text-pink-300 !border-none !flex !items-center !justify-start shadow-none"
               rel="noopener noreferrer nofollow"
               target="_blank"
             >
-              <UserCircle
-                :size="16"
-                class="text-yellow-600 dark:text-yellow-500"
-              />
+              <UserCircle :size="16" class="text-pink-600 dark:text-pink-400" />
               <span>Developer Profile</span>
             </a>
           </div>
@@ -100,7 +95,7 @@ const remoteApps = [
 ];
 
 const buttonStyles =
-  "!px-2 !py-4 !bg-transparent !text-green-700 dark:!text-green-300 flex items-center !gap-x-3 !rounded-xl *:text-lg font-normal font-content";
+  "!px-2 !py-4 !bg-transparent !text-red-700 dark:!text-red-300 hover:!bg-pink-100 dark:hover:!bg-pink-950/30 flex items-center !gap-x-3 !rounded-xl *:text-lg font-normal font-content transition-colors duration-200 !border-none";
 
 // Theme change handler
 const handleThemeChange = (selectedTheme: string) => {

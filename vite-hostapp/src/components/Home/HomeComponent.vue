@@ -1,3 +1,5 @@
+// File: components/Home/HomeComponent.vue
+
 <template>
   <div
     class="w-full h-full overflow-y-auto bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-200"

@@ -50,8 +50,16 @@ import vue from "@vitejs/plugin-vue";
 import federation from "@originjs/vite-plugin-federation";
 import tailwindcss from "@tailwindcss/vite";
 import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
+import { fileURLToPath } from "url";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      vue: "vue/dist/vue.esm-bundler.js",
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+    dedupe: ["vue"], // Force single Vue instance
+  },
   plugins: [
     vue(),
     tailwindcss(),
@@ -59,9 +67,9 @@ export default defineConfig({
       name: "vite_vue_remoteapp", // Unique name for this remote
       filename: "remoteEntry.js",
       exposes: {
-        "./ViteVueRemoteComponent": "./src/App.vue", // Adjust path if needed
+        "./ViteVueRemoteComponent": "./src/bootstrap.js", // Adjust path if needed
       },
-      shared: ["vue"],
+      shared: ["vue", "vue-router"],
     }),
     cssInjectedByJsPlugin(), // Add the CSS injection plugin
   ],

@@ -9,13 +9,44 @@ import "primeicons/primeicons.css";
 import "tailwindcss/index.css";
 // import TestComponent from "./components/TestComponent";
 
-function App() {
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  // createBrowserRouter,
+  // RouterProvider,
+} from "react-router-dom";
+import Layout from "./components/Layout";
+import SubPage1 from "./components/SubPage1";
+import SubPage2 from "./components/SubPage2";
+
+export default function App() {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center">
-      <Home />
-      {/* <TestComponent /> */}
-    </div>
+    <BrowserRouter basename="remote/vite_react_remoteapp">
+      <Routes>
+        {/* Wrap with a layout (header/footer shared) */}
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="sub-page-1" element={<SubPage1 />} />
+          <Route path="sub-page-2" element={<SubPage2 />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-export default App;
+// const router = createBrowserRouter([
+//   {
+//     path: "/",
+//     element: <Layout />,
+//     children: [
+//       { index: true, element: <Home /> },
+//       { path: "sub-page-1", element: <SubPage1 /> },
+//       { path: "sub-page-2", element: <SubPage2 /> },
+//     ],
+//   },
+// ]);
+
+// export default function App() {
+//   return <RouterProvider router={router} />;
+// }

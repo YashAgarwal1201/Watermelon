@@ -1,3 +1,5 @@
+// File: types/remote.d.ts
+
 // declare module "vite_react_remoteapp/RemoteComponent" {
 //   const Component: React.ComponentType;
 //   export default Component;
