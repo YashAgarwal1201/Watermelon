@@ -22,16 +22,71 @@
           <div
             class="w-full flex flex-col rounded-xl bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 p-4 border border-pink-200 dark:border-gray-700"
           >
-            <div v-for="app in remoteApps" :key="app.key">
-              <RouterLink :class="buttonStyles" :to="`/remote/${app.key}`">
-                <Folder :size="16" class="!text-pink-600 dark:!text-pink-400" />
-                <span>{{ app.label }}</span>
+            <Panel
+              :class="buttonStyles"
+              :collapsed="isPanelCollapsed"
+              class="!border-none *:!p-0 flex-col flex-wrap items-start font-content w-full"
+              toggleable
+            >
+              <template #header class="w-full">
+                <div
+                  class="flex items-center w-full gap-x-3 cursor-pointer"
+                  @click="togglePanel"
+                >
+                  <Blocks
+                    :size="16"
+                    class="!text-pink-600 dark:!text-pink-400"
+                  />
+                  <span
+                    class="text-lg text-red-700 dark:!text-red-300 hover:!bg-pink-100 dark:hover:!bg-pink-950/30"
+                  >
+                    Remote Applications
+                  </span>
+                </div>
+              </template>
+
+              <template #toggleicon class="hidden">
+                <span
+                  :class="[
+                    'pi',
+                    isPanelCollapsed ? 'pi-chevron-down' : 'pi-chevron-up',
+                    'text-green-500',
+                    'mr-1 ml-auto',
+                  ]"
+                ></span>
+              </template>
+
+              <RouterLink :class="buttonStyles" :to="`/remote`">
+                <Folders
+                  :size="16"
+                  class="!text-pink-600 dark:!text-pink-400"
+                />
+                <span>Remote Apps List</span>
               </RouterLink>
 
               <div
                 class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-pink-200 dark:bg-red-800"
               ></div>
-            </div>
+
+              <div v-for="(app, index) in remoteApps" :key="app.key">
+                <RouterLink :class="buttonStyles" :to="`/remote/${app.key}`">
+                  <Folder
+                    :size="16"
+                    class="!text-pink-600 dark:!text-pink-400"
+                  />
+                  <span>{{ app.label }}</span>
+                </RouterLink>
+
+                <div
+                  v-show="index !== remoteApps.length - 1"
+                  class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-pink-200 dark:bg-red-800"
+                ></div>
+              </div>
+            </Panel>
+
+            <div
+              class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-pink-200 dark:bg-red-800"
+            ></div>
 
             <div :class="buttonStyles">
               <Palette :size="16" class="text-pink-600 dark:text-pink-400" />
@@ -73,17 +128,20 @@
 </template>
 
 <script setup lang="ts">
-import { Folder, Palette, UserCircle } from "lucide-vue-next";
-import { Drawer, Select } from "primevue";
+import { Blocks, Folder, Folders, Palette, UserCircle } from "lucide-vue-next";
+import { Drawer, Panel, Select } from "primevue";
 import { useNavbarStore } from "../../stores/navbarStore";
 import { RouterLink } from "vue-router";
 import { DEVELOPER_PROFILE } from "../../services/constants";
 import { useTheme } from "../../composables/theme";
 import toastHandler from "../../composables/toastHandeler";
+import { ref } from "vue";
 
 const navbarStore = useNavbarStore();
 const { showToast } = toastHandler();
 const { theme, updateTheme } = useTheme();
+
+const isPanelCollapsed = ref(true);
 
 const remoteApps = [
   { key: "vite_react_remoteapp", label: "Vite + React" },
@@ -96,6 +154,10 @@ const remoteApps = [
 
 const buttonStyles =
   "!px-2 !py-4 !bg-transparent !text-red-700 dark:!text-red-300 hover:!bg-pink-100 dark:hover:!bg-pink-950/30 flex items-center !gap-x-3 !rounded-xl *:text-lg font-normal font-content transition-colors duration-200 !border-none";
+
+const togglePanel = () => {
+  isPanelCollapsed.value = !isPanelCollapsed.value;
+};
 
 // Theme change handler
 const handleThemeChange = (selectedTheme: string) => {
