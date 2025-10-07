@@ -255,7 +255,7 @@ async function loadRemote() {
 
   try {
     // expose basename for remotes who read window.BASENAME
-    (window as any).BASENAME = `/remote/${appName.value}/`;
+    (window as any).BASENAME = `/remote/${appName.value}`;
 
     // reset last module reference
     lastRemoteModule = null;
