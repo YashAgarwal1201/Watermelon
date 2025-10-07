@@ -43,7 +43,7 @@
                   { label: 'Dark', value: 'dark' },
                   { label: 'Light', value: 'light' },
                 ]"
-                class="ml-auto w-auto !text-sm !rounded-lg !bg-red-50 dark:!bg-red-900/30 !text-red-800 dark:!text-red-300 !border-red-200 dark:!border-red-700"
+                class="!ml-auto !w-auto !text-sm !rounded-lg !bg-red-50 dark:!bg-red-900/30 !text-red-800 dark:!text-red-300 !border-red-200 dark:!border-red-700"
                 labelClass="!text-red-800 dark:!text-red-300"
                 optionLabel="label"
                 optionValue="value"
@@ -73,8 +73,8 @@
 </template>
 
 <script setup lang="ts">
-import { Folder, Home, Palette, UserCircle } from "lucide-vue-next";
-import { Button, Drawer, Select } from "primevue";
+import { Folder, Palette, UserCircle } from "lucide-vue-next";
+import { Drawer, Select } from "primevue";
 import { useNavbarStore } from "../../stores/navbarStore";
 import { RouterLink } from "vue-router";
 import { DEVELOPER_PROFILE } from "../../services/constants";

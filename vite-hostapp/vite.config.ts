@@ -16,7 +16,7 @@ export default defineConfig({
         vite_svelte_remoteapp: "http://localhost:5253/assets/remoteEntry.js",
         vite_solidjs_remoteapp: "http://localhost:5254/assets/remoteEntry.js",
         webpack_react_remoteapp: {
-          external: "http://localhost:5261/remoteEntry.js",
+          external: "http://localhost:5161/remoteEntry.js",
           from: "webpack",
           format: "var",
         },
