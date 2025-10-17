@@ -78,17 +78,13 @@ module.exports = {
       ...sharedMappings.getAliases(),
     },
   },
-  devServer: {
-    liveReload: false,
-    hot: false,
-  },
   plugins: [
     new ModuleFederationPlugin({
       name: 'angular_remoteapp',
       filename: 'remoteEntry.js',
       library: { type: 'var', name: 'angular_remoteapp' },
       exposes: {
-        './Component': './src/federation-entry.ts',
+        './Component': './src/bootstrap.ts',
       },
       shared: mf.share({
         '@angular/core': {
