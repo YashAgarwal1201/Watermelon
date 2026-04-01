@@ -11,3 +11,8 @@ declare module "vite_svelte_remoteapp/ViteSvelteRemoteComponent";
 declare module "vite_solidjs_remoteapp/ViteSolidRemoteComponent";
 declare module "webpack_react_remoteapp/WebpackReactRemoteComponent";
 declare module "webpack_vue_remoteapp/WebpackVueRemoteComponent";
+declare module "angular_remoteapp/Component" {
+  export function mount(container: HTMLElement): Promise<{
+    destroy: () => void;
+  }>;
+}

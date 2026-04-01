@@ -407,6 +407,19 @@ async function loadRemote() {
           "Cannot bootstrap webpack_vue_remoteapp: no mount or usable default export"
         );
       }
+    } else if (appName.value === "angular_remoteapp") {
+      const module = await import("angular_remoteapp/Component");
+      lastRemoteModule = module;
+
+      if (typeof module.mount === "function") {
+        const result = await module.mount(mountPoint!);
+        // Store the destroy function if returned
+        if (result && typeof result.destroy === "function") {
+          lastRemoteModule.unmount = result.destroy;
+        }
+      } else {
+        throw new Error("Angular remote does not export a mount function");
+      }
     } else {
       throw new Error(`Unknown remote app: ${appName.value}`);
     }
@@ -470,6 +483,13 @@ function cleanup() {
     if (typeof solidDisposer === "function") {
       solidDisposer();
       solidDisposer = null;
+    }
+  } catch {}
+
+  // webpack + angular
+  try {
+    if (lastRemoteModule && typeof lastRemoteModule.unmount === "function") {
+      lastRemoteModule.unmount();
     }
   } catch {}
 
