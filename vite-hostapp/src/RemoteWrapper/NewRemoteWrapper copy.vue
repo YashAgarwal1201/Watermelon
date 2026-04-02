@@ -214,7 +214,7 @@ function patchHeadToShadow(shadow: ShadowRoot) {
     (n) => {
       // avoid moving nodes that are obviously injected for the host (optional heuristic could go here)
       void moveToShadow(n as Node);
-    },
+    }
   );
 
   // restore function
@@ -261,8 +261,9 @@ async function loadRemote() {
     lastRemoteModule = null;
 
     if (appName.value === "vite_react_remoteapp") {
-      const module =
-        await import("vite_react_remoteapp/ViteReactRemoteComponent");
+      const module = await import(
+        "vite_react_remoteapp/ViteReactRemoteComponent"
+      );
       lastRemoteModule = module;
       const component = module.default;
       const [React, ReactDOM] = await Promise.all([
@@ -300,8 +301,9 @@ async function loadRemote() {
 
       // In your loader's loadRemote function, update the Svelte section:
     } else if (appName.value === "vite_svelte_remoteapp") {
-      const module =
-        await import("vite_svelte_remoteapp/ViteSvelteRemoteComponent");
+      const module = await import(
+        "vite_svelte_remoteapp/ViteSvelteRemoteComponent"
+      );
       lastRemoteModule = module;
 
       // Check if it's a Svelte 5 component with mount function
@@ -323,16 +325,18 @@ async function loadRemote() {
         });
       }
     } else if (appName.value === "vite_solidjs_remoteapp") {
-      const module =
-        await import("vite_solidjs_remoteapp/ViteSolidRemoteComponent");
+      const module = await import(
+        "vite_solidjs_remoteapp/ViteSolidRemoteComponent"
+      );
       lastRemoteModule = module;
       const SolidComponent = module.default;
       const { render } = await import("solid-js/web");
       // render returns a disposer function
       solidDisposer = render(() => (SolidComponent as any)(), mountPoint!);
     } else if (appName.value === "webpack_react_remoteapp") {
-      const module =
-        await import("webpack_react_remoteapp/WebpackReactRemoteComponent");
+      const module = await import(
+        "webpack_react_remoteapp/WebpackReactRemoteComponent"
+      );
       lastRemoteModule = module;
       const component = module.default;
       // gather stylesheet texts (best-effort) then adopt into shadow root (opt)
@@ -355,7 +359,7 @@ async function loadRemote() {
               }
               return "";
             }
-          }),
+          })
         );
         if (shadowRoot && "adoptedStyleSheets" in shadowRoot) {
           const sheet = new CSSStyleSheet();
@@ -376,8 +380,9 @@ async function loadRemote() {
       reactRoot = (ReactDOM as any).createRoot(mountPoint!);
       reactRoot.render(React.createElement(component));
     } else if (appName.value === "webpack_vue_remoteapp") {
-      const module =
-        await import("webpack_vue_remoteapp/WebpackVueRemoteComponent");
+      const module = await import(
+        "webpack_vue_remoteapp/WebpackVueRemoteComponent"
+      );
       lastRemoteModule = module;
       // prefer exported mount API if present
       if (typeof module.mount === "function") {
@@ -399,7 +404,7 @@ async function loadRemote() {
         }
       } else {
         throw new Error(
-          "Cannot bootstrap webpack_vue_remoteapp: no mount or usable default export",
+          "Cannot bootstrap webpack_vue_remoteapp: no mount or usable default export"
         );
       }
     } else if (appName.value === "angular_remoteapp") {
@@ -557,7 +562,7 @@ watch(
       appName.value = String(newVal || "");
       await retryLoad();
     }
-  },
+  }
 );
 </script>
 
