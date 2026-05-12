@@ -1,43 +1,61 @@
 <template>
-  <div class="remote-wrapper w-full h-full p-2">
-    <div
-      v-if="isLoading"
-      class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
-    >
-      <svg
-        class="animate-spin h-5 w-5"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-        <path d="M22 12a10 10 0 0 1-10 10" />
-      </svg>
-      <span>Loading...</span>
-    </div>
+  <div class="w-full h-full flex flex-col bg-white dark:bg-gray-950 p-3 sm:p-5">
+    <div class="w-full flex flex-col mb-6 shrink-0">
+      <div class="flex items-center justify-start gap-x-2">
+        <GoBackBtn />
+        <h2
+          class="text-3xl font-bold bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent font-heading"
+        >
+          {{ appName }}
+        </h2>
+      </div>
 
-    <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
-      <p>Error loading remote app: {{ error }}</p>
-      <button
-        @click="retryLoad"
-        class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-      >
-        Retry
-      </button>
+      <p class="text-gray-600 dark:text-gray-400">
+        View the remote app and its components
+      </p>
     </div>
+    <div class="remote-wrapper w-full h-full overflow-y-auto">
+      <div
+        v-if="isLoading"
+        class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
+      >
+        <svg
+          class="animate-spin h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+          <path d="M22 12a10 10 0 0 1-10 10" />
+        </svg>
+        <span>Loading...</span>
+      </div>
 
-    <!-- container that hosts the shadowRoot -->
-    <div
-      ref="hostContainer"
-      class="remote-container rounded-none md:rounded-lg"
-    ></div>
+      <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
+        <p>Error loading remote app: {{ error }}</p>
+        Available Remote Apps
+        <button
+          @click="retryLoad"
+          class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Retry
+        </button>
+      </div>
+
+      <!-- container that hosts the shadowRoot -->
+      <div
+        ref="hostContainer"
+        class="remote-container rounded-none md:rounded-lg"
+      ></div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
+import GoBackBtn from "../components/GoBack/GoBackBtn.vue";
 
 const route = useRoute();
 const appName = ref(String(route.params.appName ?? ""));

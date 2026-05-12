@@ -1,15 +1,19 @@
 // File: RemoteWrapper/RemoteList.vue
 
 <template>
-  <div class="w-full h-full bg-white dark:bg-gray-950 py-8">
-    <div class="max-w-2xl mx-auto p-6">
+  <div class="w-full h-full bg-white dark:bg-gray-950 p-3 sm:p-5">
+    <div class="">
       <!-- Header -->
-      <div class="text-center mb-8">
-        <h2
-          class="text-3xl font-bold bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent mb-2 font-heading"
-        >
-          🍉 Available Remote Apps
-        </h2>
+      <div class="w-full flex flex-col mb-6">
+        <div class="flex items-center justify-start gap-x-2">
+          <GoBackBtn />
+          <h2
+            class="text-3xl font-bold bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent font-heading"
+          >
+            Available Remote Apps
+          </h2>
+        </div>
+
         <p class="text-gray-600 dark:text-gray-400">
           Click on any remote app to load its components
         </p>
@@ -82,6 +86,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import GoBackBtn from "../components/GoBack/GoBackBtn.vue";
 
 const router = useRouter();
 
