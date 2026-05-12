@@ -9,11 +9,11 @@
           {{ appName }}
         </h2>
       </div>
-
       <p class="text-gray-600 dark:text-gray-400">
         View the remote app and its components
       </p>
     </div>
+
     <div class="remote-wrapper w-full h-full overflow-y-auto">
       <div
         v-if="isLoading"
@@ -34,7 +34,6 @@
 
       <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
         <p>Error loading remote app: {{ error }}</p>
-        Available Remote Apps
         <button
           @click="retryLoad"
           class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -61,221 +60,118 @@ const route = useRoute();
 const appName = ref(String(route.params.appName ?? ""));
 
 const hostContainer = ref<HTMLElement | null>(null);
+
+// shadowRoot is attached once to hostContainer and never detached.
+// We clear its children on each navigation instead.
 let shadowRoot: ShadowRoot | null = null;
 let mountPoint: HTMLElement | null = null;
 
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 
-// remote instances
+// Remote framework instances
 let vueAppInstance: any = null;
 let reactRoot: any = null;
 let svelteInstance: any = null;
 let solidDisposer: any = null;
-
-// last imported module (so we can call exported unmount if present)
 let lastRemoteModule: any = null;
 
-// restore function for head patching
-let restoreHeadPatch: (() => void) | null = null;
+// Dark mode bridge
+let darkModeStyleNode: HTMLStyleElement | null = null;
+let darkModeObserver: MutationObserver | null = null;
 
-/** -------- helper: robust head -> shadow patch -------- */
-function patchHeadToShadow(shadow: ShadowRoot) {
-  const docHead = document.head as any;
+// ─── Dark Mode Bridge ────────────────────────────────────────────────────────
+// Injects a live <style> into the shadow root that mirrors the host's .dark
+// class onto the shadow's :host and the mountPoint div. This lets remote apps
+// use Tailwind's class-based dark: utilities inside the shadow DOM.
 
-  const orig = {
-    appendChild: docHead.appendChild,
-    insertBefore: docHead.insertBefore,
-    append: (docHead as any).append?.bind(docHead),
-    prepend: (docHead as any).prepend?.bind(docHead),
-  };
+function injectDarkModeBridge(shadow: ShadowRoot) {
+  // Clean up any previous bridge
+  teardownDarkModeBridge();
 
-  // map originalNode -> { clone, observer }
-  const movedMap = new Map<
-    Node,
-    { clone: HTMLElement; observer?: MutationObserver }
-  >();
+  darkModeStyleNode = document.createElement("style");
+  darkModeStyleNode.setAttribute("data-wm-dark-bridge", "1");
+  // Insert before everything else in the shadow so it has lowest specificity
+  shadow.insertBefore(darkModeStyleNode, shadow.firstChild);
 
-  // utility: inline link href (CORS may block)
-  async function fetchCssText(href: string) {
-    try {
-      const res = await fetch(href, { mode: "cors" });
-      if (!res.ok) throw new Error("Fetch failed");
-      return await res.text();
-    } catch {
-      return null;
-    }
-  }
+  function syncDark() {
+    const isDark = document.documentElement.classList.contains("dark");
 
-  async function moveToShadow(node: Node) {
-    if (!(node instanceof HTMLElement)) return;
-    if (movedMap.has(node)) return; // already moved/observed
-
-    const tag = node.tagName.toLowerCase();
-    if (tag === "style") {
-      const clone = document.createElement("style");
-      clone.textContent = node.textContent;
-      shadow.appendChild(clone);
-
-      // observe original style node for text changes (HMR updates)
-      const mo = new MutationObserver(() => {
-        clone.textContent = node.textContent;
-      });
-      mo.observe(node, { characterData: true, childList: true, subtree: true });
-      movedMap.set(node, { clone, observer: mo });
-      return;
-    }
-
-    if (tag === "link" && (node as HTMLLinkElement).rel === "stylesheet") {
-      const link = node as HTMLLinkElement;
-      const css = await fetchCssText(link.href);
-      if (css !== null) {
-        const s = document.createElement("style");
-        s.textContent = css;
-        shadow.appendChild(s);
-        // no live updates possible unless server/loader re-inserts new <style> nodes;
-        movedMap.set(node, { clone: s });
-        return;
+    // 1. Tailwind v4 @custom-variant dark (&:where(.dark, .dark *)) won't
+    //    pierce the shadow boundary — so we toggle .dark on the mountPoint
+    //    itself so that dark: utilities inside the remote work correctly.
+    if (mountPoint) {
+      if (isDark) {
+        mountPoint.classList.add("dark");
       } else {
-        // can't fetch (CORS or network) -> leave the link in head (fallback)
-        return orig.appendChild.call(docHead, node);
+        mountPoint.classList.remove("dark");
       }
     }
 
-    // otherwise pass through to original head
-    return orig.appendChild.call(docHead, node);
+    // 2. color-scheme on :host — lets native browser controls (scrollbars,
+    //    inputs) also respect dark mode inside the shadow.
+    darkModeStyleNode!.textContent = isDark
+      ? `:host { color-scheme: dark; }`
+      : `:host { color-scheme: light; }`;
   }
 
-  // patched methods
-  docHead.appendChild = function (node: Node) {
-    if (
-      node instanceof HTMLElement &&
-      (node.tagName.toLowerCase() === "style" ||
-        (node.tagName.toLowerCase() === "link" &&
-          (node as HTMLLinkElement).rel === "stylesheet"))
-    ) {
-      // don't await here (fire-and-forget), it's fine — moveToShadow updates clones async
-      void moveToShadow(node);
-      return node;
-    }
-    return orig.appendChild.call(this, node);
-  };
+  syncDark(); // immediate sync on mount
 
-  docHead.insertBefore = function (node: Node, refNode: Node | null) {
-    if (
-      node instanceof HTMLElement &&
-      (node.tagName.toLowerCase() === "style" ||
-        (node.tagName.toLowerCase() === "link" &&
-          (node as HTMLLinkElement).rel === "stylesheet"))
-    ) {
-      void moveToShadow(node);
-      return node;
-    }
-    return orig.insertBefore.call(this, node, refNode);
-  };
-
-  if (orig.append) {
-    (docHead as any).append = function (...nodes: any[]) {
-      for (const n of nodes) {
-        if (
-          n instanceof HTMLElement &&
-          (n.tagName.toLowerCase() === "style" ||
-            (n.tagName.toLowerCase() === "link" &&
-              (n as HTMLLinkElement).rel === "stylesheet"))
-        ) {
-          void moveToShadow(n);
-        } else {
-          orig.append.call(docHead, n);
-        }
-      }
-    };
-  }
-
-  if (orig.prepend) {
-    (docHead as any).prepend = function (...nodes: any[]) {
-      for (const n of nodes) {
-        if (
-          n instanceof HTMLElement &&
-          (n.tagName.toLowerCase() === "style" ||
-            (n.tagName.toLowerCase() === "link" &&
-              (n as HTMLLinkElement).rel === "stylesheet"))
-        ) {
-          void moveToShadow(n);
-        } else {
-          orig.prepend.call(docHead, n);
-        }
-      }
-    };
-  }
-
-  // MutationObserver fallback: catch anything that bypasses patched methods
-  const headObserver = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const n of Array.from(m.addedNodes)) {
-        if (n instanceof HTMLElement) {
-          const tag = n.tagName.toLowerCase();
-          if (
-            tag === "style" ||
-            (tag === "link" && (n as HTMLLinkElement).rel === "stylesheet")
-          ) {
-            void moveToShadow(n);
-          }
-        }
-      }
-    }
+  darkModeObserver = new MutationObserver(syncDark);
+  darkModeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
   });
-
-  headObserver.observe(docHead, { childList: true, subtree: false });
-
-  // initial scan: move existing style/link nodes
-  Array.from(docHead.querySelectorAll("style, link[rel='stylesheet']")).forEach(
-    (n) => {
-      // avoid moving nodes that are obviously injected for the host (optional heuristic could go here)
-      void moveToShadow(n as Node);
-    },
-  );
-
-  // restore function
-  return () => {
-    headObserver.disconnect();
-    docHead.appendChild = orig.appendChild;
-    docHead.insertBefore = orig.insertBefore;
-    if (orig.append) (docHead as any).append = orig.append;
-    if (orig.prepend) (docHead as any).prepend = orig.prepend;
-
-    // teardown any per-node observers and remove cloned nodes from shadow
-    for (const [origNode, info] of movedMap.entries()) {
-      try {
-        if (info.observer) info.observer.disconnect();
-        if (info.clone && info.clone.parentNode === shadow) {
-          info.clone.parentNode!.removeChild(info.clone);
-        }
-      } catch {
-        // ignore errors during restore
-      }
-    }
-    movedMap.clear();
-  };
 }
 
-/** -------- remote loader -------- */
+function teardownDarkModeBridge() {
+  if (darkModeObserver) {
+    darkModeObserver.disconnect();
+    darkModeObserver = null;
+  }
+  darkModeStyleNode = null;
+}
+
+// ─── Shadow Setup ────────────────────────────────────────────────────────────
+// Called once on mount (attaches shadowRoot) and then again on every
+// navigation (clears shadow content, creates a fresh mountPoint).
+
+function setupShadowRoot() {
+  if (!hostContainer.value) return;
+
+  // Attach shadow root once — ShadowRoot cannot be detached or re-attached.
+  if (!shadowRoot) {
+    shadowRoot = hostContainer.value.attachShadow({ mode: "open" });
+  }
+
+  // Wipe ALL previous shadow content (styles, mountPoint, dark bridge).
+  // This is the key fix: each remote gets a completely clean slate.
+  while (shadowRoot.firstChild) {
+    shadowRoot.removeChild(shadowRoot.firstChild);
+  }
+
+  // Fresh mount point
+  mountPoint = document.createElement("div");
+  mountPoint.setAttribute("data-remote-mount", appName.value);
+  mountPoint.style.cssText = "width:100%;height:100%;display:contents;";
+  shadowRoot.appendChild(mountPoint);
+
+  // Live dark mode bridge (always after mountPoint so syncDark can find it)
+  injectDarkModeBridge(shadowRoot);
+}
+
+// ─── Remote Loader ───────────────────────────────────────────────────────────
+
 async function loadRemote() {
   error.value = null;
-  if (!mountPoint) return;
+  if (!mountPoint || !shadowRoot) return;
 
   isLoading.value = true;
   mountPoint.innerHTML = "";
 
-  // Ensure shadow root HEAD patch is active for the *entire* lifetime of the remote
-  if (!restoreHeadPatch && shadowRoot) {
-    restoreHeadPatch = patchHeadToShadow(shadowRoot);
-  }
-
   try {
-    // expose basename for remotes who read window.BASENAME
+    // Expose basename for remotes that read window.BASENAME
     (window as any).BASENAME = `/remote/${appName.value}`;
-
-    // reset last module reference
     lastRemoteModule = null;
 
     if (appName.value === "vite_react_remoteapp") {
@@ -292,52 +188,31 @@ async function loadRemote() {
     } else if (appName.value === "vite_vue_remoteapp") {
       const module = await import("vite_vue_remoteapp/ViteVueRemoteComponent");
       lastRemoteModule = module;
-      // prefer mount API: module.mount(el, { basename, memory })
       if (typeof module.mount === "function") {
         const result = await module.mount(mountPoint!, {
           basename: (window as any).BASENAME,
           memory: false,
         });
-        // remote may return { app, router } or the app itself
         vueAppInstance = result?.app ?? result ?? null;
       } else {
-        // fallback: module.default is a root component (simple remote)
         const component = module.default;
         const { createApp } = await import("vue");
         vueAppInstance = (createApp as any)(component);
         vueAppInstance.mount(mountPoint);
       }
-      // } else if (appName.value === "vite_svelte_remoteapp") {
-      //   const module = await import(
-      //     "vite_svelte_remoteapp/ViteSvelteRemoteComponent"
-      //   );
-      //   lastRemoteModule = module;
-      //   const SvelteComponent = module.default;
-      //   svelteInstance = new SvelteComponent({ target: mountPoint! });
-      // }
-
-      // In your loader's loadRemote function, update the Svelte section:
     } else if (appName.value === "vite_svelte_remoteapp") {
       const module =
         await import("vite_svelte_remoteapp/ViteSvelteRemoteComponent");
       lastRemoteModule = module;
-
-      // Check if it's a Svelte 5 component with mount function
       if (typeof module.mount === "function") {
-        // Use the exported mount function (Svelte 5 style)
         svelteInstance = module.mount(mountPoint!, {
-          props: {
-            basename: (window as any).BASENAME,
-          },
+          props: { basename: (window as any).BASENAME },
         });
       } else {
-        // Fallback to legacy Svelte constructor
         const SvelteComponent = module.default;
         svelteInstance = new SvelteComponent({
           target: mountPoint!,
-          props: {
-            basename: (window as any).BASENAME,
-          },
+          props: { basename: (window as any).BASENAME },
         });
       }
     } else if (appName.value === "vite_solidjs_remoteapp") {
@@ -346,47 +221,12 @@ async function loadRemote() {
       lastRemoteModule = module;
       const SolidComponent = module.default;
       const { render } = await import("solid-js/web");
-      // render returns a disposer function
       solidDisposer = render(() => (SolidComponent as any)(), mountPoint!);
     } else if (appName.value === "webpack_react_remoteapp") {
       const module =
         await import("webpack_react_remoteapp/WebpackReactRemoteComponent");
       lastRemoteModule = module;
       const component = module.default;
-      // gather stylesheet texts (best-effort) then adopt into shadow root (opt)
-      try {
-        const stylesheets = Array.from(document.styleSheets);
-        const cssTexts = await Promise.all(
-          stylesheets.map(async (sheet) => {
-            try {
-              return Array.from((sheet as CSSStyleSheet).cssRules)
-                .map((r) => (r as CSSRule).cssText)
-                .join("\n");
-            } catch {
-              if ((sheet as any).href) {
-                try {
-                  const res = await fetch((sheet as any).href);
-                  return await res.text();
-                } catch {
-                  return "";
-                }
-              }
-              return "";
-            }
-          }),
-        );
-        if (shadowRoot && "adoptedStyleSheets" in shadowRoot) {
-          const sheet = new CSSStyleSheet();
-          await (sheet as any).replace(cssTexts.join("\n"));
-          (shadowRoot as any).adoptedStyleSheets = [
-            (shadowRoot as any).adoptedStyleSheets?.[0],
-            sheet,
-          ].filter(Boolean);
-        }
-      } catch {
-        // ignore adoptedStyleSheets failures
-      }
-
       const [React, ReactDOM] = await Promise.all([
         import("react"),
         import("react-dom/client"),
@@ -397,7 +237,6 @@ async function loadRemote() {
       const module =
         await import("webpack_vue_remoteapp/WebpackVueRemoteComponent");
       lastRemoteModule = module;
-      // prefer exported mount API if present
       if (typeof module.mount === "function") {
         const result = await module.mount(mountPoint!);
         vueAppInstance = result?.app ?? result ?? null;
@@ -405,12 +244,10 @@ async function loadRemote() {
         typeof module.default === "function" ||
         typeof module.default === "object"
       ) {
-        // fallback: if default is a bootstrap that returns app (webpack remotes often expose a bootstrap)
         try {
           const maybeReturned = module.default(mountPoint);
           vueAppInstance = maybeReturned ?? null;
         } catch {
-          // fallback to attempt createApp
           const { createApp } = await import("vue");
           vueAppInstance = (createApp as any)(module.default);
           vueAppInstance.mount(mountPoint);
@@ -423,10 +260,8 @@ async function loadRemote() {
     } else if (appName.value === "angular_remoteapp") {
       const module = await import("angular_remoteapp/Component");
       lastRemoteModule = module;
-
       if (typeof module.mount === "function") {
         const result = await module.mount(mountPoint!);
-        // Store the destroy function if returned
         if (result && typeof result.destroy === "function") {
           lastRemoteModule.unmount = result.destroy;
         }
@@ -437,30 +272,46 @@ async function loadRemote() {
       throw new Error(`Unknown remote app: ${appName.value}`);
     }
 
+    // After the remote has mounted and (potentially) injected <style> nodes
+    // into document.head via cssInjectedByJs, move those remote-owned styles
+    // into the shadow root so they don't pollute the host document.
+    await nextTick();
+    relocateRemoteStyles(shadowRoot!);
+
     console.info(`Remote app "${appName.value}" loaded successfully`);
   } catch (e: any) {
     console.error(`Failed to load remote "${appName.value}"`, e);
     error.value = e?.message ?? String(e);
   } finally {
     isLoading.value = false;
-    // DO NOT restore head patch here — restore only on cleanup/unmount
   }
 }
 
-/** -------- cleanup -------- */
+// ─── Style Relocation ────────────────────────────────────────────────────────
+// After a remote mounts, any <style data-remote-css> nodes it injected into
+// document.head are moved into the shadow root. This keeps the host document
+// clean and scopes each remote's styles inside its own shadow boundary.
+
+function relocateRemoteStyles(shadow: ShadowRoot) {
+  const remoteStyles = Array.from(
+    document.head.querySelectorAll("style[data-remote-css]"),
+  );
+  for (const node of remoteStyles) {
+    shadow.appendChild(node); // moves the node out of head into shadow
+  }
+}
+
+// ─── Cleanup ─────────────────────────────────────────────────────────────────
+
 function cleanup() {
-  // call remote-provided unmount if available
+  // Call remote-provided unmount if available
   try {
     if (lastRemoteModule && typeof lastRemoteModule.unmount === "function") {
-      try {
-        lastRemoteModule.unmount();
-      } catch {
-        // ignore remote unmount errors
-      }
+      lastRemoteModule.unmount();
     }
   } catch {}
 
-  // vue app instance
+  // Vue
   try {
     if (vueAppInstance && typeof vueAppInstance.unmount === "function") {
       vueAppInstance.unmount();
@@ -468,7 +319,7 @@ function cleanup() {
     }
   } catch {}
 
-  // react
+  // React
   try {
     if (reactRoot && typeof reactRoot.unmount === "function") {
       reactRoot.unmount();
@@ -476,22 +327,19 @@ function cleanup() {
     }
   } catch {}
 
-  // svelte
+  // Svelte
   try {
     if (svelteInstance) {
-      // Svelte 5 mount returns object with unmount method
       if (typeof svelteInstance.unmount === "function") {
         svelteInstance.unmount();
-      }
-      // Legacy Svelte has $destroy method
-      else if (typeof svelteInstance.$destroy === "function") {
+      } else if (typeof svelteInstance.$destroy === "function") {
         svelteInstance.$destroy();
       }
       svelteInstance = null;
     }
   } catch {}
 
-  // solid
+  // Solid
   try {
     if (typeof solidDisposer === "function") {
       solidDisposer();
@@ -499,66 +347,36 @@ function cleanup() {
     }
   } catch {}
 
-  // webpack + angular
-  try {
-    if (lastRemoteModule && typeof lastRemoteModule.unmount === "function") {
-      lastRemoteModule.unmount();
-    }
-  } catch {}
-
-  // clear mount point
-  if (mountPoint) {
-    mountPoint.innerHTML = "";
-  }
-
-  // restore head patch and clear
-  try {
-    if (restoreHeadPatch) {
-      restoreHeadPatch();
-      restoreHeadPatch = null;
-    }
-  } catch {}
-
   lastRemoteModule = null;
+  mountPoint = null;
+
+  // Tear down dark mode bridge observer (style node lives in shadow which
+  // we're about to wipe, so no need to remove it separately)
+  teardownDarkModeBridge();
+
+  // Wipe shadow content — this removes ALL remote styles, the mountPoint,
+  // and the dark bridge style node in one sweep
+  if (shadowRoot) {
+    while (shadowRoot.firstChild) {
+      shadowRoot.removeChild(shadowRoot.firstChild);
+    }
+  }
 }
 
-/** -------- retry -------- */
+// ─── Retry ───────────────────────────────────────────────────────────────────
+
 async function retryLoad() {
   cleanup();
+  setupShadowRoot();
   await nextTick();
   await loadRemote();
 }
 
-/** -------- lifecycle -------- */
+// ─── Lifecycle ───────────────────────────────────────────────────────────────
+
 onMounted(() => {
   if (hostContainer.value) {
-    if (!shadowRoot) {
-      // attach once
-      shadowRoot = hostContainer.value.attachShadow({ mode: "open" });
-      mountPoint = document.createElement("div");
-      mountPoint.setAttribute("data-remote-mount", appName.value || "");
-      shadowRoot.appendChild(mountPoint);
-
-      // optional: copy root CSS custom properties so :root tokens are available inside shadow
-      try {
-        const rootStyles = getComputedStyle(document.documentElement);
-        let vars = ":host{";
-        for (let i = 0; i < rootStyles.length; i++) {
-          const prop = rootStyles[i];
-          if (prop && prop.startsWith("--")) {
-            vars += `${prop}:${rootStyles.getPropertyValue(prop)};`;
-          }
-        }
-        vars += "}";
-        const cssVarsNode = document.createElement("style");
-        cssVarsNode.textContent = vars;
-        shadowRoot.insertBefore(cssVarsNode, mountPoint);
-      } catch {
-        // ignore CSS var copying if it fails
-      }
-    }
-
-    // start loading remote
+    setupShadowRoot();
     void loadRemote();
   }
 });
@@ -567,13 +385,16 @@ onBeforeUnmount(() => {
   cleanup();
 });
 
-// reload when route param changes
+// Reload when navigating between remote apps
 watch(
   () => route.params.appName,
   async (newVal, oldVal) => {
     if (String(newVal) !== String(oldVal)) {
       appName.value = String(newVal || "");
-      await retryLoad();
+      cleanup();
+      setupShadowRoot();
+      await nextTick();
+      await loadRemote();
     }
   },
 );
@@ -587,7 +408,6 @@ watch(
   box-sizing: border-box;
 }
 
-/* spinner */
 .animate-spin {
   animation: spin 1s linear infinite;
 }
