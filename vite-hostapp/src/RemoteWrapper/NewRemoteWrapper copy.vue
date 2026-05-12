@@ -1,43 +1,60 @@
 <template>
-  <div class="remote-wrapper w-full h-full p-2">
-    <div
-      v-if="isLoading"
-      class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
-    >
-      <svg
-        class="animate-spin h-5 w-5"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-        <path d="M22 12a10 10 0 0 1-10 10" />
-      </svg>
-      <span>Loading...</span>
-    </div>
+  <div class="w-full h-full flex flex-col bg-white dark:bg-gray-950 p-3 sm:p-5">
+    <div class="w-full flex flex-col mb-6 shrink-0">
+      <div class="flex items-center justify-start gap-x-2">
+        <GoBackBtn />
+        <h2
+          class="text-3xl font-bold bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent font-heading"
+        >
+          {{ appName }}
+        </h2>
+      </div>
 
-    <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
-      <p>Error loading remote app: {{ error }}</p>
-      <button
-        @click="retryLoad"
-        class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-      >
-        Retry
-      </button>
+      <p class="text-gray-600 dark:text-gray-400">
+        View the remote app and its components
+      </p>
     </div>
+    <div class="remote-wrapper w-full h-full overflow-y-auto">
+      <div
+        v-if="isLoading"
+        class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
+      >
+        <svg
+          class="animate-spin h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+          <path d="M22 12a10 10 0 0 1-10 10" />
+        </svg>
+        <span>Loading...</span>
+      </div>
 
-    <!-- container that hosts the shadowRoot -->
-    <div
-      ref="hostContainer"
-      class="remote-container rounded-none md:rounded-lg"
-    ></div>
+      <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
+        <p>Error loading remote app: {{ error }}</p>
+        <button
+          @click="retryLoad"
+          class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Retry
+        </button>
+      </div>
+
+      <!-- container that hosts the shadowRoot -->
+      <div
+        ref="hostContainer"
+        class="remote-container rounded-none md:rounded-lg"
+      ></div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
+import GoBackBtn from "../components/GoBack/GoBackBtn.vue";
 
 const route = useRoute();
 const appName = ref(String(route.params.appName ?? ""));
@@ -49,27 +66,35 @@ let mountPoint: HTMLElement | null = null;
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 
-// remote instances
+// remote framework instances
 let vueAppInstance: any = null;
 let reactRoot: any = null;
 let svelteInstance: any = null;
 let solidDisposer: any = null;
-
-// last imported module (so we can call exported unmount if present)
 let lastRemoteModule: any = null;
 
-// restore function for head patching
+// restore function for head patching — scoped per loadRemote call
 let restoreHeadPatch: (() => void) | null = null;
 
+// ─── Bug Fix #5 & #1: track which nodes were injected BY the remote (not by
+//     the host) so the initial scan never moves pre-existing host styles.
+//     We snapshot head children just before the remote loads and only intercept
+//     nodes added AFTER that snapshot.
+let preLoadHeadChildren: Set<Node> = new Set();
+
 /** -------- helper: robust head -> shadow patch -------- */
-function patchHeadToShadow(shadow: ShadowRoot) {
+function patchHeadToShadow(shadow: ShadowRoot): () => void {
   const docHead = document.head as any;
 
   const orig = {
-    appendChild: docHead.appendChild,
-    insertBefore: docHead.insertBefore,
-    append: (docHead as any).append?.bind(docHead),
-    prepend: (docHead as any).prepend?.bind(docHead),
+    appendChild: docHead.appendChild.bind(
+      docHead,
+    ) as typeof docHead.appendChild,
+    insertBefore: docHead.insertBefore.bind(
+      docHead,
+    ) as typeof docHead.insertBefore,
+    append: (docHead.append as Function | undefined)?.bind(docHead),
+    prepend: (docHead.prepend as Function | undefined)?.bind(docHead),
   };
 
   // map originalNode -> { clone, observer }
@@ -78,8 +103,7 @@ function patchHeadToShadow(shadow: ShadowRoot) {
     { clone: HTMLElement; observer?: MutationObserver }
   >();
 
-  // utility: inline link href (CORS may block)
-  async function fetchCssText(href: string) {
+  async function fetchCssText(href: string): Promise<string | null> {
     try {
       const res = await fetch(href, { mode: "cors" });
       if (!res.ok) throw new Error("Fetch failed");
@@ -89,17 +113,20 @@ function patchHeadToShadow(shadow: ShadowRoot) {
     }
   }
 
-  async function moveToShadow(node: Node) {
+  async function moveToShadow(node: Node): Promise<void> {
     if (!(node instanceof HTMLElement)) return;
-    if (movedMap.has(node)) return; // already moved/observed
+    if (movedMap.has(node)) return;
+
+    // ── Bug Fix #5: skip nodes that existed before this remote loaded ──
+    if (preLoadHeadChildren.has(node)) return;
 
     const tag = node.tagName.toLowerCase();
+
     if (tag === "style") {
       const clone = document.createElement("style");
       clone.textContent = node.textContent;
       shadow.appendChild(clone);
 
-      // observe original style node for text changes (HMR updates)
       const mo = new MutationObserver(() => {
         clone.textContent = node.textContent;
       });
@@ -115,155 +142,140 @@ function patchHeadToShadow(shadow: ShadowRoot) {
         const s = document.createElement("style");
         s.textContent = css;
         shadow.appendChild(s);
-        // no live updates possible unless server/loader re-inserts new <style> nodes;
         movedMap.set(node, { clone: s });
         return;
       } else {
-        // can't fetch (CORS or network) -> leave the link in head (fallback)
-        return orig.appendChild.call(docHead, node);
+        // CORS/network blocked — leave in head as fallback
+        orig.appendChild(node);
+        return;
       }
     }
 
-    // otherwise pass through to original head
-    return orig.appendChild.call(docHead, node);
+    // non-style/link node — pass through to real head
+    orig.appendChild(node);
   }
 
-  // patched methods
-  docHead.appendChild = function (node: Node) {
-    if (
-      node instanceof HTMLElement &&
-      (node.tagName.toLowerCase() === "style" ||
-        (node.tagName.toLowerCase() === "link" &&
-          (node as HTMLLinkElement).rel === "stylesheet"))
-    ) {
-      // don't await here (fire-and-forget), it's fine — moveToShadow updates clones async
+  // ── Patched DOM methods ──
+  docHead.appendChild = function <T extends Node>(node: T): T {
+    if (isStyleOrLink(node)) {
       void moveToShadow(node);
       return node;
     }
-    return orig.appendChild.call(this, node);
+    return orig.appendChild(node);
   };
 
-  docHead.insertBefore = function (node: Node, refNode: Node | null) {
-    if (
-      node instanceof HTMLElement &&
-      (node.tagName.toLowerCase() === "style" ||
-        (node.tagName.toLowerCase() === "link" &&
-          (node as HTMLLinkElement).rel === "stylesheet"))
-    ) {
+  docHead.insertBefore = function <T extends Node>(
+    node: T,
+    ref: Node | null,
+  ): T {
+    if (isStyleOrLink(node)) {
       void moveToShadow(node);
       return node;
     }
-    return orig.insertBefore.call(this, node, refNode);
+    return orig.insertBefore(node, ref);
   };
 
   if (orig.append) {
-    (docHead as any).append = function (...nodes: any[]) {
+    docHead.append = function (...nodes: (Node | string)[]) {
       for (const n of nodes) {
-        if (
-          n instanceof HTMLElement &&
-          (n.tagName.toLowerCase() === "style" ||
-            (n.tagName.toLowerCase() === "link" &&
-              (n as HTMLLinkElement).rel === "stylesheet"))
-        ) {
+        if (n instanceof Node && isStyleOrLink(n)) {
           void moveToShadow(n);
         } else {
-          orig.append.call(docHead, n);
+          orig.append!(n);
         }
       }
     };
   }
 
   if (orig.prepend) {
-    (docHead as any).prepend = function (...nodes: any[]) {
+    docHead.prepend = function (...nodes: (Node | string)[]) {
       for (const n of nodes) {
-        if (
-          n instanceof HTMLElement &&
-          (n.tagName.toLowerCase() === "style" ||
-            (n.tagName.toLowerCase() === "link" &&
-              (n as HTMLLinkElement).rel === "stylesheet"))
-        ) {
+        if (n instanceof Node && isStyleOrLink(n)) {
           void moveToShadow(n);
         } else {
-          orig.prepend.call(docHead, n);
+          orig.prepend!(n);
         }
       }
     };
   }
 
-  // MutationObserver fallback: catch anything that bypasses patched methods
+  // MutationObserver fallback for anything that bypasses patched methods
   const headObserver = new MutationObserver((mutations) => {
     for (const m of mutations) {
       for (const n of Array.from(m.addedNodes)) {
-        if (n instanceof HTMLElement) {
-          const tag = n.tagName.toLowerCase();
-          if (
-            tag === "style" ||
-            (tag === "link" && (n as HTMLLinkElement).rel === "stylesheet")
-          ) {
-            void moveToShadow(n);
-          }
+        if (
+          n instanceof HTMLElement &&
+          isStyleOrLink(n) &&
+          !preLoadHeadChildren.has(n)
+        ) {
+          void moveToShadow(n);
         }
       }
     }
   });
-
   headObserver.observe(docHead, { childList: true, subtree: false });
 
-  // initial scan: move existing style/link nodes
-  Array.from(docHead.querySelectorAll("style, link[rel='stylesheet']")).forEach(
-    (n) => {
-      // avoid moving nodes that are obviously injected for the host (optional heuristic could go here)
-      void moveToShadow(n as Node);
-    }
-  );
+  // ── Bug Fix #5: NO initial scan — we only capture nodes added after load ──
+  // (preLoadHeadChildren already excludes anything present before loadRemote)
 
-  // restore function
   return () => {
     headObserver.disconnect();
     docHead.appendChild = orig.appendChild;
     docHead.insertBefore = orig.insertBefore;
-    if (orig.append) (docHead as any).append = orig.append;
-    if (orig.prepend) (docHead as any).prepend = orig.prepend;
+    if (orig.append) docHead.append = orig.append;
+    if (orig.prepend) docHead.prepend = orig.prepend;
 
-    // teardown any per-node observers and remove cloned nodes from shadow
-    for (const [origNode, info] of movedMap.entries()) {
+    for (const [, info] of movedMap.entries()) {
       try {
-        if (info.observer) info.observer.disconnect();
-        if (info.clone && info.clone.parentNode === shadow) {
-          info.clone.parentNode!.removeChild(info.clone);
+        info.observer?.disconnect();
+        if (info.clone.parentNode === shadow) {
+          shadow.removeChild(info.clone);
         }
       } catch {
-        // ignore errors during restore
+        // ignore teardown errors
       }
     }
     movedMap.clear();
   };
 }
 
+function isStyleOrLink(node: Node): boolean {
+  if (!(node instanceof HTMLElement)) return false;
+  const tag = node.tagName.toLowerCase();
+  return (
+    tag === "style" ||
+    (tag === "link" && (node as HTMLLinkElement).rel === "stylesheet")
+  );
+}
+
 /** -------- remote loader -------- */
-async function loadRemote() {
+async function loadRemote(): Promise<void> {
   error.value = null;
   if (!mountPoint) return;
 
   isLoading.value = true;
   mountPoint.innerHTML = "";
 
-  // Ensure shadow root HEAD patch is active for the *entire* lifetime of the remote
-  if (!restoreHeadPatch && shadowRoot) {
+  // ── Bug Fix #1 & #5: snapshot existing head nodes BEFORE the remote loads ──
+  // Only nodes added after this point belong to the remote.
+  preLoadHeadChildren = new Set(Array.from(document.head.childNodes));
+
+  // ── Bug Fix #1: always create a fresh head patch per load so movedMap is clean ──
+  if (restoreHeadPatch) {
+    restoreHeadPatch();
+    restoreHeadPatch = null;
+  }
+  if (shadowRoot) {
     restoreHeadPatch = patchHeadToShadow(shadowRoot);
   }
 
   try {
-    // expose basename for remotes who read window.BASENAME
     (window as any).BASENAME = `/remote/${appName.value}`;
-
-    // reset last module reference
     lastRemoteModule = null;
 
     if (appName.value === "vite_react_remoteapp") {
-      const module = await import(
-        "vite_react_remoteapp/ViteReactRemoteComponent"
-      );
+      const module =
+        await import("vite_react_remoteapp/ViteReactRemoteComponent");
       lastRemoteModule = module;
       const component = module.default;
       const [React, ReactDOM] = await Promise.all([
@@ -275,71 +287,46 @@ async function loadRemote() {
     } else if (appName.value === "vite_vue_remoteapp") {
       const module = await import("vite_vue_remoteapp/ViteVueRemoteComponent");
       lastRemoteModule = module;
-      // prefer mount API: module.mount(el, { basename, memory })
       if (typeof module.mount === "function") {
         const result = await module.mount(mountPoint!, {
           basename: (window as any).BASENAME,
           memory: false,
         });
-        // remote may return { app, router } or the app itself
         vueAppInstance = result?.app ?? result ?? null;
       } else {
-        // fallback: module.default is a root component (simple remote)
         const component = module.default;
         const { createApp } = await import("vue");
         vueAppInstance = (createApp as any)(component);
         vueAppInstance.mount(mountPoint);
       }
-      // } else if (appName.value === "vite_svelte_remoteapp") {
-      //   const module = await import(
-      //     "vite_svelte_remoteapp/ViteSvelteRemoteComponent"
-      //   );
-      //   lastRemoteModule = module;
-      //   const SvelteComponent = module.default;
-      //   svelteInstance = new SvelteComponent({ target: mountPoint! });
-      // }
-
-      // In your loader's loadRemote function, update the Svelte section:
     } else if (appName.value === "vite_svelte_remoteapp") {
-      const module = await import(
-        "vite_svelte_remoteapp/ViteSvelteRemoteComponent"
-      );
+      const module =
+        await import("vite_svelte_remoteapp/ViteSvelteRemoteComponent");
       lastRemoteModule = module;
-
-      // Check if it's a Svelte 5 component with mount function
       if (typeof module.mount === "function") {
-        // Use the exported mount function (Svelte 5 style)
         svelteInstance = module.mount(mountPoint!, {
-          props: {
-            basename: (window as any).BASENAME,
-          },
+          props: { basename: (window as any).BASENAME },
         });
       } else {
-        // Fallback to legacy Svelte constructor
         const SvelteComponent = module.default;
         svelteInstance = new SvelteComponent({
           target: mountPoint!,
-          props: {
-            basename: (window as any).BASENAME,
-          },
+          props: { basename: (window as any).BASENAME },
         });
       }
     } else if (appName.value === "vite_solidjs_remoteapp") {
-      const module = await import(
-        "vite_solidjs_remoteapp/ViteSolidRemoteComponent"
-      );
+      const module =
+        await import("vite_solidjs_remoteapp/ViteSolidRemoteComponent");
       lastRemoteModule = module;
       const SolidComponent = module.default;
       const { render } = await import("solid-js/web");
-      // render returns a disposer function
       solidDisposer = render(() => (SolidComponent as any)(), mountPoint!);
     } else if (appName.value === "webpack_react_remoteapp") {
-      const module = await import(
-        "webpack_react_remoteapp/WebpackReactRemoteComponent"
-      );
+      const module =
+        await import("webpack_react_remoteapp/WebpackReactRemoteComponent");
       lastRemoteModule = module;
       const component = module.default;
-      // gather stylesheet texts (best-effort) then adopt into shadow root (opt)
+
       try {
         const stylesheets = Array.from(document.styleSheets);
         const cssTexts = await Promise.all(
@@ -359,13 +346,13 @@ async function loadRemote() {
               }
               return "";
             }
-          })
+          }),
         );
         if (shadowRoot && "adoptedStyleSheets" in shadowRoot) {
           const sheet = new CSSStyleSheet();
           await (sheet as any).replace(cssTexts.join("\n"));
           (shadowRoot as any).adoptedStyleSheets = [
-            (shadowRoot as any).adoptedStyleSheets?.[0],
+            ...((shadowRoot as any).adoptedStyleSheets ?? []),
             sheet,
           ].filter(Boolean);
         }
@@ -380,31 +367,36 @@ async function loadRemote() {
       reactRoot = (ReactDOM as any).createRoot(mountPoint!);
       reactRoot.render(React.createElement(component));
     } else if (appName.value === "webpack_vue_remoteapp") {
-      const module = await import(
-        "webpack_vue_remoteapp/WebpackVueRemoteComponent"
-      );
+      const module =
+        await import("webpack_vue_remoteapp/WebpackVueRemoteComponent");
       lastRemoteModule = module;
-      // prefer exported mount API if present
+
       if (typeof module.mount === "function") {
         const result = await module.mount(mountPoint!);
         vueAppInstance = result?.app ?? result ?? null;
-      } else if (
-        typeof module.default === "function" ||
-        typeof module.default === "object"
-      ) {
-        // fallback: if default is a bootstrap that returns app (webpack remotes often expose a bootstrap)
-        try {
-          const maybeReturned = module.default(mountPoint);
-          vueAppInstance = maybeReturned ?? null;
-        } catch {
-          // fallback to attempt createApp
+      } else if (module.default !== undefined) {
+        // ── Bug Fix #3: handle both component-object and bootstrap-function cases ──
+        if (typeof module.default === "function") {
+          // Could be a bootstrap function — try calling it
+          try {
+            const maybeApp = await module.default(mountPoint);
+            // If it returned something with an unmount, treat as already-mounted app
+            vueAppInstance = maybeApp ?? null;
+          } catch {
+            // It's a component constructor, not a bootstrap — mount via createApp
+            const { createApp } = await import("vue");
+            vueAppInstance = (createApp as any)(module.default);
+            vueAppInstance.mount(mountPoint);
+          }
+        } else {
+          // module.default is a component options object
           const { createApp } = await import("vue");
           vueAppInstance = (createApp as any)(module.default);
-          vueAppInstance.mount(mountPoint);
+          vueAppInstance.mount(mountPoint); // ← was missing in original catch block
         }
       } else {
         throw new Error(
-          "Cannot bootstrap webpack_vue_remoteapp: no mount or usable default export"
+          "Cannot bootstrap webpack_vue_remoteapp: no mount or usable default export",
         );
       }
     } else if (appName.value === "angular_remoteapp") {
@@ -413,9 +405,11 @@ async function loadRemote() {
 
       if (typeof module.mount === "function") {
         const result = await module.mount(mountPoint!);
-        // Store the destroy function if returned
+        // ── Bug Fix #4: store destroy separately; don't write onto lastRemoteModule ──
+        // cleanup() will call angularDestroy directly instead of going through
+        // lastRemoteModule.unmount (which was being called twice).
         if (result && typeof result.destroy === "function") {
-          lastRemoteModule.unmount = result.destroy;
+          angularDestroy = result.destroy;
         }
       } else {
         throw new Error("Angular remote does not export a mount function");
@@ -430,24 +424,34 @@ async function loadRemote() {
     error.value = e?.message ?? String(e);
   } finally {
     isLoading.value = false;
-    // DO NOT restore head patch here — restore only on cleanup/unmount
   }
 }
 
+// ── Bug Fix #4: dedicated slot for the angular destroy fn ──
+let angularDestroy: (() => void) | null = null;
+
 /** -------- cleanup -------- */
-function cleanup() {
-  // call remote-provided unmount if available
+function cleanup(): void {
+  // Angular — call its specific destroy once
   try {
-    if (lastRemoteModule && typeof lastRemoteModule.unmount === "function") {
-      try {
-        lastRemoteModule.unmount();
-      } catch {
-        // ignore remote unmount errors
-      }
+    if (typeof angularDestroy === "function") {
+      angularDestroy();
+      angularDestroy = null;
     }
   } catch {}
 
-  // vue app instance
+  // Generic remote-provided unmount (non-angular remotes that export it)
+  try {
+    if (
+      lastRemoteModule &&
+      typeof lastRemoteModule.unmount === "function" &&
+      appName.value !== "angular_remoteapp" // already handled above
+    ) {
+      lastRemoteModule.unmount();
+    }
+  } catch {}
+
+  // Vue
   try {
     if (vueAppInstance && typeof vueAppInstance.unmount === "function") {
       vueAppInstance.unmount();
@@ -455,7 +459,7 @@ function cleanup() {
     }
   } catch {}
 
-  // react
+  // React
   try {
     if (reactRoot && typeof reactRoot.unmount === "function") {
       reactRoot.unmount();
@@ -463,22 +467,19 @@ function cleanup() {
     }
   } catch {}
 
-  // svelte
+  // Svelte 5 (unmount method) or Svelte 4 ($destroy)
   try {
     if (svelteInstance) {
-      // Svelte 5 mount returns object with unmount method
       if (typeof svelteInstance.unmount === "function") {
         svelteInstance.unmount();
-      }
-      // Legacy Svelte has $destroy method
-      else if (typeof svelteInstance.$destroy === "function") {
+      } else if (typeof svelteInstance.$destroy === "function") {
         svelteInstance.$destroy();
       }
       svelteInstance = null;
     }
   } catch {}
 
-  // solid
+  // Solid
   try {
     if (typeof solidDisposer === "function") {
       solidDisposer();
@@ -486,31 +487,24 @@ function cleanup() {
     }
   } catch {}
 
-  // webpack + angular
-  try {
-    if (lastRemoteModule && typeof lastRemoteModule.unmount === "function") {
-      lastRemoteModule.unmount();
-    }
-  } catch {}
+  lastRemoteModule = null;
 
-  // clear mount point
+  // Clear mount point DOM
   if (mountPoint) {
     mountPoint.innerHTML = "";
   }
 
-  // restore head patch and clear
+  // ── Bug Fix #1: restore head patch on every cleanup so next load gets a fresh one ──
   try {
     if (restoreHeadPatch) {
       restoreHeadPatch();
       restoreHeadPatch = null;
     }
   } catch {}
-
-  lastRemoteModule = null;
 }
 
 /** -------- retry -------- */
-async function retryLoad() {
+async function retryLoad(): Promise<void> {
   cleanup();
   await nextTick();
   await loadRemote();
@@ -520,19 +514,18 @@ async function retryLoad() {
 onMounted(() => {
   if (hostContainer.value) {
     if (!shadowRoot) {
-      // attach once
       shadowRoot = hostContainer.value.attachShadow({ mode: "open" });
       mountPoint = document.createElement("div");
       mountPoint.setAttribute("data-remote-mount", appName.value || "");
       shadowRoot.appendChild(mountPoint);
 
-      // optional: copy root CSS custom properties so :root tokens are available inside shadow
+      // Copy host CSS custom properties so :root tokens work inside shadow DOM
       try {
         const rootStyles = getComputedStyle(document.documentElement);
         let vars = ":host{";
         for (let i = 0; i < rootStyles.length; i++) {
           const prop = rootStyles[i];
-          if (prop && prop.startsWith("--")) {
+          if (prop?.startsWith("--")) {
             vars += `${prop}:${rootStyles.getPropertyValue(prop)};`;
           }
         }
@@ -545,7 +538,6 @@ onMounted(() => {
       }
     }
 
-    // start loading remote
     void loadRemote();
   }
 });
@@ -554,7 +546,7 @@ onBeforeUnmount(() => {
   cleanup();
 });
 
-// reload when route param changes
+// Reload when route param changes (SPA navigation)
 watch(
   () => route.params.appName,
   async (newVal, oldVal) => {
@@ -562,7 +554,7 @@ watch(
       appName.value = String(newVal || "");
       await retryLoad();
     }
-  }
+  },
 );
 </script>
 
@@ -574,7 +566,6 @@ watch(
   box-sizing: border-box;
 }
 
-/* spinner */
 .animate-spin {
   animation: spin 1s linear infinite;
 }
