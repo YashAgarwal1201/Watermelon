@@ -52,6 +52,11 @@
 // // }
 
 // v12052026
+import "./index.css";
+import "primereact/resources/themes/lara-light-blue/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
+
 import Home from "./components/Home";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
@@ -59,8 +64,6 @@ import SubPage1 from "./components/SubPage1";
 import SubPage2 from "./components/SubPage2";
 
 export default function App() {
-  // When loaded via host, window.BASENAME is set by NewRemoteWrapper before
-  // the module is mounted. Falls back to the standalone path.
   const basename = (window as any)?.BASENAME ?? "remote/vite_react_remoteapp";
 
   return (

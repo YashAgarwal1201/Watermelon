@@ -60,6 +60,19 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    cssInjectedByJsPlugin({
+      injectCodeFunction: function (cssCode) {
+        const escaped = cssCode
+          .replace(/\\/g, "\\\\")
+          .replace(/`/g, "\\`")
+          .replace(/\$\{/g, "\\${");
+        return (
+          "(function(){try{var s=document.createElement('style');s.setAttribute('data-remote-css','1');s.textContent=`" +
+          escaped +
+          "`;document.head.appendChild(s);}catch(e){console.warn('css inject failed',e);}})();"
+        );
+      },
+    }),
     federation({
       name: "vite_react_remoteapp",
       filename: "remoteEntry.js",
@@ -68,21 +81,6 @@ export default defineConfig({
         "./ViteReactRemoteComponent": "./src/App.tsx",
       },
       shared: ["react", "react-dom", "primereact"],
-    }),
-    cssInjectedByJsPlugin({
-      injectCodeFunction: function (cssCode) {
-        return `
-(function(){
-  try {
-    var s = document.createElement('style');
-    s.setAttribute('data-remote-css', '1');
-    s.textContent = ${JSON.stringify(cssCode)};
-    document.head.appendChild(s);
-  } catch(e) {
-    console.warn('[vite_react_remoteapp] CSS injection failed', e);
-  }
-})();`;
-      },
     }),
   ],
   build: {
