@@ -6,11 +6,11 @@ const Header = () => {
       <Link to="/" className="px-4 p-button">
         Home
       </Link>
-      <Link to="/sub-page-1" className="px-4 p-button">
-        Sub Page 1
+      <Link to="/all-questions" className="px-4 p-button">
+        All Questions
       </Link>
-      <Link to="/sub-page-2" className="px-4 p-button">
-        Sub Page 2
+      <Link to="/categories" className="px-4 p-button">
+        Categories
       </Link>
     </div>
   );

@@ -44,8 +44,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="sub-page-1" element={<SubPage1 />} />
-          <Route path="sub-page-2" element={<SubPage2 />} />
+          <Route path="all-questions" element={<SubPage1 />} />
+          <Route path="categories" element={<SubPage2 />} />
         </Route>
       </Routes>
     </BrowserRouter>

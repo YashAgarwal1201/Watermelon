@@ -34,6 +34,16 @@
   </div>
 </template>
 
+<script lang="ts">
+// ─── MODULE-LEVEL CSS cache ───────────────────────────────────────────────────
+// Declared in a plain <script> block (not <script setup>) so it lives at
+// module scope and survives across component mount/unmount cycles.
+// <script setup> runs once per instance — navigating away destroys the instance
+// and its cssCache with it, so on the way back the bucket is empty and
+// replayCssIntoShadow has nothing to replay. Module scope fixes this.
+const cssCache = new Map<string, string[]>();
+</script>
+
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
@@ -55,17 +65,8 @@ let solidDisposer: any = null;
 let lastRemoteModule: any = null;
 let restoreHeadPatch: (() => void) | null = null;
 
-// ─── Per-remote CSS text cache ────────────────────────────────────────────────
-// On first load the head-patch captures every style/link that the remote's
-// module-evaluation side-effects inject. On every subsequent navigation we
-// replay that captured text directly into the freshly-wiped shadow, because
-// the browser module cache means the injection side-effects never fire again.
-const cssCache = new Map<string, string[]>();
-
-// ─── load-id cancellation guard ───────────────────────────────────────────────
 let loadId = 0;
 
-// ─── isStyleOrLink ────────────────────────────────────────────────────────────
 function isStyleOrLink(node: Node): boolean {
   if (!(node instanceof HTMLElement)) return false;
   const t = node.tagName.toLowerCase();
@@ -75,10 +76,6 @@ function isStyleOrLink(node: Node): boolean {
   );
 }
 
-// ─── patchHeadToShadow ────────────────────────────────────────────────────────
-// Intercepts ALL four DOM insertion methods on document.head for the duration
-// of a single remote load, redirecting style/link nodes into the shadow instead.
-// Returns a cleanup function that restores the originals.
 function patchHeadToShadow(
   shadow: ShadowRoot,
   capturedId: number,
@@ -119,7 +116,6 @@ function patchHeadToShadow(
       clone.setAttribute("data-remote-css", remoteName);
       clone.textContent = css;
       shadow.appendChild(clone);
-      // Keep clone in sync if the original is mutated (e.g. HMR)
       new MutationObserver(() => {
         clone.textContent = node.textContent;
       }).observe(node, { characterData: true, childList: true, subtree: true });
@@ -163,8 +159,6 @@ function patchHeadToShadow(
     };
   }
 
-  // Safety-net: some runtimes bypass the methods above and mutate the DOM
-  // directly (e.g. innerHTML assignment, adoptedStyleSheets). Catch those too.
   const mo = new MutationObserver((records) => {
     for (const r of records)
       for (const n of Array.from(r.addedNodes))
@@ -181,9 +175,6 @@ function patchHeadToShadow(
   };
 }
 
-// ─── replayCssIntoShadow ──────────────────────────────────────────────────────
-// On navigations after the first, the module is cached and its style-injection
-// side-effects won't re-run. We replay what we captured the first time.
 function replayCssIntoShadow(remoteName: string, shadow: ShadowRoot) {
   const bucket = cssCache.get(remoteName);
   if (!bucket?.length) return;
@@ -195,8 +186,6 @@ function replayCssIntoShadow(remoteName: string, shadow: ShadowRoot) {
   }
 }
 
-// ─── buildShadow ─────────────────────────────────────────────────────────────
-// Wipes and reconstructs the shadow DOM, forwarding host CSS variables.
 function buildShadow(): { shadow: ShadowRoot; mount: HTMLElement } {
   if (shadowRoot) {
     while (shadowRoot.firstChild) shadowRoot.removeChild(shadowRoot.firstChild);
@@ -204,8 +193,6 @@ function buildShadow(): { shadow: ShadowRoot; mount: HTMLElement } {
     shadowRoot = hostContainer.value!.attachShadow({ mode: "open" });
   }
 
-  // Forward all CSS custom properties from the host into :host so remotes
-  // that use host design tokens still resolve them correctly.
   try {
     const computed = getComputedStyle(document.documentElement);
     let vars = ":host{";
@@ -227,36 +214,23 @@ function buildShadow(): { shadow: ShadowRoot; mount: HTMLElement } {
   return { shadow: shadowRoot, mount };
 }
 
-// ─── loadRemote ───────────────────────────────────────────────────────────────
 async function loadRemote() {
   error.value = null;
   if (!hostContainer.value) return;
 
-  // Cancel any in-flight async continuations from a previous navigation
   const currentId = ++loadId;
 
-  // Always tear down the previous patch first — never have two patches live
   if (restoreHeadPatch) {
     restoreHeadPatch();
     restoreHeadPatch = null;
   }
 
-  // Rebuild shadow
   const { shadow, mount } = buildShadow();
   mountPoint = mount;
 
   isLoading.value = true;
 
-  // ── CRITICAL ORDER ─────────────────────────────────────────────────────────
-  // 1. Install the head patch BEFORE import() so that any synchronous or
-  //    microtask-level style injection that fires during module evaluation
-  //    is captured and redirected into our fresh shadow.
   restoreHeadPatch = patchHeadToShadow(shadow, currentId, appName.value);
-
-  // 2. If this remote was loaded before, the browser module cache means the
-  //    injection side-effects won't fire again. Replay what we captured.
-  //    Do this AFTER installing the patch (not before) so that if for some
-  //    reason the module DOES re-inject (e.g. dev mode), we don't double-add.
   replayCssIntoShadow(appName.value, shadow);
 
   try {
@@ -266,27 +240,7 @@ async function loadRemote() {
     if (appName.value === "vite_react_remoteapp") {
       const module =
         await import("vite_react_remoteapp/ViteReactRemoteComponent");
-
-      console.log(
-        "[diag] styles in document.head after import:",
-        Array.from(
-          document.head.querySelectorAll(
-            "style[data-remote-css], style[data-remote-css-replay]",
-          ),
-        ).length,
-      );
-      console.log(
-        "[diag] styles in shadow after import:",
-        shadowRoot
-          ? Array.from(shadowRoot.querySelectorAll("style")).length
-          : "no shadow",
-      );
-      console.log(
-        "[diag] cssCache bucket:",
-        cssCache.get("vite_react_remoteapp")?.length ?? 0,
-      );
-
-      if (currentId !== loadId) return; // navigated away while loading
+      if (currentId !== loadId) return;
       lastRemoteModule = module;
       const [React, ReactDOM] = await Promise.all([
         import("react"),
@@ -375,7 +329,7 @@ async function loadRemote() {
 
     console.info(`[RemoteWrapper] "${appName.value}" loaded OK`);
   } catch (e: any) {
-    if (currentId !== loadId) return; // stale — ignore
+    if (currentId !== loadId) return;
     console.error(`[RemoteWrapper] Failed to load "${appName.value}"`, e);
     error.value = e?.message ?? String(e);
   } finally {
@@ -383,7 +337,6 @@ async function loadRemote() {
   }
 }
 
-// ─── cleanup ──────────────────────────────────────────────────────────────────
 function cleanup() {
   try {
     lastRemoteModule?.unmount?.();
