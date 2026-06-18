@@ -1,220 +1,261 @@
-import { useState } from "react";
-import { Card } from "primereact/card";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import { Badge } from "primereact/badge";
-import { Chip } from "primereact/chip";
 import { Divider } from "primereact/divider";
-import { Panel } from "primereact/panel";
-import { ProgressBar } from "primereact/progressbar";
-import "primereact/resources/themes/lara-light-blue/theme.css";
-import "primereact/resources/primereact.min.css";
-import "primeicons/primeicons.css";
+import {
+  questions,
+  questionsByCategory,
+  CATEGORIES,
+  CATEGORY_ICONS,
+  TOTAL_QUESTIONS,
+  type Category,
+} from "../utils/Data";
+
+const CATEGORY_COLORS: Record<
+  Category,
+  { bg: string; text: string; border: string; badge: string }
+> = {
+  "Ancient Civilizations": {
+    bg: "bg-amber-50",
+    text: "text-amber-900",
+    border: "border-amber-200",
+    badge: "bg-amber-100 text-amber-800",
+  },
+  "Medieval World": {
+    bg: "bg-stone-50",
+    text: "text-stone-900",
+    border: "border-stone-200",
+    badge: "bg-stone-100 text-stone-800",
+  },
+  "Age of Exploration": {
+    bg: "bg-teal-50",
+    text: "text-teal-900",
+    border: "border-teal-200",
+    badge: "bg-teal-100 text-teal-800",
+  },
+  "Revolutions & Independence": {
+    bg: "bg-red-50",
+    text: "text-red-900",
+    border: "border-red-200",
+    badge: "bg-red-100 text-red-800",
+  },
+  "World Wars": {
+    bg: "bg-zinc-50",
+    text: "text-zinc-900",
+    border: "border-zinc-300",
+    badge: "bg-zinc-200 text-zinc-800",
+  },
+  "Cold War & Modern Era": {
+    bg: "bg-blue-50",
+    text: "text-blue-900",
+    border: "border-blue-200",
+    badge: "bg-blue-100 text-blue-800",
+  },
+};
+
+const DIFFICULTY_COUNTS = {
+  easy: questions.filter((q) => q.difficulty === "easy").length,
+  medium: questions.filter((q) => q.difficulty === "medium").length,
+  hard: questions.filter((q) => q.difficulty === "hard").length,
+};
 
 const Home = () => {
-  const [counter, setCounter] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const navigate = useNavigate();
+  const [answerVisible, setAnswerVisible] = useState(false);
 
-  const features = [
-    { name: "React 18", version: "18.3.1", status: "Active" },
-    { name: "TypeScript", version: "5.2.2", status: "Active" },
-    { name: "Vite", version: "5.1.0", status: "Active" },
-    { name: "PrimeReact", version: "10.6.6", status: "Active" },
-  ];
+  const questionOfTheDay = useMemo(() => {
+    const seed = new Date().toDateString();
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = (hash << 5) - hash + seed.charCodeAt(i);
+      hash |= 0;
+    }
+    return questions[Math.abs(hash) % questions.length];
+  }, []);
 
-  const federationStats = [
-    { label: "Bundle Size", value: "45KB", icon: "pi-file" },
-    { label: "Load Time", value: "120ms", icon: "pi-clock" },
-    { label: "Components", value: "12", icon: "pi-th-large" },
-  ];
+  const qotdColors = CATEGORY_COLORS[questionOfTheDay.category];
 
   return (
-    <div className="w-full h-full p-6">
-      <div className="space-y-6">
-        {/* Header Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <i className="pi pi-code text-4xl text-blue-600"></i>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-800 bg-clip-text text-transparent">
-              React Remote App
-            </h1>
-            <Badge
-              value="Remote #1"
-              severity="info"
-              className="text-sm"
-            ></Badge>
-          </div>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            This is a federated React application built with Vite, TypeScript,
-            and PrimeReact. It demonstrates micro-frontend architecture in
-            action.
-          </p>
+    <div className="w-full min-h-full p-6 md:p-10 space-y-10">
+      {/* ── Hero ── */}
+      <div className="space-y-1">
+        <p className="text-xs uppercase tracking-widest text-stone-400 font-medium">
+          World History
+        </p>
+        <h1 className="text-3xl md:text-4xl font-bold text-stone-900 leading-tight">
+          Question Bank
+        </h1>
+        <p className="text-stone-500 text-base max-w-xl pt-1">
+          {TOTAL_QUESTIONS} questions across {CATEGORIES.length} eras — from the
+          first rivers of civilization to the Cold War.
+        </p>
+      </div>
+
+      {/* ── Stats Row ── */}
+      <div className="grid grid-cols-3 gap-3 md:gap-4 max-w-md">
+        <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-green-200 bg-green-50">
+          <span className="text-2xl font-bold text-green-800">
+            {DIFFICULTY_COUNTS.easy}
+          </span>
+          <span className="text-xs text-green-600 mt-1 font-medium">Easy</span>
+        </div>
+        <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-amber-200 bg-amber-50">
+          <span className="text-2xl font-bold text-amber-800">
+            {DIFFICULTY_COUNTS.medium}
+          </span>
+          <span className="text-xs text-amber-600 mt-1 font-medium">
+            Medium
+          </span>
+        </div>
+        <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-red-200 bg-red-50">
+          <span className="text-2xl font-bold text-red-800">
+            {DIFFICULTY_COUNTS.hard}
+          </span>
+          <span className="text-xs text-red-600 mt-1 font-medium">Hard</span>
+        </div>
+      </div>
+
+      <Divider className="my-0!" />
+
+      {/* ── Question of the Day ── */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <i className="pi pi-star-fill text-amber-400 text-sm" />
+          <span className="text-xs uppercase tracking-widest text-stone-400 font-medium">
+            Question of the day
+          </span>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Welcome Card */}
-          <Card
-            title="🚀 Welcome to Remote App"
-            className="col-span-1 lg:col-span-2 shadow-lg border border-blue-200 bg-white/80 backdrop-blur-sm"
-          >
-            <div className="space-y-4">
-              <p className="text-gray-700 leading-relaxed">
-                This remote application is independently developed and deployed,
-                yet seamlessly integrated into the host application through
-                Module Federation. Click the button below to test interactivity!
+        <div
+          className={`rounded-2xl border ${qotdColors.border} ${qotdColors.bg} p-6 space-y-4 max-w-3xl`}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <p
+              className={`text-lg font-semibold leading-snug ${qotdColors.text} flex-1`}
+            >
+              {questionOfTheDay.question}
+            </p>
+            <span
+              className={`text-xs font-medium px-2 py-1 rounded-full shrink-0 ${qotdColors.badge}`}
+            >
+              {questionOfTheDay.category}
+            </span>
+          </div>
+
+          {answerVisible ? (
+            <div className="space-y-3">
+              <Divider className={`my-0! border-${qotdColors.border}`} />
+              <p
+                className={`text-base leading-relaxed ${qotdColors.text} opacity-90`}
+              >
+                {questionOfTheDay.answer}
               </p>
-
-              <div className="flex flex-wrap items-center gap-4">
-                <Button
-                  label={`Clicked ${counter} times`}
-                  icon="pi pi-plus"
-                  onClick={() => setCounter((c) => c + 1)}
-                  className="p-button-info p-button-raised"
-                />
-                <Button
-                  label="Reset"
-                  icon="pi pi-refresh"
-                  onClick={() => setCounter(0)}
-                  severity="secondary"
-                  outlined
-                />
-              </div>
-
-              {counter > 0 && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <i className="pi pi-info-circle text-blue-600"></i>
-                    <span className="font-semibold text-blue-800">
-                      Interaction Success!
-                    </span>
-                  </div>
-                  <p className="text-blue-700">
-                    State management is working perfectly within this federated
-                    component.
-                  </p>
-                  <ProgressBar
-                    value={(counter * 10) % 100}
-                    className="mt-2"
-                  ></ProgressBar>
-                </div>
-              )}
+              <Button
+                label="Hide answer"
+                icon="pi pi-eye-slash"
+                severity="secondary"
+                text
+                size="small"
+                onClick={() => setAnswerVisible(false)}
+                className="p-0! text-xs!"
+              />
             </div>
-          </Card>
+          ) : (
+            <Button
+              label="Reveal answer"
+              icon="pi pi-eye"
+              severity="secondary"
+              outlined
+              size="small"
+              onClick={() => setAnswerVisible(true)}
+            />
+          )}
+        </div>
+      </div>
 
-          {/* Stats Card */}
-          <Card
-            title="📊 App Statistics"
-            className="shadow-lg border border-cyan-200 bg-white/80 backdrop-blur-sm"
-          >
-            <div className="space-y-4">
-              {federationStats.map((stat, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-cyan-50 rounded-lg border border-cyan-200"
-                >
-                  <div className="flex items-center gap-3">
-                    <i className={`pi ${stat.icon} text-cyan-600 text-xl`}></i>
-                    <span className="font-medium text-gray-700">
-                      {stat.label}
-                    </span>
-                  </div>
-                  <Chip
-                    label={stat.value}
-                    className="bg-cyan-100 text-cyan-800"
+      <Divider className="my-0!" />
+
+      {/* ── Categories ── */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-stone-800">
+            Browse by era
+          </h2>
+          <Button
+            label="Browse all"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            severity="secondary"
+            text
+            size="small"
+            onClick={() => navigate("/sub-page-1")}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {CATEGORIES.map((cat) => {
+            const colors = CATEGORY_COLORS[cat];
+            const count = questionsByCategory[cat].length;
+            const easyCount = questionsByCategory[cat].filter(
+              (q) => q.difficulty === "easy",
+            ).length;
+            const hardCount = questionsByCategory[cat].filter(
+              (q) => q.difficulty === "hard",
+            ).length;
+
+            return (
+              <button
+                key={cat}
+                onClick={() =>
+                  navigate(`/sub-page-2?category=${encodeURIComponent(cat)}`)
+                }
+                className={`
+                  group text-left rounded-xl border ${colors.border} ${colors.bg}
+                  p-5 space-y-3 transition-all duration-150
+                  hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]
+                  cursor-pointer
+                `}
+              >
+                <div className="flex items-start justify-between">
+                  <i
+                    className={`pi ${CATEGORY_ICONS[cat]} text-2xl ${colors.text} opacity-70`}
+                  />
+                  <Badge
+                    value={`${count} Q`}
+                    className={`text-xs !${colors.badge}`}
                   />
                 </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-
-        {/* Technology Stack */}
-        <Panel
-          header="🛠️ Technology Stack"
-          toggleable
-          collapsed={!isExpanded}
-          onToggle={(e) => setIsExpanded(e.value)}
-          className="shadow-lg border border-blue-200 bg-white/80 backdrop-blur-sm"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {features.map((feature, index) => (
-              <Card
-                key={index}
-                className="text-center border border-blue-100 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="space-y-3">
-                  <div className="w-12 h-12 mx-auto bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-                    <i className="pi pi-cog text-white text-xl"></i>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-800">
-                      {feature.name}
-                    </h4>
-                    <p className="text-sm text-gray-600">v{feature.version}</p>
-                    <Badge
-                      value={feature.status}
-                      severity="success"
-                      className="text-xs mt-1"
-                    />
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </Panel>
-
-        <Divider />
-
-        {/* Federation Info */}
-        <div className="bg-gradient-to-r from-blue-100 to-cyan-100 border border-blue-300 rounded-xl p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <i className="pi pi-sitemap text-white text-xl"></i>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-blue-800 mb-2">
-                Module Federation Details
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="font-medium text-blue-700">
-                    Federation Name:
-                  </span>
-                  <p className="text-gray-700">vite_react_remoteapp</p>
+                  <p
+                    className={`font-semibold text-sm leading-snug ${colors.text}`}
+                  >
+                    {cat}
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1">
+                    {easyCount} easy · {hardCount} hard
+                  </p>
                 </div>
-                <div>
-                  <span className="font-medium text-blue-700">
-                    Exposed Modules:
-                  </span>
-                  <p className="text-gray-700">./ViteReactRemoteComponent</p>
-                </div>
-                <div>
-                  <span className="font-medium text-blue-700">
-                    Shared Dependencies:
-                  </span>
-                  <p className="text-gray-700">react, react-dom</p>
-                </div>
-              </div>
-              <div className="mt-4 p-3 bg-white/60 rounded-lg border border-blue-200">
-                <p className="text-blue-800 text-sm">
-                  <i className="pi pi-lightbulb mr-2"></i>
-                  <strong>Pro Tip:</strong> This component can be consumed by
-                  any host application that supports Module Federation,
-                  regardless of the host's framework!
-                </p>
-              </div>
-            </div>
-          </div>
+              </button>
+            );
+          })}
         </div>
+      </div>
 
-        {/* Footer */}
-        <div className="text-center py-6 border-t border-blue-200">
-          <p className="text-gray-600 flex items-center justify-center gap-2">
-            <i className="pi pi-heart-fill text-red-500"></i>
-            Built with React + Vite + PrimeReact
-            <i className="pi pi-heart-fill text-red-500"></i>
-          </p>
-        </div>
+      {/* ── Footer nudge ── */}
+      <div className="pt-2 pb-6 flex gap-3 flex-wrap">
+        <Button
+          label="Study mode — browse all questions"
+          icon="pi pi-book"
+          onClick={() => navigate("/sub-page-1")}
+          severity="secondary"
+          outlined
+        />
+        <Button
+          label="Drill by category"
+          icon="pi pi-filter"
+          onClick={() => navigate("/sub-page-2")}
+        />
       </div>
     </div>
   );
