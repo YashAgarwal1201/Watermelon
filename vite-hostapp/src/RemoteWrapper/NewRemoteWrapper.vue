@@ -110,16 +110,35 @@ function patchHeadToShadow(
     if (!isStyleOrLink(node)) return false;
     if (isCancelled()) return false;
 
+    // if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
+    //   const css = node.textContent ?? "";
+    //   const clone = document.createElement("style");
+    //   clone.setAttribute("data-remote-css", remoteName);
+    //   clone.textContent = css;
+    //   shadow.appendChild(clone);
+    //   new MutationObserver(() => {
+    //     clone.textContent = node.textContent;
+    //   }).observe(node, { characterData: true, childList: true, subtree: true });
+    //   if (!bucket.includes(css)) bucket.push(css);
+    //   return true;
+    // }
+
     if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
-      const css = node.textContent ?? "";
       const clone = document.createElement("style");
       clone.setAttribute("data-remote-css", remoteName);
-      clone.textContent = css;
+      clone.textContent = node.textContent ?? "";
       shadow.appendChild(clone);
+
+      // Keep clone in sync AND update the cache bucket lazily
+      const bucketIndex = bucket.length;
+      bucket.push(node.textContent ?? ""); // placeholder
+
       new MutationObserver(() => {
-        clone.textContent = node.textContent;
+        const css = node.textContent ?? "";
+        clone.textContent = css;
+        bucket[bucketIndex] = css; // update in-place as style-loader fills it in
       }).observe(node, { characterData: true, childList: true, subtree: true });
-      if (!bucket.includes(css)) bucket.push(css);
+
       return true;
     }
 
