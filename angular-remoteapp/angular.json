@@ -13,7 +13,7 @@
         "build": {
           "builder": "ngx-build-plus:browser",
           "options": {
-            "polyfills": [],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {

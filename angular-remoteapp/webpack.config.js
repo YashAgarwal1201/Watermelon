@@ -15,9 +15,7 @@ module.exports = {
     runtimeChunk: false,
   },
   resolve: {
-    alias: {
-      ...sharedMappings.getAliases(),
-    },
+    alias: { ...sharedMappings.getAliases() },
   },
   plugins: [
     new ModuleFederationPlugin({
@@ -52,6 +50,7 @@ module.exports = {
           requiredVersion: 'auto',
           eager: false,
         },
+        'zone.js': { singleton: true, strictVersion: false, requiredVersion: 'auto', eager: true },
         ...sharedMappings.getDescriptors(),
       }),
     }),

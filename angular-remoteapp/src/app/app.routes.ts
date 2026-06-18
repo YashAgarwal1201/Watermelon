@@ -4,8 +4,7 @@ import { SubPage1Component } from './pages/sub-page1/sub-page1';
 import { SubPage2Component } from './pages/sub-page2/sub-page2';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent, pathMatch: 'full' }, // ← add pathMatch: 'full'
+  { path: '', component: HomeComponent, pathMatch: 'full' },
   { path: 'sub-page1', component: SubPage1Component },
   { path: 'sub-page2', component: SubPage2Component },
-  // NO wildcard redirect — it causes a loop with zoneless + SilentLocationStrategy
 ];
