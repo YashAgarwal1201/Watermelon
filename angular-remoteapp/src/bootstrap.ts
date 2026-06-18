@@ -1,65 +1,57 @@
-// import { bootstrapApplication } from '@angular/platform-browser';
-// import { appConfig } from './app/app.config';
-// import { App } from './app/app';
-
-// bootstrapApplication(App, appConfig)
-//   .catch((err) => console.error(err));
-
-// import { createApplication } from '@angular/platform-browser';
-// import { createComponent, Component, ApplicationRef } from '@angular/core';
-// import { RouterOutlet, Router } from '@angular/router';
-// import { appConfig } from './app/app.config';
-
-// @Component({
-//   selector: 'app-root',
-//   standalone: true,
-//   imports: [RouterOutlet],
-//   template: '<router-outlet></router-outlet>',
-// })
-// class RootComponent {}
-
-// export async function mount(container: HTMLElement) {
-//   const app = await createApplication(appConfig);
-//   const componentRef = createComponent(RootComponent, {
-//     environmentInjector: app.injector,
-//     hostElement: container,
-//   });
-
-//   app.attachView(componentRef.hostView);
-
-//   // Get ApplicationRef and Router
-//   const appRef = app.injector.get(ApplicationRef);
-//   const router = app.injector.get(Router);
-
-//   // Wait for router to initialize and navigate, then tick
-//   await router.initialNavigation();
-//   appRef.tick();
-
-//   // Set up continuous change detection for zoneless
-//   const interval = setInterval(() => appRef.tick(), 100);
-
-//   return {
-//     destroy: () => {
-//       clearInterval(interval);
-//       app.destroy();
-//     },
-//   };
-// }
-
-// export default RootComponent;
-
+import 'zone.js';
 import { createApplication } from '@angular/platform-browser';
-import { createComponent, ApplicationRef } from '@angular/core';
-import { Router } from '@angular/router';
-import { APP_BASE_HREF } from '@angular/common';
+import { createComponent } from '@angular/core';
+import { Router, UrlHandlingStrategy, UrlTree } from '@angular/router';
+import { LocationStrategy, APP_BASE_HREF } from '@angular/common';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';
 
-export async function mount(container: HTMLElement, options?: { basename?: string }) {
-  const basename = options?.basename || (window as any).BASENAME || '/';
+// A LocationStrategy that never reads or writes window.location/history.
+// Angular's router does all its internal work but the browser URL bar
+// is owned exclusively by the host (Vue Router).
+class SilentLocationStrategy extends LocationStrategy {
+  private _callbacks: Array<(value: any, pop?: any) => void> = [];
+  private _internalPath = '/';
 
+  override path(): string {
+    return this._internalPath;
+  }
+  override prepareExternalUrl(internal: string): string {
+    return internal;
+  }
+
+  override pushState(_state: any, _title: string, url: string, _queryParams: string) {
+    this._internalPath = url;
+  }
+
+  override replaceState(_state: any, _title: string, url: string, _queryParams: string) {
+    this._internalPath = url;
+  }
+
+  override forward(): void {}
+  override back(): void {}
+  override historyGo(_relativePosition: number): void {}
+
+  override onPopState(fn: (value: any) => void): void {
+    this._callbacks.push(fn);
+  }
+
+  override getBaseHref(): string {
+    return '/';
+  }
+
+  override getState(): unknown {
+    return null;
+  }
+}
+
+export async function mount(container: HTMLElement, options?: { basename?: string }) {
   const app = await createApplication({
-    providers: [...appConfig.providers, { provide: APP_BASE_HREF, useValue: basename }],
+    providers: [
+      ...appConfig.providers,
+      { provide: APP_BASE_HREF, useValue: '/' },
+      { provide: LocationStrategy, useClass: SilentLocationStrategy },
+    ],
   });
 
   const componentRef = createComponent(App, {
@@ -69,11 +61,8 @@ export async function mount(container: HTMLElement, options?: { basename?: strin
 
   app.attachView(componentRef.hostView);
 
-  const appRef = app.injector.get(ApplicationRef);
   const router = app.injector.get(Router);
-
-  await router.initialNavigation();
-  appRef.tick();
+  await router.navigateByUrl('/');
 
   return {
     destroy: () => {

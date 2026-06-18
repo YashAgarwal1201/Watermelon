@@ -76,6 +76,125 @@ function isStyleOrLink(node: Node): boolean {
   );
 }
 
+// do not delete unless everything is working fine
+// function patchHeadToShadow(
+//   shadow: ShadowRoot,
+//   capturedId: number,
+//   remoteName: string,
+// ): () => void {
+//   const head = document.head as any;
+//   const origAppendChild = head.appendChild.bind(head);
+//   const origInsertBefore = head.insertBefore.bind(head);
+//   const origAppend = head.append?.bind(head);
+//   const origPrepend = head.prepend?.bind(head);
+
+//   const isCancelled = () => capturedId !== loadId;
+
+//   if (!cssCache.has(remoteName)) cssCache.set(remoteName, []);
+//   const bucket = cssCache.get(remoteName)!;
+
+//   async function fetchAndInject(href: string) {
+//     try {
+//       const res = await fetch(href, { mode: "cors", cache: "force-cache" });
+//       if (!res.ok) return;
+//       const css = await res.text();
+//       if (isCancelled()) return;
+//       const s = document.createElement("style");
+//       s.setAttribute("data-remote-src", href);
+//       s.textContent = css;
+//       shadow.appendChild(s);
+//       if (!bucket.includes(css)) bucket.push(css);
+//     } catch {}
+//   }
+
+//   function intercept(node: Node): boolean {
+//     if (!isStyleOrLink(node)) return false;
+//     if (isCancelled()) return false;
+
+//     // if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
+//     //   const css = node.textContent ?? "";
+//     //   const clone = document.createElement("style");
+//     //   clone.setAttribute("data-remote-css", remoteName);
+//     //   clone.textContent = css;
+//     //   shadow.appendChild(clone);
+//     //   new MutationObserver(() => {
+//     //     clone.textContent = node.textContent;
+//     //   }).observe(node, { characterData: true, childList: true, subtree: true });
+//     //   if (!bucket.includes(css)) bucket.push(css);
+//     //   return true;
+//     // }
+
+//     if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
+//       const clone = document.createElement("style");
+//       clone.setAttribute("data-remote-css", remoteName);
+//       clone.textContent = node.textContent ?? "";
+//       shadow.appendChild(clone);
+
+//       // Keep clone in sync AND update the cache bucket lazily
+//       const bucketIndex = bucket.length;
+//       bucket.push(node.textContent ?? ""); // placeholder
+
+//       new MutationObserver(() => {
+//         const css = node.textContent ?? "";
+//         clone.textContent = css;
+//         bucket[bucketIndex] = css; // update in-place as style-loader fills it in
+//       }).observe(node, { characterData: true, childList: true, subtree: true });
+
+//       return true;
+//     }
+
+//     if (node instanceof HTMLLinkElement && node.rel === "stylesheet") {
+//       void fetchAndInject(node.href);
+//       return true;
+//     }
+
+//     return false;
+//   }
+
+//   head.appendChild = function <T extends Node>(node: T): T {
+//     if (intercept(node)) return node;
+//     return origAppendChild(node);
+//   };
+
+//   head.insertBefore = function <T extends Node>(node: T, ref: Node | null): T {
+//     if (intercept(node)) return node;
+//     return origInsertBefore(node, ref);
+//   };
+
+//   if (origAppend) {
+//     head.append = function (...nodes: (Node | string)[]) {
+//       for (const n of nodes) {
+//         if (typeof n !== "string" && intercept(n)) continue;
+//         origAppend(n);
+//       }
+//     };
+//   }
+
+//   if (origPrepend) {
+//     head.prepend = function (...nodes: (Node | string)[]) {
+//       for (const n of nodes) {
+//         if (typeof n !== "string" && intercept(n)) continue;
+//         origPrepend(n);
+//       }
+//     };
+//   }
+
+//   const mo = new MutationObserver((records) => {
+//     for (const r of records)
+//       for (const n of Array.from(r.addedNodes))
+//         if (isStyleOrLink(n)) intercept(n);
+//   });
+//   mo.observe(document.head, { childList: true });
+
+//   return () => {
+//     mo.disconnect();
+//     head.appendChild = origAppendChild;
+//     head.insertBefore = origInsertBefore;
+//     if (origAppend) head.append = origAppend;
+//     if (origPrepend) head.prepend = origPrepend;
+//   };
+// }
+
 function patchHeadToShadow(
   shadow: ShadowRoot,
   capturedId: number,
@@ -86,6 +205,8 @@ function patchHeadToShadow(
   const origInsertBefore = head.insertBefore.bind(head);
   const origAppend = head.append?.bind(head);
   const origPrepend = head.prepend?.bind(head);
+  const origInsertAdjacentElement = head.insertAdjacentElement?.bind(head);
+  const origInsertAdjacentHTML = head.insertAdjacentHTML?.bind(head);
 
   const isCancelled = () => capturedId !== loadId;
 
@@ -110,33 +231,21 @@ function patchHeadToShadow(
     if (!isStyleOrLink(node)) return false;
     if (isCancelled()) return false;
 
-    // if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
-    //   const css = node.textContent ?? "";
-    //   const clone = document.createElement("style");
-    //   clone.setAttribute("data-remote-css", remoteName);
-    //   clone.textContent = css;
-    //   shadow.appendChild(clone);
-    //   new MutationObserver(() => {
-    //     clone.textContent = node.textContent;
-    //   }).observe(node, { characterData: true, childList: true, subtree: true });
-    //   if (!bucket.includes(css)) bucket.push(css);
-    //   return true;
-    // }
-
     if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
       const clone = document.createElement("style");
       clone.setAttribute("data-remote-css", remoteName);
       clone.textContent = node.textContent ?? "";
       shadow.appendChild(clone);
 
-      // Keep clone in sync AND update the cache bucket lazily
+      // Push a placeholder and update it in-place as style-loader/Angular
+      // fills the node content asynchronously after appendChild.
       const bucketIndex = bucket.length;
-      bucket.push(node.textContent ?? ""); // placeholder
+      bucket.push(node.textContent ?? "");
 
       new MutationObserver(() => {
         const css = node.textContent ?? "";
         clone.textContent = css;
-        bucket[bucketIndex] = css; // update in-place as style-loader fills it in
+        bucket[bucketIndex] = css;
       }).observe(node, { characterData: true, childList: true, subtree: true });
 
       return true;
@@ -178,6 +287,37 @@ function patchHeadToShadow(
     };
   }
 
+  if (origInsertAdjacentElement) {
+    head.insertAdjacentElement = function (
+      position: InsertPosition,
+      el: Element,
+    ): Element | null {
+      if (intercept(el)) return el;
+      return origInsertAdjacentElement(position, el);
+    };
+  }
+
+  if (origInsertAdjacentHTML) {
+    head.insertAdjacentHTML = function (
+      position: InsertPosition,
+      html: string,
+    ) {
+      // Parse the HTML string, intercept any style/link nodes,
+      // and only forward non-style/link content to the real head.
+      const tmp = document.createElement("div");
+      tmp.innerHTML = html;
+      const remaining: string[] = [];
+      for (const child of Array.from(tmp.children)) {
+        if (!intercept(child)) {
+          remaining.push(child.outerHTML);
+        }
+      }
+      if (remaining.length) {
+        origInsertAdjacentHTML(position, remaining.join(""));
+      }
+    };
+  }
+
   const mo = new MutationObserver((records) => {
     for (const r of records)
       for (const n of Array.from(r.addedNodes))
@@ -191,6 +331,10 @@ function patchHeadToShadow(
     head.insertBefore = origInsertBefore;
     if (origAppend) head.append = origAppend;
     if (origPrepend) head.prepend = origPrepend;
+    if (origInsertAdjacentElement)
+      head.insertAdjacentElement = origInsertAdjacentElement;
+    if (origInsertAdjacentHTML)
+      head.insertAdjacentHTML = origInsertAdjacentHTML;
   };
 }
 
@@ -203,6 +347,36 @@ function replayCssIntoShadow(remoteName: string, shadow: ShadowRoot) {
     s.textContent = css;
     shadow.appendChild(s);
   }
+}
+
+async function sweepExistingHeadLinks(shadow: ShadowRoot, remoteName: string) {
+  if (!cssCache.has(remoteName)) cssCache.set(remoteName, []);
+  const bucket = cssCache.get(remoteName)!;
+
+  const links = Array.from(
+    document.head.querySelectorAll<HTMLLinkElement>("link[rel='stylesheet']"),
+  );
+
+  await Promise.all(
+    links.map(async (link) => {
+      const href = link.href;
+      if (!href) return;
+
+      // Skip if already injected into this shadow
+      if (shadow.querySelector(`[data-remote-src="${href}"]`)) return;
+
+      try {
+        const res = await fetch(href, { mode: "cors", cache: "force-cache" });
+        if (!res.ok) return;
+        const css = await res.text();
+        const s = document.createElement("style");
+        s.setAttribute("data-remote-src", href);
+        s.textContent = css;
+        shadow.appendChild(s);
+        if (!bucket.includes(css)) bucket.push(css);
+      } catch {}
+    }),
+  );
 }
 
 function buildShadow(): { shadow: ShadowRoot; mount: HTMLElement } {
@@ -334,10 +508,30 @@ async function loadRemote() {
           vueAppInstance.mount(mountPoint);
         }
       }
+      // } else if (appName.value === "angular_remoteapp") {
+      //   const module = await import("angular_remoteapp/Component");
+      //   if (currentId !== loadId) return;
+      //   lastRemoteModule = module;
+      //   if (typeof module.mount !== "function")
+      //     throw new Error("Angular remote does not export a mount function");
+      //   const result = await module.mount(mountPoint!);
+      //   if (result?.destroy) lastRemoteModule.unmount = result.destroy;
+      // }
     } else if (appName.value === "angular_remoteapp") {
+      // Patch head BEFORE the import so Webpack runtime link injection is caught
+      restoreHeadPatch = patchHeadToShadow(shadow, currentId, appName.value);
+      replayCssIntoShadow(appName.value, shadow);
+
       const module = await import("angular_remoteapp/Component");
       if (currentId !== loadId) return;
       lastRemoteModule = module;
+
+      // After import, sweep any <link> tags already in head that slipped through
+      // (Webpack runtime may have injected them before the patch was active on
+      // previous loads, and they won't be re-injected on subsequent imports
+      // because Webpack caches the module)
+      await sweepExistingHeadLinks(shadow, appName.value);
+
       if (typeof module.mount !== "function")
         throw new Error("Angular remote does not export a mount function");
       const result = await module.mount(mountPoint!);
