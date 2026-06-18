@@ -55,25 +55,44 @@ let solidDisposer: any = null;
 let lastRemoteModule: any = null;
 let restoreHeadPatch: (() => void) | null = null;
 
-function patchHeadToShadow(shadow: ShadowRoot) {
+// ─── CSS cache ────────────────────────────────────────────────────────────────
+// Keyed by appName. Populated on first load when the module's side-effect
+// style injections actually fire. Replayed on every subsequent load because
+// the module is cached and won't re-inject on its own.
+const cssCache = new Map<string, string[]>();
+
+// ─── load-id guard ────────────────────────────────────────────────────────────
+// Prevents a slow async load from writing into a shadow that has already been
+// replaced by a newer navigation.
+let loadId = 0;
+
+// ─── patchHeadToShadow ────────────────────────────────────────────────────────
+function patchHeadToShadow(
+  shadow: ShadowRoot,
+  capturedId: number,
+  remoteName: string,
+) {
   const docHead = document.head as any;
 
   const orig = {
-    appendChild: docHead.appendChild,
-    insertBefore: docHead.insertBefore,
-    append: (docHead as any).append?.bind(docHead),
-    prepend: (docHead as any).prepend?.bind(docHead),
+    appendChild: docHead.appendChild as Function,
+    insertBefore: docHead.insertBefore as Function,
+    append: (docHead.append as Function | undefined)?.bind(docHead),
+    prepend: (docHead.prepend as Function | undefined)?.bind(docHead),
   };
 
-  const movedMap = new Map<
-    Node,
-    { clone: HTMLElement; observer?: MutationObserver }
-  >();
+  const isCancelled = () => capturedId !== loadId;
 
-  async function fetchCssText(href: string) {
+  const movedSet = new Set<Node>();
+
+  // Initialise the cache bucket for this remote if not yet present.
+  if (!cssCache.has(remoteName)) cssCache.set(remoteName, []);
+  const bucket = cssCache.get(remoteName)!;
+
+  async function fetchCssText(href: string): Promise<string | null> {
     try {
       const res = await fetch(href, { mode: "cors" });
-      if (!res.ok) throw new Error("Fetch failed");
+      if (!res.ok) throw new Error("fetch failed");
       return await res.text();
     } catch {
       return null;
@@ -82,150 +101,130 @@ function patchHeadToShadow(shadow: ShadowRoot) {
 
   async function moveToShadow(node: Node) {
     if (!(node instanceof HTMLElement)) return;
-    if (movedMap.has(node)) return;
+    if (movedSet.has(node)) return;
+    if (isCancelled()) return;
+    movedSet.add(node);
 
     const tag = node.tagName.toLowerCase();
+
     if (tag === "style") {
+      if (isCancelled()) return;
+      const cssText = node.textContent ?? "";
       const clone = document.createElement("style");
-      clone.textContent = node.textContent;
+      clone.textContent = cssText;
       shadow.appendChild(clone);
+      bucket.push(cssText); // cache for future navigations
 
       const mo = new MutationObserver(() => {
-        clone.textContent = node.textContent;
+        if (!isCancelled()) clone.textContent = node.textContent;
       });
       mo.observe(node, { characterData: true, childList: true, subtree: true });
-      movedMap.set(node, { clone, observer: mo });
       return;
     }
 
     if (tag === "link" && (node as HTMLLinkElement).rel === "stylesheet") {
-      const link = node as HTMLLinkElement;
-      const css = await fetchCssText(link.href);
+      const css = await fetchCssText((node as HTMLLinkElement).href);
+      if (isCancelled()) return;
       if (css !== null) {
         const s = document.createElement("style");
         s.textContent = css;
         shadow.appendChild(s);
-        movedMap.set(node, { clone: s });
-        return;
+        bucket.push(css); // cache for future navigations
       } else {
-        return orig.appendChild.call(docHead, node);
+        orig.appendChild.call(docHead, node);
       }
+      return;
     }
 
-    return orig.appendChild.call(docHead, node);
+    orig.appendChild.call(docHead, node);
   }
 
+  // Intercept all four head insertion paths
   docHead.appendChild = function (node: Node) {
-    if (
-      node instanceof HTMLElement &&
-      (node.tagName.toLowerCase() === "style" ||
-        (node.tagName.toLowerCase() === "link" &&
-          (node as HTMLLinkElement).rel === "stylesheet"))
-    ) {
+    if (isStyleOrLink(node)) {
       void moveToShadow(node);
       return node;
     }
     return orig.appendChild.call(this, node);
   };
 
-  docHead.insertBefore = function (node: Node, refNode: Node | null) {
-    if (
-      node instanceof HTMLElement &&
-      (node.tagName.toLowerCase() === "style" ||
-        (node.tagName.toLowerCase() === "link" &&
-          (node as HTMLLinkElement).rel === "stylesheet"))
-    ) {
+  docHead.insertBefore = function (node: Node, ref: Node | null) {
+    if (isStyleOrLink(node)) {
       void moveToShadow(node);
       return node;
     }
-    return orig.insertBefore.call(this, node, refNode);
+    return orig.insertBefore.call(this, node, ref);
   };
 
   if (orig.append) {
-    (docHead as any).append = function (...nodes: any[]) {
-      for (const n of nodes) {
-        if (
-          n instanceof HTMLElement &&
-          (n.tagName.toLowerCase() === "style" ||
-            (n.tagName.toLowerCase() === "link" &&
-              (n as HTMLLinkElement).rel === "stylesheet"))
-        ) {
-          void moveToShadow(n);
-        } else {
-          orig.append.call(docHead, n);
-        }
-      }
+    docHead.append = function (...nodes: any[]) {
+      for (const n of nodes)
+        isStyleOrLink(n) ? void moveToShadow(n) : orig.append!.call(docHead, n);
     };
   }
 
   if (orig.prepend) {
-    (docHead as any).prepend = function (...nodes: any[]) {
-      for (const n of nodes) {
-        if (
-          n instanceof HTMLElement &&
-          (n.tagName.toLowerCase() === "style" ||
-            (n.tagName.toLowerCase() === "link" &&
-              (n as HTMLLinkElement).rel === "stylesheet"))
-        ) {
-          void moveToShadow(n);
-        } else {
-          orig.prepend.call(docHead, n);
-        }
-      }
+    docHead.prepend = function (...nodes: any[]) {
+      for (const n of nodes)
+        isStyleOrLink(n)
+          ? void moveToShadow(n)
+          : orig.prepend!.call(docHead, n);
     };
   }
 
+  // Safety-net MutationObserver for anything that bypasses the patched methods
   const headObserver = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const n of Array.from(m.addedNodes)) {
-        if (n instanceof HTMLElement) {
-          const tag = n.tagName.toLowerCase();
-          if (
-            tag === "style" ||
-            (tag === "link" && (n as HTMLLinkElement).rel === "stylesheet")
-          ) {
-            void moveToShadow(n);
-          }
-        }
-      }
-    }
+    for (const m of mutations)
+      for (const n of Array.from(m.addedNodes))
+        if (isStyleOrLink(n)) void moveToShadow(n);
   });
-
-  headObserver.observe(docHead, { childList: true, subtree: false });
-
-  // FIX 1: Initial scan removed — was vacuuming host styles into shadow,
-  // breaking host app styles after every remote navigation.
+  headObserver.observe(docHead, { childList: true });
 
   return () => {
     headObserver.disconnect();
     docHead.appendChild = orig.appendChild;
     docHead.insertBefore = orig.insertBefore;
-    if (orig.append) (docHead as any).append = orig.append;
-    if (orig.prepend) (docHead as any).prepend = orig.prepend;
-
-    for (const [, info] of movedMap.entries()) {
-      try {
-        if (info.observer) info.observer.disconnect();
-        if (info.clone && info.clone.parentNode === shadow) {
-          info.clone.parentNode!.removeChild(info.clone);
-        }
-      } catch {}
-    }
-    movedMap.clear();
+    if (orig.append) docHead.append = orig.append;
+    if (orig.prepend) docHead.prepend = orig.prepend;
+    movedSet.clear();
   };
 }
 
+function isStyleOrLink(node: Node): boolean {
+  if (!(node instanceof HTMLElement)) return false;
+  const tag = node.tagName.toLowerCase();
+  return (
+    tag === "style" ||
+    (tag === "link" && (node as HTMLLinkElement).rel === "stylesheet")
+  );
+}
+
+// Replay cached CSS for a remote whose module won't re-inject on second load
+function replayCachedCss(remoteName: string, shadow: ShadowRoot) {
+  const bucket = cssCache.get(remoteName);
+  if (!bucket || bucket.length === 0) return;
+  for (const cssText of bucket) {
+    const s = document.createElement("style");
+    s.textContent = cssText;
+    shadow.appendChild(s);
+  }
+}
+
+// ─── loadRemote ───────────────────────────────────────────────────────────────
 async function loadRemote() {
   error.value = null;
   if (!hostContainer.value) return;
 
-  // FIX 2: Wipe and rebuild shadow on every navigation so previous remote's
-  // styles never bleed into the next remote.
+  // Invalidate any in-flight async continuation from a previous navigation
+  const currentId = ++loadId;
+
+  // Tear down previous patch before touching the shadow
   if (restoreHeadPatch) {
     restoreHeadPatch();
     restoreHeadPatch = null;
   }
 
+  // Wipe and rebuild shadow
   if (shadowRoot) {
     while (shadowRoot.firstChild) shadowRoot.removeChild(shadowRoot.firstChild);
   } else {
@@ -236,14 +235,14 @@ async function loadRemote() {
   mountPoint.setAttribute("data-remote-mount", appName.value || "");
   shadowRoot.appendChild(mountPoint);
 
+  // Forward host CSS custom properties into the shadow
   try {
     const rootStyles = getComputedStyle(document.documentElement);
     let vars = ":host{";
     for (let i = 0; i < rootStyles.length; i++) {
       const prop = rootStyles[i];
-      if (prop && prop.startsWith("--")) {
+      if (prop?.startsWith("--"))
         vars += `${prop}:${rootStyles.getPropertyValue(prop)};`;
-      }
     }
     vars += "}";
     const cssVarsNode = document.createElement("style");
@@ -254,7 +253,15 @@ async function loadRemote() {
   isLoading.value = true;
   mountPoint.innerHTML = "";
 
-  restoreHeadPatch = patchHeadToShadow(shadowRoot);
+  // ── KEY FIX: Install the head patch BEFORE any import() call ──────────────
+  // cssInjectedByJsPlugin and style-loader both fire synchronously during
+  // module evaluation. If the patch isn't live before the import resolves,
+  // those injections hit document.head instead of the shadow.
+  restoreHeadPatch = patchHeadToShadow(shadowRoot, currentId, appName.value);
+
+  // If this remote has been loaded before, its module is cached and won't
+  // re-inject styles — replay what we captured on the first visit.
+  replayCachedCss(appName.value, shadowRoot);
 
   try {
     (window as any).BASENAME = `/remote/${appName.value}`;
@@ -281,9 +288,8 @@ async function loadRemote() {
         });
         vueAppInstance = result?.app ?? result ?? null;
       } else {
-        const component = module.default;
         const { createApp } = await import("vue");
-        vueAppInstance = (createApp as any)(component);
+        vueAppInstance = (createApp as any)(module.default);
         vueAppInstance.mount(mountPoint);
       }
     } else if (appName.value === "vite_svelte_remoteapp") {
@@ -313,37 +319,6 @@ async function loadRemote() {
         await import("webpack_react_remoteapp/WebpackReactRemoteComponent");
       lastRemoteModule = module;
       const component = module.default;
-      try {
-        const stylesheets = Array.from(document.styleSheets);
-        const cssTexts = await Promise.all(
-          stylesheets.map(async (sheet) => {
-            try {
-              return Array.from((sheet as CSSStyleSheet).cssRules)
-                .map((r) => (r as CSSRule).cssText)
-                .join("\n");
-            } catch {
-              if ((sheet as any).href) {
-                try {
-                  const res = await fetch((sheet as any).href);
-                  return await res.text();
-                } catch {
-                  return "";
-                }
-              }
-              return "";
-            }
-          }),
-        );
-        if (shadowRoot && "adoptedStyleSheets" in shadowRoot) {
-          const sheet = new CSSStyleSheet();
-          await (sheet as any).replace(cssTexts.join("\n"));
-          (shadowRoot as any).adoptedStyleSheets = [
-            (shadowRoot as any).adoptedStyleSheets?.[0],
-            sheet,
-          ].filter(Boolean);
-        }
-      } catch {}
-
       const [React, ReactDOM] = await Promise.all([
         import("react"),
         import("react-dom/client"),
@@ -400,38 +375,29 @@ async function loadRemote() {
 
 function cleanup() {
   try {
-    if (lastRemoteModule && typeof lastRemoteModule.unmount === "function") {
-      try {
-        lastRemoteModule.unmount();
-      } catch {}
-    }
+    if (lastRemoteModule?.unmount) lastRemoteModule.unmount();
   } catch {}
-
   try {
-    if (vueAppInstance && typeof vueAppInstance.unmount === "function") {
+    if (vueAppInstance?.unmount) {
       vueAppInstance.unmount();
       vueAppInstance = null;
     }
   } catch {}
-
   try {
-    if (reactRoot && typeof reactRoot.unmount === "function") {
+    if (reactRoot?.unmount) {
       reactRoot.unmount();
       reactRoot = null;
     }
   } catch {}
-
   try {
     if (svelteInstance) {
-      if (typeof svelteInstance.unmount === "function") {
+      if (typeof svelteInstance.unmount === "function")
         svelteInstance.unmount();
-      } else if (typeof svelteInstance.$destroy === "function") {
+      else if (typeof svelteInstance.$destroy === "function")
         svelteInstance.$destroy();
-      }
       svelteInstance = null;
     }
   } catch {}
-
   try {
     if (typeof solidDisposer === "function") {
       solidDisposer();
@@ -439,23 +405,12 @@ function cleanup() {
     }
   } catch {}
 
-  try {
-    if (lastRemoteModule && typeof lastRemoteModule.unmount === "function") {
-      lastRemoteModule.unmount();
-    }
-  } catch {}
+  if (mountPoint) mountPoint.innerHTML = "";
 
-  if (mountPoint) {
-    mountPoint.innerHTML = "";
+  if (restoreHeadPatch) {
+    restoreHeadPatch();
+    restoreHeadPatch = null;
   }
-
-  try {
-    if (restoreHeadPatch) {
-      restoreHeadPatch();
-      restoreHeadPatch = null;
-    }
-  } catch {}
-
   lastRemoteModule = null;
 }
 
@@ -466,11 +421,8 @@ async function retryLoad() {
 }
 
 onMounted(() => {
-  if (hostContainer.value) {
-    void loadRemote();
-  }
+  if (hostContainer.value) void loadRemote();
 });
-
 onBeforeUnmount(() => {
   cleanup();
 });
@@ -493,7 +445,6 @@ watch(
   height: 100%;
   box-sizing: border-box;
 }
-
 .animate-spin {
   animation: spin 1s linear infinite;
 }
