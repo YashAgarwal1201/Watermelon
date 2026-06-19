@@ -2,1036 +2,1038 @@
   <div
     class="w-full h-full overflow-y-auto bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-200"
   >
-    <div class="p-4 flex flex-col space-y-8 max-w-7xl mx-auto">
-      <!-- Hero Section -->
-      <div class="flex flex-col text-center py-8">
+    <div class="max-w-5xl mx-auto px-6 py-12 space-y-20">
+      <!-- ── Hero ── -->
+      <section class="text-center space-y-4 pb-4">
+        <div
+          class="inline-flex items-center gap-2 text-sm font-medium px-3 py-1 rounded-full bg-pink-100 dark:bg-pink-950/50 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800 mb-2"
+        >
+          <span
+            class="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse inline-block"
+          ></span>
+          Module Federation · Proof of Concept
+        </div>
         <h1
-          class="font-heading text-4xl md:text-6xl bg-gradient-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent mb-4"
+          class="font-heading text-5xl md:text-7xl bg-gradient-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent leading-tight"
         >
-          Welcome to Watermelon
+          Watermelon
         </h1>
-        <p class="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
-          A microfrontend showcase demonstrating Module Federation across
-          multiple frameworks with Vite
-        </p>
-      </div>
-
-      <!-- What is Micro Frontend Section -->
-      <div
-        class="bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl lg:rounded-3xl shadow-lg p-6 border border-pink-200 dark:border-gray-700"
-      >
-        <h2
-          class="text-3xl font-bold text-pink-700 dark:text-pink-400 mb-4 font-heading"
+        <p
+          class="text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed"
         >
-          🎯 What is Micro Frontend?
-        </h2>
-        <p class="text-gray-800 dark:text-gray-200 mb-4 leading-relaxed">
-          <strong class="text-pink-600 dark:text-pink-400"
-            >Micro Frontend</strong
-          >
-          is an architectural pattern that extends the concept of microservices
-          to the frontend world. It breaks down a large, monolithic frontend
-          application into smaller, independently deployable, and maintainable
-          pieces. Each piece can be developed, tested, and deployed by separate
-          teams using different frameworks or technologies.
+          A multi-framework micro-frontend built with Vite — four independent
+          remotes, one host, zero coordination overhead.
         </p>
-        <p class="text-gray-800 dark:text-gray-200 leading-relaxed">
-          Think of it like building with LEGO blocks - each team creates their
-          own block (micro frontend), and these blocks can be assembled together
-          to form the complete application.
-        </p>
-      </div>
+      </section>
 
-      <!-- Introduction Section (Module Federation) -->
-      <div
-        class="bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl lg:rounded-3xl shadow-lg p-6 border border-pink-200 dark:border-gray-700"
-      >
-        <h2
-          class="text-3xl font-bold text-pink-700 dark:text-pink-400 mb-4 font-heading"
-        >
-          🍉 What is Module Federation?
-        </h2>
-        <p class="text-gray-800 dark:text-gray-200 mb-4 leading-relaxed">
-          Module Federation is a revolutionary feature that enables
-          <strong class="text-red-600 dark:text-red-400"
-            >runtime code sharing</strong
+      <!-- ── What / Why ── -->
+      <section class="space-y-12">
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- Micro Frontend -->
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-px bg-pink-500"></div>
+              <h2
+                class="text-xs font-semibold uppercase tracking-widest text-pink-500 dark:text-pink-400"
+              >
+                Concept
+              </h2>
+            </div>
+            <h3
+              class="text-2xl font-bold text-gray-900 dark:text-white font-heading"
+            >
+              Micro Frontends
+            </h3>
+            <p
+              class="text-base text-gray-600 dark:text-gray-300 leading-relaxed"
+            >
+              The same way microservices split a backend into independently
+              deployable services, micro frontends apply that principle to the
+              UI layer. Each slice of the interface — owned by a separate team,
+              built in a separate codebase — is deployed on its own schedule and
+              composed at runtime.
+            </p>
+            <p
+              class="text-base text-gray-600 dark:text-gray-300 leading-relaxed"
+            >
+              There's no shared build step, no coordinated release, no monorepo
+              required. Each team moves at its own pace.
+            </p>
+          </div>
+
+          <!-- Module Federation -->
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-px bg-green-500"></div>
+              <h2
+                class="text-xs font-semibold uppercase tracking-widest text-green-600 dark:text-green-400"
+              >
+                Mechanism
+              </h2>
+            </div>
+            <h3
+              class="text-2xl font-bold text-gray-900 dark:text-white font-heading"
+            >
+              Module Federation
+            </h3>
+            <p
+              class="text-base text-gray-600 dark:text-gray-300 leading-relaxed"
+            >
+              Module Federation is the Webpack 5 feature — ported to Vite via
+              <code
+                class="text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
+                >@originjs/vite-plugin-federation</code
+              >
+              — that makes this possible. It lets one application expose
+              JavaScript modules that other applications import
+              <em>at runtime</em>, not at build time.
+            </p>
+            <div
+              class="border-l-2 border-green-500 pl-4 bg-green-50 dark:bg-green-950/20 py-3 pr-3 rounded-r-lg"
+            >
+              <p class="text-base text-green-800 dark:text-green-300">
+                Teams can deploy independently. The host picks up remote changes
+                on next load — no redeployment required.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Architecture ── -->
+      <section class="space-y-8">
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-px bg-red-500"></div>
+            <span
+              class="text-xs font-semibold uppercase tracking-widest text-red-500 dark:text-red-400"
+              >This project</span
+            >
+          </div>
+          <h2
+            class="text-3xl font-bold font-heading text-gray-900 dark:text-white"
           >
-          between multiple JavaScript applications. Unlike traditional
-          build-time sharing where all applications must be redeployed to update
-          shared components, Module Federation allows applications to
-          dynamically load and share code at runtime.
-        </p>
+            Architecture
+          </h2>
+          <p class="text-base text-gray-500 dark:text-gray-400 max-w-2xl">
+            One host application orchestrates six federated remotes across four
+            different frameworks and two bundlers.
+          </p>
+        </div>
+
+        <!-- Host -->
         <div
-          class="bg-red-100 dark:bg-red-950/30 p-4 rounded-lg border border-red-200 dark:border-red-800"
+          class="rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden"
         >
-          <p class="text-red-800 dark:text-red-300">
-            <strong>🎯 Key Benefit:</strong> Teams can develop, deploy, and
-            scale independent microfrontends while still sharing components,
-            utilities, and even state between applications seamlessly.
+          <div
+            class="px-5 py-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between"
+          >
+            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+              >Host Application
+              <span class="text-gray-400 dark:text-gray-500 font-normal"
+                >— this app</span
+              ></span
+            >
+            <span
+              class="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800"
+              >:5150</span
+            >
+          </div>
+          <div class="p-5 grid sm:grid-cols-2 gap-x-8 gap-y-3 text-base">
+            <div class="flex gap-3">
+              <span class="text-gray-400 dark:text-gray-600 shrink-0 mt-0.5"
+                >▸</span
+              >
+              <span class="text-gray-700 dark:text-gray-300"
+                ><strong class="text-gray-900 dark:text-white"
+                  >Framework:</strong
+                >
+                <a
+                  href="https://vuejs.org/"
+                  target="_blank"
+                  class="text-green-600 dark:text-green-400 underline hover:text-green-700 dark:hover:text-green-300"
+                  >Vue 3</a
+                >
+                + TypeScript + PrimeVue</span
+              >
+            </div>
+            <div class="flex gap-3">
+              <span class="text-gray-400 dark:text-gray-600 shrink-0 mt-0.5"
+                >▸</span
+              >
+              <span class="text-gray-700 dark:text-gray-300"
+                ><strong class="text-gray-900 dark:text-white">Role:</strong>
+                Routing, layout, remote orchestration</span
+              >
+            </div>
+            <div class="flex gap-3">
+              <span class="text-gray-400 dark:text-gray-600 shrink-0 mt-0.5"
+                >▸</span
+              >
+              <span class="text-gray-700 dark:text-gray-300"
+                ><strong class="text-gray-900 dark:text-white">Dev:</strong>
+                <code
+                  class="text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
+                  >npm run dev</code
+                ></span
+              >
+            </div>
+            <div class="flex gap-3">
+              <span class="text-gray-400 dark:text-gray-600 shrink-0 mt-0.5"
+                >▸</span
+              >
+              <span class="text-gray-700 dark:text-gray-300"
+                ><strong class="text-gray-900 dark:text-white"
+                  >Federation:</strong
+                >
+                <code
+                  class="text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
+                  >npm run build && npm run preview</code
+                ></span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Remotes grid -->
+        <div>
+          <p
+            class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4"
+          >
+            Remote Applications
           </p>
-        </div>
-      </div>
-
-      <!-- Use Cases Section -->
-      <div
-        class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl lg:rounded-3xl shadow-lg p-6 border border-green-200 dark:border-gray-700"
-      >
-        <h2
-          class="text-3xl font-bold text-green-700 dark:text-green-400 mb-4 font-heading"
-        >
-          💼 Common Use Cases
-        </h2>
-        <div class="grid md:grid-cols-2 gap-4">
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-4 border border-green-200 dark:border-green-800"
-          >
-            <h3
-              class="font-bold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2"
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <RouterLink
+              to="/remote/vite_react_remoteapp"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
             >
-              <span>🏢</span> Large Enterprise Applications
-            </h3>
-            <p class="text-sm text-gray-700 dark:text-gray-300">
-              Multiple teams working on different features that need to be
-              composed into a unified application while maintaining team
-              autonomy.
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-4 border border-green-200 dark:border-green-800"
-          >
-            <h3
-              class="font-bold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2"
-            >
-              <span>🎨</span> Design System Distribution
-            </h3>
-            <p class="text-sm text-gray-700 dark:text-gray-300">
-              Sharing a common component library across multiple applications
-              without requiring redeployment when components update.
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-4 border border-green-200 dark:border-green-800"
-          >
-            <h3
-              class="font-bold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2"
-            >
-              <span>🔄</span> Gradual Migration
-            </h3>
-            <p class="text-sm text-gray-700 dark:text-gray-300">
-              Incrementally migrating from legacy systems by building new
-              features in modern frameworks while keeping old code running.
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-4 border border-green-200 dark:border-green-800"
-          >
-            <h3
-              class="font-bold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2"
-            >
-              <span>⚡</span> Multi-Page Applications
-            </h3>
-            <p class="text-sm text-gray-700 dark:text-gray-300">
-              Creating a SPA-like experience by stitching together individual
-              pages from different remotes, each managed independently.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Real-World Companies Section -->
-      <div
-        class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl lg:rounded-3xl shadow-lg p-6 border border-blue-200 dark:border-gray-700"
-      >
-        <h2
-          class="text-3xl font-bold text-blue-700 dark:text-blue-400 mb-4 font-heading"
-        >
-          🏢 Companies Using Module Federation
-        </h2>
-        <p class="text-gray-800 dark:text-gray-200 mb-4 leading-relaxed">
-          Module Federation is trusted by leading tech companies worldwide. Here
-          are verified companies actively using it in production:
-        </p>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Indeed
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">Job Platform</p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Cloudflare
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              CDN & Security
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              ByteDance
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              Web Infrastructure
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              DigitalOcean
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              Cloud Platform
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Booking.com
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              Travel Platform
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Intuit
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              Financial Software
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Rivian
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              In-Vehicle UI
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Epic Games
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              Gaming Platform
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              PayPal
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              Payment Services
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Shopify
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">E-commerce</p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Best Buy
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">
-              Retail Platform
-            </p>
-          </div>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-3 text-center border border-blue-200 dark:border-blue-800"
-          >
-            <p class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Lululemon
-            </p>
-            <p class="text-xs text-gray-600 dark:text-gray-400">Retail</p>
-          </div>
-        </div>
-        <div
-          class="bg-blue-100 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800"
-        >
-          <p class="text-blue-800 dark:text-blue-300 text-sm mb-2">
-            <strong>🚗 Notable Implementation:</strong> Rivian uses Module
-            Federation directly in their vehicles' user interfaces,
-            demonstrating the technology's reliability and real-time performance
-            capabilities.
-          </p>
-          <p class="text-blue-800 dark:text-blue-300 text-sm">
-            <strong>🎵 ByteDance Scale:</strong> ByteDance uses Module
-            Federation across their entire web infrastructure including TikTok
-            website, CapCut video editor, and internal products, with Module
-            Federation 2.0 being co-developed with the ByteDance team.
-          </p>
-        </div>
-      </div>
-
-      <!-- Architecture Overview -->
-      <div
-        class="bg-gradient-to-br from-green-50 to-red-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl lg:rounded-3xl shadow-lg p-6 border border-green-200 dark:border-gray-700"
-      >
-        <h2
-          class="text-3xl font-bold text-green-700 dark:text-green-400 mb-6 font-heading"
-        >
-          🏗️ Our Project Architecture
-        </h2>
-
-        <!-- Host App Info -->
-        <div class="mb-8">
-          <h3
-            class="text-2xl font-bold text-red-600 dark:text-red-400 mb-4 flex items-center"
-          >
-            🏠 Host Application (This App)
-          </h3>
-          <div
-            class="bg-white dark:bg-gray-900/50 rounded-lg p-4 border border-red-200 dark:border-red-800"
-          >
-            <ul class="space-y-3 text-gray-700 dark:text-gray-300">
-              <li class="flex items-center space-x-2">
-                <span class="text-green-500 dark:text-green-400">▪</span>
+              <div class="flex items-center justify-between">
                 <span
-                  ><strong>Framework:</strong>
+                  class="text-base font-semibold text-blue-600 dark:text-blue-400"
+                >
+                  <a
+                    href="https://react.dev/"
+                    target="_blank"
+                    class="hover:underline"
+                    @click.stop
+                    >React</a
+                  >
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Vite</span
+                  >
+                </span>
+                <span
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-blue-500 transition-colors"
+                  >→</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                React 18 · TypeScript · Tailwind · PrimeReact
+              </p>
+            </RouterLink>
+
+            <RouterLink
+              to="/remote/vite_vue_remoteapp"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-green-400 dark:hover:border-green-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
+            >
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-base font-semibold text-green-600 dark:text-green-400"
+                >
                   <a
                     href="https://vuejs.org/"
                     target="_blank"
-                    class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 underline"
-                    >Vue 3</a
+                    class="hover:underline"
+                    @click.stop
+                    >Vue</a
                   >
-                  with
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Vite</span
+                  >
+                </span>
+                <span
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-green-500 transition-colors"
+                  >→</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Vue 3 · TypeScript · Tailwind v4 · PrimeVue
+              </p>
+            </RouterLink>
+
+            <RouterLink
+              to="/remote/vite_svelte_remoteapp"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-orange-400 dark:hover:border-orange-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
+            >
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-base font-semibold text-orange-600 dark:text-orange-400"
+                >
                   <a
-                    href="https://www.typescriptlang.org/"
+                    href="https://svelte.dev/"
                     target="_blank"
-                    class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
-                    >TypeScript</a
-                  ></span
-                >
-              </li>
-              <li class="flex items-center space-x-2">
-                <span class="text-green-500 dark:text-green-400">▪</span>
+                    class="hover:underline"
+                    @click.stop
+                    >Svelte</a
+                  >
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Vite</span
+                  >
+                </span>
                 <span
-                  ><strong>Role:</strong> Container that loads and orchestrates
-                  remote microfrontends</span
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-orange-500 transition-colors"
+                  >→</span
                 >
-              </li>
-              <li class="flex items-center space-x-2">
-                <span class="text-green-500 dark:text-green-400">▪</span>
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Svelte 4 · TypeScript · CSS
+              </p>
+            </RouterLink>
+
+            <RouterLink
+              to="/remote/vite_solidjs_remoteapp"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-red-400 dark:hover:border-red-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
+            >
+              <div class="flex items-center justify-between">
                 <span
-                  ><strong>Responsibilities:</strong> Routing, shared state
-                  management, layout, and consuming remote components</span
+                  class="text-base font-semibold text-red-600 dark:text-red-400"
                 >
-              </li>
-              <li class="flex items-center space-x-2">
-                <span class="text-green-500 dark:text-green-400">▪</span>
+                  <a
+                    href="https://www.solidjs.com/"
+                    target="_blank"
+                    class="hover:underline"
+                    @click.stop
+                    >SolidJS</a
+                  >
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Vite</span
+                  >
+                </span>
                 <span
-                  ><strong>Development:</strong>
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-red-500 transition-colors"
+                  >→</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                SolidJS · TypeScript · CSS Modules
+              </p>
+            </RouterLink>
+
+            <RouterLink
+              to="/remote/webpack_react_remoteapp"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
+            >
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-base font-semibold text-blue-600 dark:text-blue-400"
+                >
+                  <a
+                    href="https://react.dev/"
+                    target="_blank"
+                    class="hover:underline"
+                    @click.stop
+                    >React</a
+                  >
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Webpack</span
+                  >
+                </span>
+                <span
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-blue-500 transition-colors"
+                  >→</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                React 18 · TypeScript · Webpack 5
+              </p>
+            </RouterLink>
+
+            <RouterLink
+              to="/remote/webpack_vue_remoteapp"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-green-400 dark:hover:border-green-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
+            >
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-base font-semibold text-green-600 dark:text-green-400"
+                >
+                  <a
+                    href="https://vuejs.org/"
+                    target="_blank"
+                    class="hover:underline"
+                    @click.stop
+                    >Vue</a
+                  >
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Webpack</span
+                  >
+                </span>
+                <span
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-green-500 transition-colors"
+                  >→</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Vue 3 · TypeScript · Webpack 5
+              </p>
+            </RouterLink>
+          </div>
+
+          <p class="text-sm text-gray-400 dark:text-gray-600 mt-3 pl-1">
+            Each remote exposes its component via
+            <code
+              class="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
+              >remoteEntry.js</code
+            >, dynamically loaded by this host at runtime.
+          </p>
+        </div>
+      </section>
+
+      <!-- ── How it works ── -->
+      <section class="space-y-8">
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-px bg-pink-500"></div>
+            <span
+              class="text-xs font-semibold uppercase tracking-widest text-pink-500 dark:text-pink-400"
+              >Under the hood</span
+            >
+          </div>
+          <h2
+            class="text-3xl font-bold font-heading text-gray-900 dark:text-white"
+          >
+            How Federation Works
+          </h2>
+        </div>
+
+        <div
+          class="space-y-0 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden divide-y divide-gray-200 dark:divide-gray-800"
+        >
+          <div class="flex gap-5 p-6">
+            <div
+              class="w-9 h-9 rounded-full bg-gradient-to-br from-pink-500 to-red-500 text-white flex items-center justify-center text-base font-bold shrink-0"
+            >
+              1
+            </div>
+            <div class="space-y-1 pt-1">
+              <h4 class="text-base font-semibold text-gray-900 dark:text-white">
+                Remotes expose modules
+              </h4>
+              <p class="text-base text-gray-600 dark:text-gray-300">
+                Each remote app builds a
+                <code
+                  class="text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
+                  >remoteEntry.js</code
+                >
+                that publicly declares its exposed components — essentially a
+                manifest the host can read at runtime.
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-5 p-6">
+            <div
+              class="w-9 h-9 rounded-full bg-gradient-to-br from-red-500 to-orange-500 text-white flex items-center justify-center text-base font-bold shrink-0"
+            >
+              2
+            </div>
+            <div class="space-y-1 pt-1">
+              <h4 class="text-base font-semibold text-gray-900 dark:text-white">
+                Host imports on demand
+              </h4>
+              <p class="text-base text-gray-600 dark:text-gray-300">
+                This host uses dynamic
+                <code
+                  class="text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
+                  >import()</code
+                >
+                to fetch remote modules at runtime via their URLs — not bundled
+                in, but loaded live from the remote's own deployment.
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-5 p-6">
+            <div
+              class="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-green-500 text-white flex items-center justify-center text-base font-bold shrink-0"
+            >
+              3
+            </div>
+            <div class="space-y-1 pt-1">
+              <h4 class="text-base font-semibold text-gray-900 dark:text-white">
+                Shared dependencies deduplicated
+              </h4>
+              <p class="text-base text-gray-600 dark:text-gray-300">
+                Frameworks declared as <em>shared</em> in the federation config
+                are loaded once. A React remote and a React component in the
+                host share the same React instance — no double-loading.
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-5 p-6">
+            <div
+              class="w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-teal-500 text-white flex items-center justify-center text-base font-bold shrink-0"
+            >
+              4
+            </div>
+            <div class="space-y-1 pt-1">
+              <h4 class="text-base font-semibold text-gray-900 dark:text-white">
+                Remotes render natively
+              </h4>
+              <p class="text-base text-gray-600 dark:text-gray-300">
+                Components mount into the DOM using their own framework's
+                runtime. A Vue component and a Svelte component coexist in the
+                same page without knowing about each other.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Plugin ── -->
+      <section class="space-y-6">
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-px bg-purple-500"></div>
+            <span
+              class="text-xs font-semibold uppercase tracking-widest text-purple-500 dark:text-purple-400"
+              >Tooling</span
+            >
+          </div>
+          <h2
+            class="text-3xl font-bold font-heading text-gray-900 dark:text-white"
+          >
+            <a
+              href="https://github.com/originjs/vite-plugin-federation"
+              target="_blank"
+              class="hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+              >@originjs/vite-plugin-federation</a
+            >
+          </h2>
+          <p
+            class="text-base text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed"
+          >
+            This project uses the <strong>vite-plugin-federation</strong> plugin
+            to bring Webpack 5's Module Federation capabilities to Vite. It
+            handles all the wiring: remote discovery, shared dependency
+            negotiation, and dynamic import resolution.
+          </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div
+            class="rounded-xl border border-gray-200 dark:border-gray-800 p-5 space-y-3"
+          >
+            <p
+              class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+            >
+              Plugin capabilities
+            </p>
+            <ul class="space-y-2">
+              <li class="flex gap-2 text-base text-gray-600 dark:text-gray-300">
+                <span class="text-green-500 shrink-0 mt-0.5">✓</span>Dynamic
+                remote module loading at runtime
+              </li>
+              <li class="flex gap-2 text-base text-gray-600 dark:text-gray-300">
+                <span class="text-green-500 shrink-0 mt-0.5">✓</span>Shared
+                dependency deduplication
+              </li>
+              <li class="flex gap-2 text-base text-gray-600 dark:text-gray-300">
+                <span class="text-green-500 shrink-0 mt-0.5">✓</span
+                >Cross-framework federation (React ↔ Vue ↔ Svelte ↔ SolidJS)
+              </li>
+              <li class="flex gap-2 text-base text-gray-600 dark:text-gray-300">
+                <span class="text-green-500 shrink-0 mt-0.5">✓</span>HMR in
+                standalone development mode
+              </li>
+            </ul>
+          </div>
+          <div
+            class="rounded-xl border border-gray-200 dark:border-gray-800 p-5 space-y-3"
+          >
+            <p
+              class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+            >
+              Run modes
+            </p>
+            <div class="space-y-3">
+              <div class="space-y-1">
+                <p
+                  class="text-base font-medium text-gray-800 dark:text-gray-200"
+                >
+                  Standalone dev
+                </p>
+                <code
+                  class="block text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300"
+                  >npm run dev</code
+                >
+                <p class="text-sm text-gray-500 dark:text-gray-500">
+                  Uses
                   <code
-                    class="bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300 px-2 py-1 rounded"
-                    >npm run dev</code
-                  ></span
+                    class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded"
+                    >vite.dev.config.ts</code
+                  >
+                  — no federation
+                </p>
+              </div>
+              <div class="space-y-1">
+                <p
+                  class="text-base font-medium text-gray-800 dark:text-gray-200"
                 >
+                  Federation mode
+                </p>
+                <code
+                  class="block text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300"
+                  >npm run build && npm run preview</code
+                >
+                <p class="text-sm text-gray-500 dark:text-gray-500">
+                  Uses
+                  <code
+                    class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded"
+                    >vite.config.ts</code
+                  >
+                  — remotes active
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Use Cases ── -->
+      <section class="space-y-6">
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-px bg-green-500"></div>
+            <span
+              class="text-xs font-semibold uppercase tracking-widest text-green-600 dark:text-green-400"
+              >When to use it</span
+            >
+          </div>
+          <h2
+            class="text-3xl font-bold font-heading text-gray-900 dark:text-white"
+          >
+            Common Use Cases
+          </h2>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div
+            class="rounded-xl border border-gray-200 dark:border-gray-800 p-5 space-y-2"
+          >
+            <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+              Large enterprise applications
+            </h3>
+            <p class="text-base text-gray-600 dark:text-gray-300">
+              Multiple product teams building different features that need to
+              coexist in one app — each deploying on its own cadence without
+              coordinating releases.
+            </p>
+          </div>
+          <div
+            class="rounded-xl border border-gray-200 dark:border-gray-800 p-5 space-y-2"
+          >
+            <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+              Design system distribution
+            </h3>
+            <p class="text-base text-gray-600 dark:text-gray-300">
+              A component library team ships updates to consumers at runtime —
+              no downstream rebuilds or version bumps required.
+            </p>
+          </div>
+          <div
+            class="rounded-xl border border-gray-200 dark:border-gray-800 p-5 space-y-2"
+          >
+            <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+              Incremental migration
+            </h3>
+            <p class="text-base text-gray-600 dark:text-gray-300">
+              New features built in a modern framework run alongside legacy
+              code. Migrate page by page without a big-bang rewrite.
+            </p>
+          </div>
+          <div
+            class="rounded-xl border border-gray-200 dark:border-gray-800 p-5 space-y-2"
+          >
+            <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+              Multi-team SPAs
+            </h3>
+            <p class="text-base text-gray-600 dark:text-gray-300">
+              A single-page experience composed from independently managed route
+              segments — each team owns its own slice of the URL tree.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Companies ── -->
+      <section class="space-y-6">
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-px bg-blue-500"></div>
+            <span
+              class="text-xs font-semibold uppercase tracking-widest text-blue-500 dark:text-blue-400"
+              >In production</span
+            >
+          </div>
+          <h2
+            class="text-3xl font-bold font-heading text-gray-900 dark:text-white"
+          >
+            Companies Using Module Federation
+          </h2>
+          <p class="text-base text-gray-500 dark:text-gray-400">
+            A non-exhaustive list of companies with verified production usage.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          <div
+            v-for="company in companies"
+            :key="company.name"
+            class="rounded-xl border border-gray-200 dark:border-gray-800 px-4 py-3 bg-white dark:bg-gray-900/30"
+          >
+            <p class="text-base font-medium text-gray-800 dark:text-gray-200">
+              {{ company.name }}
+            </p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">
+              {{ company.type }}
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="space-y-3 border-l-2 border-blue-300 dark:border-blue-700 pl-5"
+        >
+          <p class="text-base text-gray-600 dark:text-gray-300">
+            <strong class="text-gray-800 dark:text-gray-200">Rivian</strong>
+            runs Module Federation directly in vehicle UI — one of the more
+            unusual production deployments, demonstrating the technology's
+            real-time reliability at a hardware level.
+          </p>
+          <p class="text-base text-gray-600 dark:text-gray-300">
+            <strong class="text-gray-800 dark:text-gray-200">ByteDance</strong>
+            uses it across TikTok web, CapCut editor, and internal tooling at
+            massive scale — and co-developed Module Federation 2.0 with the
+            Webpack team.
+          </p>
+        </div>
+      </section>
+
+      <!-- ── Benefits & Downsides ── -->
+      <section class="space-y-6">
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-px bg-amber-500"></div>
+            <span
+              class="text-xs font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400"
+              >Trade-offs</span
+            >
+          </div>
+          <h2
+            class="text-3xl font-bold font-heading text-gray-900 dark:text-white"
+          >
+            Benefits & Downsides
+          </h2>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <!-- Benefits -->
+          <div
+            class="rounded-2xl border border-green-200 dark:border-green-900 overflow-hidden"
+          >
+            <div
+              class="px-5 py-3 bg-green-50 dark:bg-green-950/30 border-b border-green-200 dark:border-green-900"
+            >
+              <h3
+                class="text-base font-semibold text-green-800 dark:text-green-300"
+              >
+                Benefits
+              </h3>
+            </div>
+            <ul class="divide-y divide-gray-100 dark:divide-gray-800">
+              <li
+                v-for="b in benefits"
+                :key="b.title"
+                class="px-5 py-3 flex gap-3"
+              >
+                <span class="text-green-500 shrink-0 mt-0.5 text-base">✓</span>
+                <div>
+                  <span
+                    class="text-base font-medium text-gray-900 dark:text-white"
+                    >{{ b.title }}:</span
+                  >
+                  <span class="text-base text-gray-600 dark:text-gray-300">
+                    {{ b.desc }}</span
+                  >
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Downsides -->
+          <div
+            class="rounded-2xl border border-red-200 dark:border-red-900 overflow-hidden"
+          >
+            <div
+              class="px-5 py-3 bg-red-50 dark:bg-red-950/30 border-b border-red-200 dark:border-red-900"
+            >
+              <h3
+                class="text-base font-semibold text-red-800 dark:text-red-300"
+              >
+                Downsides & Challenges
+              </h3>
+            </div>
+            <ul class="divide-y divide-gray-100 dark:divide-gray-800">
+              <li
+                v-for="d in downsides"
+                :key="d.title"
+                class="px-5 py-3 flex gap-3"
+              >
+                <span class="text-red-400 shrink-0 mt-0.5 text-base">✕</span>
+                <div>
+                  <span
+                    class="text-base font-medium text-gray-900 dark:text-white"
+                    >{{ d.title }}:</span
+                  >
+                  <span class="text-base text-gray-600 dark:text-gray-300">
+                    {{ d.desc }}</span
+                  >
+                </div>
               </li>
             </ul>
           </div>
         </div>
 
-        <!-- Remote Apps Info -->
-        <div class="mb-6">
-          <h3
-            class="text-2xl font-bold text-pink-600 dark:text-pink-400 mb-4 flex items-center"
+        <div
+          class="border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 rounded-xl px-5 py-4"
+        >
+          <p class="text-base text-amber-800 dark:text-amber-300">
+            <strong>Worth noting:</strong> Module Federation adds real
+            operational complexity. For small teams or projects without DevOps
+            investment, that overhead rarely pays off. It shines when you have
+            multiple independent teams who genuinely cannot afford to coordinate
+            deployments.
+          </p>
+        </div>
+      </section>
+
+      <!-- ── Alternatives ── -->
+      <section class="space-y-6">
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-px bg-purple-500"></div>
+            <span
+              class="text-xs font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400"
+              >Ecosystem</span
+            >
+          </div>
+          <h2
+            class="text-3xl font-bold font-heading text-gray-900 dark:text-white"
           >
-            🔌 Remote Applications
-          </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <RouterLink
-              to="/remote/vite_react_remoteapp"
-              class="bg-white dark:bg-gray-900/50 border border-pink-200 dark:border-pink-800 rounded-lg p-4 hover:shadow-lg transition-all hover:border-blue-400 dark:hover:border-blue-600 cursor-pointer"
-            >
-              <h4
-                class="font-bold text-blue-600 dark:text-blue-400 text-lg mb-2"
-              >
-                <a
-                  href="https://react.dev/"
-                  target="_blank"
-                  class="hover:text-blue-700 dark:hover:text-blue-300 underline"
-                  @click.stop
-                  >React</a
-                >
-                Remote (Vite)
-              </h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                React 18 + TypeScript components built with Vite
-              </p>
-            </RouterLink>
-            <RouterLink
-              to="/remote/vite_vue_remoteapp"
-              class="bg-white dark:bg-gray-900/50 border border-pink-200 dark:border-pink-800 rounded-lg p-4 hover:shadow-lg transition-all hover:border-green-400 dark:hover:border-green-600 cursor-pointer"
-            >
-              <h4
-                class="font-bold text-green-600 dark:text-green-400 text-lg mb-2"
-              >
-                <a
-                  href="https://vuejs.org/"
-                  target="_blank"
-                  class="hover:text-green-700 dark:hover:text-green-300 underline"
-                  @click.stop
-                  >Vue</a
-                >
-                Remote (Vite)
-              </h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Vue 3 Composition API components built with Vite
-              </p>
-            </RouterLink>
-            <RouterLink
-              to="/remote/vite_svelte_remoteapp"
-              class="bg-white dark:bg-gray-900/50 border border-pink-200 dark:border-pink-800 rounded-lg p-4 hover:shadow-lg transition-all hover:border-orange-400 dark:hover:border-orange-600 cursor-pointer"
-            >
-              <h4
-                class="font-bold text-orange-600 dark:text-orange-400 text-lg mb-2"
-              >
-                <a
-                  href="https://svelte.dev/"
-                  target="_blank"
-                  class="hover:text-orange-700 dark:hover:text-orange-300 underline"
-                  @click.stop
-                  >Svelte</a
-                >
-                Remote (Vite)
-              </h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Svelte components with stores built with Vite
-              </p>
-            </RouterLink>
-            <RouterLink
-              to="/remote/vite_solidjs_remoteapp"
-              class="bg-white dark:bg-gray-900/50 border border-pink-200 dark:border-pink-800 rounded-lg p-4 hover:shadow-lg transition-all hover:border-red-400 dark:hover:border-red-600 cursor-pointer"
-            >
-              <h4 class="font-bold text-red-600 dark:text-red-400 text-lg mb-2">
-                <a
-                  href="https://www.solidjs.com/"
-                  target="_blank"
-                  class="hover:text-red-700 dark:hover:text-red-300 underline"
-                  @click.stop
-                  >SolidJS</a
-                >
-                Remote (Vite)
-              </h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Solid components with signals built with Vite
-              </p>
-            </RouterLink>
-            <RouterLink
-              to="/remote/webpack_react_remoteapp"
-              class="bg-white dark:bg-gray-900/50 border border-pink-200 dark:border-pink-800 rounded-lg p-4 hover:shadow-lg transition-all hover:border-blue-400 dark:hover:border-blue-600 cursor-pointer"
-            >
-              <h4
-                class="font-bold text-blue-600 dark:text-blue-400 text-lg mb-2"
-              >
-                <a
-                  href="https://react.dev/"
-                  target="_blank"
-                  class="hover:text-blue-700 dark:hover:text-blue-300 underline"
-                  @click.stop
-                  >React</a
-                >
-                Remote (Webpack)
-              </h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                React 18 + TypeScript components built with Webpack 5
-              </p>
-            </RouterLink>
-            <RouterLink
-              to="/remote/webpack_vue_remoteapp"
-              class="bg-white dark:bg-gray-900/50 border border-pink-200 dark:border-pink-800 rounded-lg p-4 hover:shadow-lg transition-all hover:border-green-400 dark:hover:border-green-600 cursor-pointer"
-            >
-              <h4
-                class="font-bold text-green-600 dark:text-green-400 text-lg mb-2"
-              >
-                <a
-                  href="https://vuejs.org/"
-                  target="_blank"
-                  class="hover:text-green-700 dark:hover:text-green-300 underline"
-                  @click.stop
-                  >Vue</a
-                >
-                Remote (Webpack)
-              </h4>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Vue 3 Composition API components built with Webpack 5
-              </p>
-            </RouterLink>
-          </div>
+            Alternatives
+          </h2>
         </div>
 
-        <div
-          class="bg-gradient-to-r from-pink-100 to-red-100 dark:from-pink-950/20 dark:to-red-950/20 p-4 rounded-lg border border-pink-300 dark:border-pink-700"
-        >
-          <p class="text-pink-800 dark:text-pink-300">
-            <strong>🔄 Federation Workflow:</strong> Each remote app exposes
-            specific components via
-            <code class="bg-pink-200 dark:bg-pink-900/50 px-2 py-1 rounded"
-              >remoteEntry.js</code
-            >, and this host dynamically imports and renders them at runtime.
-          </p>
-        </div>
-      </div>
-
-      <!-- Plugin Information -->
-      <div
-        class="bg-gradient-to-br from-red-50 to-pink-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl lg:rounded-3xl shadow-lg p-6 border border-red-200 dark:border-gray-700"
-      >
-        <h2
-          class="text-3xl font-bold text-red-700 dark:text-red-400 mb-6 font-heading"
-        >
-          🛠️ Technology Stack
-        </h2>
-
-        <div class="mb-6">
-          <h3 class="text-2xl font-bold text-pink-600 dark:text-pink-400 mb-3">
-            <a
-              href="https://github.com/originjs/vite-plugin-federation"
-              target="_blank"
-              class="hover:text-pink-700 dark:hover:text-pink-300 underline"
-            >
-              @originjs/vite-plugin-federation
-            </a>
-          </h3>
-          <p class="text-gray-800 dark:text-gray-200 mb-4 leading-relaxed">
-            This project uses the
-            <strong class="text-red-600 dark:text-red-400"
-              >@originjs/vite-plugin-federation</strong
-            >
-            plugin, which brings
-            <a
-              href="https://webpack.js.org/concepts/module-federation/"
-              target="_blank"
-              class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
-              >Webpack 5's Module Federation</a
-            >
-            capabilities to
-            <a
-              href="https://vitejs.dev/"
-              target="_blank"
-              class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 underline"
-              >Vite</a
-            >. This plugin enables:
-          </p>
-          <ul class="space-y-2 text-gray-700 dark:text-gray-300 ml-4">
-            <li class="flex items-center space-x-2">
-              <span class="text-green-500 dark:text-green-400">✓</span>
-              <span>Dynamic remote module loading at runtime</span>
-            </li>
-            <li class="flex items-center space-x-2">
-              <span class="text-green-500 dark:text-green-400">✓</span>
-              <span>Shared dependency optimization (React, Vue, etc.)</span>
-            </li>
-            <li class="flex items-center space-x-2">
-              <span class="text-green-500 dark:text-green-400">✓</span>
-              <span
-                >Framework-agnostic federation (React ↔ Vue ↔ Svelte ↔
-                SolidJS)</span
-              >
-            </li>
-            <li class="flex items-center space-x-2">
-              <span class="text-green-500 dark:text-green-400">✓</span>
-              <span>Hot module replacement (HMR) support in development</span>
-            </li>
-          </ul>
-        </div>
-
-        <div
-          class="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-red-200 dark:border-red-800"
-        >
-          <h4 class="font-bold text-red-700 dark:text-red-400 mb-3">
-            Development vs Federation Modes
-          </h4>
-          <div class="space-y-2">
-            <div class="flex items-center space-x-2">
-              <span class="text-pink-500 dark:text-pink-400">▪</span>
-              <span
-                ><strong>Standalone Development:</strong>
-                <code
-                  class="bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300 px-2 py-1 rounded"
-                  >npm run dev</code
-                >
-                (uses vite.dev.config.ts)</span
-              >
-            </div>
-            <div class="flex items-center space-x-2">
-              <span class="text-pink-500 dark:text-pink-400">▪</span>
-              <span
-                ><strong>Federation Mode:</strong>
-                <code
-                  class="bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300 px-2 py-1 rounded"
-                  >npm run build && npm run preview</code
-                >
-                (uses vite.config.ts)</span
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- How It Works -->
-      <div
-        class="bg-gradient-to-br from-pink-50 to-green-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl lg:rounded-3xl shadow-lg p-6 border border-pink-200 dark:border-gray-700"
-      >
-        <h2
-          class="text-3xl font-bold text-pink-700 dark:text-pink-400 mb-6 font-heading"
-        >
-          ⚙️ How Federation Works Here
-        </h2>
-
-        <div class="space-y-6">
-          <div class="flex items-start space-x-4">
-            <div
-              class="bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg shadow-lg"
-            >
-              1
-            </div>
-            <div class="flex-1">
-              <h4 class="font-bold text-red-600 dark:text-red-400 text-lg mb-2">
-                Remote Apps Expose Components
-              </h4>
-              <p class="text-gray-700 dark:text-gray-300">
-                Each remote app builds and serves a
-                <code
-                  class="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 px-2 py-1 rounded"
-                  >remoteEntry.js</code
-                >
-                that exposes specific components
-              </p>
-            </div>
-          </div>
-
-          <div class="flex items-start space-x-4">
-            <div
-              class="bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg shadow-lg"
-            >
-              2
-            </div>
-            <div class="flex-1">
-              <h4
-                class="font-bold text-pink-600 dark:text-pink-400 text-lg mb-2"
-              >
-                Host App Consumes Remotes
-              </h4>
-              <p class="text-gray-700 dark:text-gray-300">
-                This host app dynamically imports components from remote apps
-                using their URLs
-              </p>
-            </div>
-          </div>
-
-          <div class="flex items-start space-x-4">
-            <div
-              class="bg-gradient-to-r from-pink-500 to-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg shadow-lg"
-            >
-              3
-            </div>
-            <div class="flex-1">
-              <h4
-                class="font-bold text-green-600 dark:text-green-400 text-lg mb-2"
-              >
-                Runtime Integration
-              </h4>
-              <p class="text-gray-700 dark:text-gray-300">
-                Components render seamlessly despite being from different
-                frameworks and deployments
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="mt-8 p-4 bg-gradient-to-r from-green-100 to-red-100 dark:from-green-950/20 dark:to-red-950/20 rounded-lg border border-green-300 dark:border-green-700"
-        >
-          <p class="text-green-800 dark:text-green-300 font-medium">
-            <strong>🎉 Result:</strong> Independent teams can work on different
-            parts of the application using their preferred frameworks, while the
-            host orchestrates everything into a cohesive user experience.
-          </p>
-        </div>
-      </div>
-
-      <!-- Benefits & Downsides -->
-      <div
-        class="bg-gradient-to-br from-green-50 to-pink-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl lg:rounded-3xl shadow-lg p-6 border border-green-200 dark:border-gray-700"
-      >
-        <h2
-          class="text-3xl font-bold text-green-700 dark:text-green-400 mb-6 font-heading"
-        >
-          ⚖️ Benefits & Downsides
-        </h2>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <h3
-              class="text-2xl font-bold text-green-600 dark:text-green-400 mb-4 flex items-center"
-            >
-              ✅ Benefits
-            </h3>
-            <div class="space-y-3">
-              <div class="flex items-start space-x-3">
-                <span class="text-green-500 dark:text-green-400 mt-1">•</span>
-                <div>
-                  <strong class="text-green-700 dark:text-green-300"
-                    >Team Independence:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Different teams, different frameworks, autonomous
-                    deployment</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-green-500 dark:text-green-400 mt-1">•</span>
-                <div>
-                  <strong class="text-green-700 dark:text-green-300"
-                    >Incremental Updates:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Deploy remotes without touching host or other remotes</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-green-500 dark:text-green-400 mt-1">•</span>
-                <div>
-                  <strong class="text-green-700 dark:text-green-300"
-                    >Technology Diversity:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Mix React, Vue, Svelte seamlessly in one application</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-green-500 dark:text-green-400 mt-1">•</span>
-                <div>
-                  <strong class="text-green-700 dark:text-green-300"
-                    >Scalability:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Add new microfrontends easily without affecting existing
-                    ones</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-green-500 dark:text-green-400 mt-1">•</span>
-                <div>
-                  <strong class="text-green-700 dark:text-green-300"
-                    >Fault Isolation:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Remote failures don't crash the entire application</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-green-500 dark:text-green-400 mt-1">•</span>
-                <div>
-                  <strong class="text-green-700 dark:text-green-300"
-                    >Optimized Bundles:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Shared dependencies loaded once and reused</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-green-500 dark:text-green-400 mt-1">•</span>
-                <div>
-                  <strong class="text-green-700 dark:text-green-300"
-                    >Faster Development:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Smaller codebases lead to faster builds and testing</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-green-500 dark:text-green-400 mt-1">•</span>
-                <div>
-                  <strong class="text-green-700 dark:text-green-300"
-                    >Gradual Migration:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Modernize legacy apps incrementally</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3
-              class="text-2xl font-bold text-red-600 dark:text-red-400 mb-4 flex items-center"
-            >
-              ⚠️ Downsides & Challenges
-            </h3>
-            <div class="space-y-3">
-              <div class="flex items-start space-x-3">
-                <span class="text-red-500 dark:text-red-400 mt-1">•</span>
-                <div>
-                  <strong class="text-red-700 dark:text-red-300"
-                    >Increased Complexity:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Managing multiple repos, builds, and deployments</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-red-500 dark:text-red-400 mt-1">•</span>
-                <div>
-                  <strong class="text-red-700 dark:text-red-300"
-                    >Network Overhead:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Each remote requires separate HTTP requests</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-red-500 dark:text-red-400 mt-1">•</span>
-                <div>
-                  <strong class="text-red-700 dark:text-red-300"
-                    >Dependency Hell:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Version mismatches can cause runtime errors</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-red-500 dark:text-red-400 mt-1">•</span>
-                <div>
-                  <strong class="text-red-700 dark:text-red-300"
-                    >No Versioning Control:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Apps always get latest version, can break
-                    functionality</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-red-500 dark:text-red-400 mt-1">•</span>
-                <div>
-                  <strong class="text-red-700 dark:text-red-300"
-                    >Testing Complexity:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Integration testing across federated apps is
-                    challenging</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-red-500 dark:text-red-400 mt-1">•</span>
-                <div>
-                  <strong class="text-red-700 dark:text-red-300"
-                    >Debugging Difficulty:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Tracing issues across multiple deployments</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-red-500 dark:text-red-400 mt-1">•</span>
-                <div>
-                  <strong class="text-red-700 dark:text-red-300"
-                    >TypeScript Challenges:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Sharing types requires additional tooling</span
-                  >
-                </div>
-              </div>
-              <div class="flex items-start space-x-3">
-                <span class="text-red-500 dark:text-red-400 mt-1">•</span>
-                <div>
-                  <strong class="text-red-700 dark:text-red-300"
-                    >Limited Tooling:</strong
-                  >
-                  <span class="text-gray-700 dark:text-gray-300">
-                    Fewer resources and community support</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="mt-6 p-4 bg-red-100 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800"
-        >
-          <p class="text-red-800 dark:text-red-300 text-sm">
-            <strong>Important Note:</strong> Module Federation is not suitable
-            for smaller projects or teams without DevOps expertise. The
-            complexity overhead often outweighs benefits unless dealing with
-            large-scale applications with multiple independent teams.
-          </p>
-        </div>
-      </div>
-
-      <!-- Alternatives Section (Moved after Benefits) -->
-      <div
-        class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl lg:rounded-3xl shadow-lg p-6 border border-purple-200 dark:border-gray-700"
-      >
-        <h2
-          class="text-3xl font-bold text-purple-700 dark:text-purple-400 mb-4 font-heading"
-        >
-          🔄 Alternatives to Module Federation
-        </h2>
         <div class="space-y-4">
-          <div class="border-l-4 border-purple-500 dark:border-purple-400 pl-4">
-            <h3
-              class="text-xl font-bold text-purple-700 dark:text-purple-300 mb-2"
-            >
-              <a
-                href="https://single-spa.js.org/"
-                target="_blank"
-                class="hover:text-purple-600 dark:hover:text-purple-400 underline"
+          <div
+            v-for="alt in alternatives"
+            :key="alt.name"
+            class="flex gap-5 border-l-2 pl-5 py-1"
+            :class="alt.borderColor"
+          >
+            <div class="space-y-1 flex-1">
+              <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                <a
+                  v-if="alt.href"
+                  :href="alt.href"
+                  target="_blank"
+                  class="hover:underline"
+                  :class="alt.linkColor"
+                  >{{ alt.name }}</a
+                >
+                <span v-else>{{ alt.name }}</span>
+              </h3>
+              <p
+                class="text-base text-gray-600 dark:text-gray-300 leading-relaxed"
               >
-                1. Single-SPA
-              </a>
-            </h3>
-            <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              A JavaScript framework for frontend microservices. It acts as a
-              meta-framework that orchestrates multiple frameworks to work
-              together. Provides lifecycle management and routing for micro
-              frontends but requires build-time integration.
-            </p>
-          </div>
-          <div class="border-l-4 border-indigo-500 dark:border-indigo-400 pl-4">
-            <h3
-              class="text-xl font-bold text-indigo-700 dark:text-indigo-300 mb-2"
-            >
-              <a
-                href="https://www.angulararchitects.io/blog/announcing-native-federation-1-0/"
-                target="_blank"
-                class="hover:text-indigo-600 dark:hover:text-indigo-400 underline"
-              >
-                2. Native Federation
-              </a>
-            </h3>
-            <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              A build-tool-agnostic implementation that works with esbuild,
-              Rollup, and other bundlers. Uses browser-native EcmaScript modules
-              and Import Maps, offering the same mental model as Module
-              Federation without webpack dependency.
-            </p>
-          </div>
-          <div class="border-l-4 border-blue-500 dark:border-blue-400 pl-4">
-            <h3 class="text-xl font-bold text-blue-700 dark:text-blue-300 mb-2">
-              3. iFrames
-            </h3>
-            <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              The traditional approach using isolated iframe elements. Provides
-              strong isolation but suffers from performance overhead,
-              communication complexity, and SEO challenges.
-            </p>
-          </div>
-          <div class="border-l-4 border-cyan-500 dark:border-cyan-400 pl-4">
-            <h3 class="text-xl font-bold text-cyan-700 dark:text-cyan-300 mb-2">
-              <a
-                href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components"
-                target="_blank"
-                class="hover:text-cyan-600 dark:hover:text-cyan-400 underline"
-              >
-                4. Web Components
-              </a>
-            </h3>
-            <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              Browser-native custom elements that encapsulate functionality.
-              Framework-agnostic and use Shadow DOM for style isolation. Best
-              for smaller, reusable components rather than full applications.
-            </p>
-          </div>
-          <div class="border-l-4 border-teal-500 dark:border-teal-400 pl-4">
-            <h3 class="text-xl font-bold text-teal-700 dark:text-teal-300 mb-2">
-              <a
-                href="https://bit.dev/"
-                target="_blank"
-                class="hover:text-teal-600 dark:hover:text-teal-400 underline"
-              >
-                5. Bit
-              </a>
-            </h3>
-            <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              A component-driven development platform that enables teams to
-              share and collaborate on components across projects. Focuses on
-              component distribution and versioning at build time.
-            </p>
+                {{ alt.desc }}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Footer Links -->
-      <div
-        class="bg-gradient-to-r from-pink-100 to-red-100 dark:from-pink-950/20 dark:to-red-950/20 rounded-2xl lg:rounded-3xl p-6 text-center border border-pink-200 dark:border-pink-700"
+      <!-- ── Footer ── -->
+      <section
+        class="border-t border-gray-200 dark:border-gray-800 pt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
       >
-        <h3 class="text-xl font-bold text-pink-700 dark:text-pink-400 mb-4">
-          🔗 Learn More
-        </h3>
-        <div class="flex flex-wrap justify-center gap-4">
+        <div>
+          <p
+            class="text-base font-semibold text-gray-900 dark:text-white font-heading"
+          >
+            Watermelon
+          </p>
+          <p class="text-sm text-gray-400 dark:text-gray-600">
+            Vue 3 + Vite + Module Federation
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
           <a
             href="https://vitejs.dev/"
             target="_blank"
-            class="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg font-medium transition-colors"
+            class="text-sm px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-pink-400 dark:hover:border-pink-600 hover:text-pink-600 dark:hover:text-pink-400 transition-colors"
           >
-            Vite Documentation
+            Vite Docs
           </a>
           <a
             href="https://github.com/originjs/vite-plugin-federation"
             target="_blank"
-            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
+            class="text-sm px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-red-400 dark:hover:border-red-600 hover:text-red-600 dark:hover:text-red-400 transition-colors"
           >
-            Plugin Repository
+            Plugin Repo
           </a>
           <a
             href="https://webpack.js.org/concepts/module-federation/"
             target="_blank"
-            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
+            class="text-sm px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-green-400 dark:hover:border-green-600 hover:text-green-600 dark:hover:text-green-400 transition-colors"
           >
             Module Federation Docs
           </a>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import { RouterLink } from "vue-router";
 
-export default {
+export default defineComponent({
   name: "HomePage",
-  components: {
-    RouterLink,
+  components: { RouterLink },
+  setup() {
+    const companies = [
+      { name: "Indeed", type: "Job Platform" },
+      { name: "Cloudflare", type: "CDN & Security" },
+      { name: "ByteDance", type: "Web Infrastructure" },
+      { name: "DigitalOcean", type: "Cloud Platform" },
+      { name: "Booking.com", type: "Travel Platform" },
+      { name: "Intuit", type: "Financial Software" },
+      { name: "Rivian", type: "In-Vehicle UI" },
+      { name: "Epic Games", type: "Gaming Platform" },
+      { name: "PayPal", type: "Payment Services" },
+      { name: "Shopify", type: "E-commerce" },
+      { name: "Best Buy", type: "Retail Platform" },
+      { name: "Lululemon", type: "Retail" },
+    ];
+
+    const benefits = [
+      {
+        title: "Team independence",
+        desc: "Different teams, different frameworks, autonomous deployment cycles.",
+      },
+      {
+        title: "Incremental updates",
+        desc: "Deploy a remote without touching the host or any other remote.",
+      },
+      {
+        title: "Technology diversity",
+        desc: "Mix React, Vue, and Svelte in a single page without conflict.",
+      },
+      {
+        title: "Scalability",
+        desc: "Add new microfrontends without affecting existing ones.",
+      },
+      {
+        title: "Fault isolation",
+        desc: "A failing remote doesn't crash the entire application.",
+      },
+      {
+        title: "Optimized bundles",
+        desc: "Shared dependencies are loaded once and reused across remotes.",
+      },
+      {
+        title: "Faster iteration",
+        desc: "Smaller codebases mean faster local builds and test runs.",
+      },
+      {
+        title: "Gradual migration",
+        desc: "Modernize legacy applications incrementally, one feature at a time.",
+      },
+    ];
+
+    const downsides = [
+      {
+        title: "Operational complexity",
+        desc: "Managing multiple repos, CI pipelines, and deployments simultaneously.",
+      },
+      {
+        title: "Network overhead",
+        desc: "Each remote requires its own HTTP request at load time.",
+      },
+      {
+        title: "Dependency version skew",
+        desc: "Mismatched shared library versions cause silent runtime errors.",
+      },
+      {
+        title: "No version pinning",
+        desc: "Consumers always get the latest deployed version — breaking changes ship immediately.",
+      },
+      {
+        title: "Integration testing",
+        desc: "Testing across independently deployed apps is significantly harder.",
+      },
+      {
+        title: "Debugging difficulty",
+        desc: "Tracing issues across multiple deployments requires distributed tooling.",
+      },
+      {
+        title: "TypeScript across boundaries",
+        desc: "Sharing types between remotes requires additional tooling and discipline.",
+      },
+      {
+        title: "Ecosystem immaturity",
+        desc: "Fewer battle-tested patterns and community resources than monolithic setups.",
+      },
+    ];
+
+    const alternatives = [
+      {
+        name: "Single-SPA",
+        href: "https://single-spa.js.org/",
+        desc: "A meta-framework that orchestrates multiple frameworks with lifecycle management and routing. Requires build-time integration rather than runtime loading.",
+        borderColor: "border-purple-300 dark:border-purple-700",
+        linkColor: "text-purple-600 dark:text-purple-400",
+      },
+      {
+        name: "Native Federation",
+        href: "https://www.angulararchitects.io/blog/announcing-native-federation-1-0/",
+        desc: "A build-tool-agnostic implementation using browser-native ES modules and Import Maps. Same mental model as Module Federation, no Webpack dependency.",
+        borderColor: "border-indigo-300 dark:border-indigo-700",
+        linkColor: "text-indigo-600 dark:text-indigo-400",
+      },
+      {
+        name: "iFrames",
+        href: null,
+        desc: "The traditional isolation approach. Strong encapsulation but with real costs: performance overhead, cross-frame communication complexity, and poor SEO.",
+        borderColor: "border-blue-300 dark:border-blue-700",
+        linkColor: "",
+      },
+      {
+        name: "Web Components",
+        href: "https://developer.mozilla.org/en-US/docs/Web/API/Web_components",
+        desc: "Browser-native custom elements with Shadow DOM style isolation. Framework-agnostic and well-suited for leaf-level reusable components, less so for full application slices.",
+        borderColor: "border-cyan-300 dark:border-cyan-700",
+        linkColor: "text-cyan-600 dark:text-cyan-400",
+      },
+      {
+        name: "Bit",
+        href: "https://bit.dev/",
+        desc: "A component-driven platform focused on build-time sharing and versioning. Excellent for component distribution, but doesn't provide runtime federation.",
+        borderColor: "border-teal-300 dark:border-teal-700",
+        linkColor: "text-teal-600 dark:text-teal-400",
+      },
+    ];
+
+    return { companies, benefits, downsides, alternatives };
   },
-};
+});
 </script>
