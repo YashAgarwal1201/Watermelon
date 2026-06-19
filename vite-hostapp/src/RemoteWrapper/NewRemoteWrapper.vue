@@ -1,36 +1,46 @@
 <template>
   <div class="remote-wrapper w-full h-full p-2">
-    <div
-      v-if="isLoading"
-      class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
-    >
-      <svg
-        class="animate-spin h-5 w-5"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
+    <div>
+      <div
+        class="py-3 flex items-center gap-x-3 border-b border-pink-200 dark:border-red-800"
       >
-        <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-        <path d="M22 12a10 10 0 0 1-10 10" />
-      </svg>
-      <span>Loading...</span>
-    </div>
-
-    <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
-      <p>Error loading remote app: {{ error }}</p>
-      <button
-        @click="retryLoad"
-        class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        <GoBackBtn />
+        <h1 class="text-2xl sm:text-3xl capitalize">
+          {{ (appName ?? "Remote App").replace(/_/g, " ") }}
+        </h1>
+      </div>
+      <div
+        v-if="isLoading"
+        class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
       >
-        Retry
-      </button>
-    </div>
+        <svg
+          class="animate-spin h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+          <path d="M22 12a10 10 0 0 1-10 10" />
+        </svg>
+        <span>Loading...</span>
+      </div>
 
-    <div
-      ref="hostContainer"
-      class="remote-container rounded-none md:rounded-lg"
-    ></div>
+      <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
+        <p>Error loading remote app: {{ error }}</p>
+        <button
+          @click="retryLoad"
+          class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Retry
+        </button>
+      </div>
+
+      <div
+        ref="hostContainer"
+        class="remote-container rounded-none md:rounded-lg"
+      ></div>
+    </div>
   </div>
 </template>
 
@@ -47,6 +57,7 @@ const cssCache = new Map<string, string[]>();
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
+import GoBackBtn from "../components/GoBack/GoBackBtn.vue";
 
 const route = useRoute();
 const appName = ref(String(route.params.appName ?? ""));
