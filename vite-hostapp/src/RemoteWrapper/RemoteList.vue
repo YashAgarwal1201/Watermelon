@@ -26,7 +26,6 @@
           :key="app.name"
           class="w-full group cursor-pointer disabled:pointer-events-none disabled:opacity-50 p-6 bg-linear-to-r from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 border border-pink-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.02] transform transition-all duration-200 hover:from-pink-100 hover:to-red-100 dark:hover:from-gray-800 dark:hover:to-gray-700"
           @click="goToRemote(app.name)"
-          :disabled="app.name === 'angular_remoteapp'"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
