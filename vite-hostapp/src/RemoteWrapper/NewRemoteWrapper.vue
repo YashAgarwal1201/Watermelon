@@ -528,25 +528,69 @@ async function loadRemote() {
       //   const result = await module.mount(mountPoint!);
       //   if (result?.destroy) lastRemoteModule.unmount = result.destroy;
       // }
+      // } else if (appName.value === "angular_remoteapp") {
+      //   // Patch head BEFORE the import so Webpack runtime link injection is caught
+      //   restoreHeadPatch = patchHeadToShadow(shadow, currentId, appName.value);
+      //   replayCssIntoShadow(appName.value, shadow);
+
+      //   const module = await import("angular_remoteapp/Component");
+      //   if (currentId !== loadId) return;
+      //   lastRemoteModule = module;
+
+      //   // After import, sweep any <link> tags already in head that slipped through
+      //   // (Webpack runtime may have injected them before the patch was active on
+      //   // previous loads, and they won't be re-injected on subsequent imports
+      //   // because Webpack caches the module)
+      //   await sweepExistingHeadLinks(shadow, appName.value);
+
+      //   if (typeof module.mount !== "function")
+      //     throw new Error("Angular remote does not export a mount function");
+      //   const result = await module.mount(mountPoint!);
+      //   if (result?.destroy) lastRemoteModule.unmount = result.destroy;
+      // }
     } else if (appName.value === "angular_remoteapp") {
-      // Patch head BEFORE the import so Webpack runtime link injection is caught
-      restoreHeadPatch = patchHeadToShadow(shadow, currentId, appName.value);
-      replayCssIntoShadow(appName.value, shadow);
+      await new Promise<void>((resolve, reject) => {
+        // If already loaded before, custom element is already registered —
+        // just mount it directly without reloading the script
+        if (customElements.get("angular-remote-app")) {
+          const el = document.createElement("angular-remote-app");
+          mountPoint!.appendChild(el);
+          lastRemoteModule = {
+            unmount: () => mountPoint!.removeChild(el),
+          };
+          resolve();
+          return;
+        }
 
-      const module = await import("angular_remoteapp/Component");
-      if (currentId !== loadId) return;
-      lastRemoteModule = module;
-
-      // After import, sweep any <link> tags already in head that slipped through
-      // (Webpack runtime may have injected them before the patch was active on
-      // previous loads, and they won't be re-injected on subsequent imports
-      // because Webpack caches the module)
-      await sweepExistingHeadLinks(shadow, appName.value);
-
-      if (typeof module.mount !== "function")
-        throw new Error("Angular remote does not export a mount function");
-      const result = await module.mount(mountPoint!);
-      if (result?.destroy) lastRemoteModule.unmount = result.destroy;
+        const script = document.createElement("script");
+        script.src = "http://localhost:4201/main.js";
+        script.type = "module";
+        script.onload = async () => {
+          if (currentId !== loadId) {
+            resolve();
+            return;
+          }
+          // Give Angular a tick to register the custom element
+          await new Promise((r) => setTimeout(r, 50));
+          if (currentId !== loadId) {
+            resolve();
+            return;
+          }
+          const el = document.createElement("angular-remote-app");
+          mountPoint!.appendChild(el);
+          lastRemoteModule = {
+            unmount: () => {
+              try {
+                mountPoint!.removeChild(el);
+              } catch {}
+            },
+          };
+          resolve();
+        };
+        script.onerror = (e) =>
+          reject(new Error("Failed to load Angular remote script"));
+        document.head.appendChild(script);
+      });
     } else {
       throw new Error(`Unknown remote app: ${appName.value}`);
     }

@@ -25,7 +25,7 @@ export default defineConfig({
           from: "webpack",
           format: "var",
         },
-        angular_remoteapp: "http://localhost:4201/remoteEntry.json",
+        // angular_remoteapp: "http://localhost:4201/remoteEntry.json",
       } as any,
       shared: ["react", "react-dom", "vue", "vue-router"],
     }),
