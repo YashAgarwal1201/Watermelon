@@ -1,16 +1,3 @@
-// import { Component, signal } from '@angular/core';
-// import { RouterOutlet } from '@angular/router';
-
-// @Component({
-//   selector: 'app-root',
-//   imports: [RouterOutlet],
-//   templateUrl: './app.html',
-//   styleUrl: './app.css'
-// })
-// export class App {
-//   protected readonly title = signal('angular-remoteapp');
-// }
-
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -20,49 +7,42 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
   template: `
-    <div class="min-h-screen bg-gray-50">
-      <header class="bg-blue-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-4">
-          <nav class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold">Angular Remote App</h1>
-            <div class="flex gap-4">
-              <a
-                routerLink="/"
-                routerLinkActive="bg-blue-800"
-                [routerLinkActiveOptions]="{ exact: true }"
-                class="px-4 py-2 hover:bg-blue-700 rounded transition"
-              >
-                Home
-              </a>
-              <a
-                routerLink="/sub-page1"
-                routerLinkActive="bg-blue-800"
-                class="px-4 py-2 hover:bg-blue-700 rounded transition"
-              >
-                Sub Page 1
-              </a>
-              <a
-                routerLink="/sub-page2"
-                routerLinkActive="bg-blue-800"
-                class="px-4 py-2 hover:bg-blue-700 rounded transition"
-              >
-                Sub Page 2
-              </a>
-            </div>
-          </nav>
-        </div>
+    <div style="min-height: 100vh; background: #f8fafc;">
+      <header
+        style="background: #2563eb; color: white; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;"
+      >
+        <h1 style="margin: 0; font-size: 1.4rem; font-weight: 700;">Angular Remote App</h1>
+        <nav style="display: flex; gap: 0.5rem;">
+          <a
+            routerLink="/"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+            style="padding: 0.4rem 1rem; border-radius: 6px; color: white; text-decoration: none;"
+            >Home</a
+          >
+          <a
+            routerLink="/sub-page1"
+            routerLinkActive="active-link"
+            style="padding: 0.4rem 1rem; border-radius: 6px; color: white; text-decoration: none;"
+            >Sub Page 1</a
+          >
+          <a
+            routerLink="/sub-page2"
+            routerLinkActive="active-link"
+            style="padding: 0.4rem 1rem; border-radius: 6px; color: white; text-decoration: none;"
+            >Sub Page 2</a
+          >
+        </nav>
       </header>
-      <main class="container mx-auto px-4 py-8">
-        <router-outlet></router-outlet>
+      <main style="padding: 2rem;">
+        <router-outlet />
       </main>
     </div>
   `,
   styles: [
     `
-      :host {
-        display: block;
-        width: 100%;
-        height: 100%;
+      .active-link {
+        background: #1d4ed8;
       }
     `,
   ],

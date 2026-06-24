@@ -1,38 +1,45 @@
-<template>
-  <div class="w-full h-full flex items-center gap-x-2 p-2">
-    <router-link
-      v-for="(value, key) in source"
-      :key="key"
-      :to="value.path"
-      class="p-button border py-2 px-4 rounded-xl"
-    >
-      {{ value.label }}
-    </router-link>
-
-    <button @click="reloadPage" class="p-button">Reload</button>
-    <button @click="navigate" class="p-button">Navigate</button>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 
-// import Button from "primevue/button";
+const route = useRoute();
 
-const router = useRouter();
-
-const source = [
-  { label: "Home", path: "/" },
-  { label: "Sub Page 1", path: "/sub-page-1" },
-  { label: "Sub Page 2", path: "/sub-page-2" },
+const links = [
+  { label: "Clock", path: "/", icon: "pi-clock" },
+  { label: "Timer", path: "/timer", icon: "pi-hourglass" },
+  { label: "Stopwatch", path: "/stopwatch", icon: "pi-stopwatch" },
 ];
-
-const reloadPage = () => {
-  window.location.reload();
-  console.log("click click");
-};
-
-const navigate = () => {
-  router?.push("/sub-page-1");
-};
 </script>
+
+<template>
+  <nav class="w-full flex items-center gap-1 px-4 py-3">
+    <div class="flex items-center gap-2 mr-6">
+      <i class="pi pi-clock text-sm" style="color: #60a5fa" />
+      <span class="text-sm font-semibold tracking-wide" style="color: #e2e8f0">
+        Time
+      </span>
+      <span class="text-xs" style="color: #475569">Tools</span>
+    </div>
+
+    <div class="flex items-center gap-1">
+      <router-link
+        v-for="link in links"
+        :key="link.path"
+        :to="link.path"
+        class="flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm transition-all duration-150 no-underline"
+        :style="
+          route.path === link.path
+            ? 'background-color: #1e3a5f; color: #60a5fa;'
+            : 'color: #64748b;'
+        "
+        :class="
+          route.path !== link.path
+            ? 'hover:bg-slate-800 hover:text-slate-200'
+            : ''
+        "
+      >
+        <i :class="`pi ${link.icon} text-xs`" />
+        {{ link.label }}
+      </router-link>
+    </div>
+  </nav>
+</template>

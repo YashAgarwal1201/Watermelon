@@ -47,13 +47,13 @@ export const routes = [
     component: LandingComponent,
   },
   {
-    path: "/sub-page-1",
-    name: "Sub Page 1",
+    path: "/timer",
+    name: "Timer",
     component: SubPage1,
   },
   {
-    path: "/sub-page-2",
-    name: "Sub Page 2",
+    path: "/stopwatch",
+    name: "Stopwatch",
     component: SubPage2,
   },
 ];

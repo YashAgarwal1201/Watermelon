@@ -5,9 +5,10 @@ import NavBar from "./components/NavBar.vue";
 
 <template>
   <div
-    class="w-full h-full flex flex-col justify-center items-center bg-linear-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-indigo-950"
+    class="w-full h-full flex flex-col"
+    style="background-color: #0f172a; color: #e2e8f0"
   >
-    <div class="w-full h-auto shrink-0">
+    <div class="w-full shrink-0 border-b" style="border-color: #1e293b">
       <NavBar />
     </div>
     <div class="w-full grow overflow-y-auto">
@@ -15,5 +16,3 @@ import NavBar from "./components/NavBar.vue";
     </div>
   </div>
 </template>
-
-<style scoped></style>

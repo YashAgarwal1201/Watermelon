@@ -68,8 +68,12 @@
                 class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-pink-200 dark:bg-red-800"
               ></div>
 
-              <div v-for="(app, index) in remoteApps" :key="app.key">
-                <RouterLink :class="buttonStyles" :to="`/remote/${app.key}`">
+              <div v-for="app in remoteApps" :key="app.key">
+                <RouterLink
+                  v-if="!app.key?.includes('angular')"
+                  :class="buttonStyles"
+                  :to="`/remote/${app.key}`"
+                >
                   <Folder
                     :size="16"
                     class="!text-pink-600 dark:!text-pink-400"
@@ -78,7 +82,10 @@
                 </RouterLink>
 
                 <div
-                  v-show="index !== remoteApps.length - 1"
+                  v-show="
+                    !app.key.includes('webpack_vue') &&
+                    !app.key.includes('angular')
+                  "
                   class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-pink-200 dark:bg-red-800"
                 ></div>
               </div>
@@ -166,7 +173,7 @@ const handleThemeChange = (selectedTheme: string) => {
   showToast(
     "info",
     "Theme Changed",
-    `Switched to ${selectedTheme === "system" ? "system" : selectedTheme} mode`
+    `Switched to ${selectedTheme === "system" ? "system" : selectedTheme} mode`,
   );
 };
 </script>
