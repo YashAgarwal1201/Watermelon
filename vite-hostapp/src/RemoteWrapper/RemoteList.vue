@@ -6,7 +6,7 @@
       <!-- Header -->
       <div class="w-full flex flex-col mb-6">
         <div class="flex items-center justify-start gap-x-2">
-          <GoBackBtn />
+          <GoBackBtn :to="'/'" />
           <h2
             class="text-3xl font-bold bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent font-heading"
           >

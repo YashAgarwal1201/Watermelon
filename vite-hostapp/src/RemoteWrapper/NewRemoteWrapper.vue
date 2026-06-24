@@ -4,7 +4,7 @@
       <div
         class="py-3 flex items-center gap-x-3 border-b border-pink-200 dark:border-red-800"
       >
-        <GoBackBtn />
+        <GoBackBtn :to="'/remote'" />
         <h1 class="text-2xl sm:text-3xl capitalize">
           {{ (appName ?? "Remote App").replace(/_/g, " ") }}
         </h1>

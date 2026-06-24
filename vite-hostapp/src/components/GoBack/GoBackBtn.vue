@@ -1,29 +1,20 @@
 <template>
   <div>
-    <Button
+    <RouterLink
       rounded
       class="bg-transparent! border-transparent! text-green-500!"
-      @click="goBack"
+      :to="to"
+      replace
     >
-      <template #icon>
-        <ArrowLeft :size="20" />
-      </template>
-    </Button>
+      <ArrowLeft :size="20" />
+    </RouterLink>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from "vue-router";
 import { ArrowLeft } from "lucide-vue-next";
-import Button from "primevue/button";
 
-const router = useRouter();
-
-const goBack = () => {
-  if (window.history.length > 1) {
-    router.back();
-  } else {
-    router.push("/");
-  }
-};
+const props = defineProps<{
+  to: string;
+}>();
 </script>
