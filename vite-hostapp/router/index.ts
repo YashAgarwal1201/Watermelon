@@ -1,28 +1,20 @@
 import { createRouter, createWebHistory } from "vue-router";
-// import RemoteWrapper from "./../src/RemoteWrapper/RemoteWrapper.vue";
-import RemoteList from "../src/RemoteWrapper/RemoteList.vue";
-import NewRemoteWrapper from "../src/RemoteWrapper/NewRemoteWrapper.vue";
 
 const routes = [
   {
     path: "/",
     name: "Home",
-    component: () => import("./../src/components/Home/HomeComponent.vue"), // or any placeholder component
+    component: () => import("../src/components/Home/HomeComponent.vue"),
   },
   {
     path: "/remote",
     name: "RemoteList",
-    component: RemoteList,
+    component: () => import("../src/RemoteWrapper/RemoteList.vue"),
   },
   {
     path: "/remote/:appName/:pathMatch(.*)*",
-    component: NewRemoteWrapper, // Your loader component
-    props: true,
-  },
-  {
-    path: "/remote/:appName",
     name: "RemoteApp",
-    component: NewRemoteWrapper,
+    component: () => import("../src/RemoteWrapper/RemoteWrapper.vue"),
     props: true,
   },
 ];

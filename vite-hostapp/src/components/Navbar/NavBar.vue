@@ -59,7 +59,7 @@ const navOptions = [
 
     <!-- MENU BUTTON (same visual system) -->
     <button
-      class="flex flex-col justify-center items-center group"
+      class="flex flex-col justify-center items-center group cursor-pointer"
       @click="navbarStore.showSideMenu = true"
       aria-label="Open menu"
     >

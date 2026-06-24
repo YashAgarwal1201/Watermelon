@@ -1,66 +1,64 @@
-<!-- vite-hostapp/src/RemoteWrapper/RemoteWrapper.vue -->
-
 <template>
-  <div class="w-full h-full flex flex-col bg-white dark:bg-gray-950 p-3 sm:p-5">
-    <div class="w-full flex flex-col mb-8 shrink-0">
-      <div class="flex items-center justify-start gap-x-2">
-        <GoBackBtn />
-        <h2
-          class="text-3xl font-bold bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent font-heading"
-        >
-          Available Remote Apps
-        </h2>
-      </div>
-
-      <p class="text-gray-600 dark:text-gray-400">
-        Click on any remote app to load its components
-      </p>
+  <div class="remote-wrapper w-full h-full flex flex-col">
+    <div
+      class="shrink-0 py-3 flex items-center gap-x-3 border-b border-pink-200 dark:border-red-800"
+    >
+      <GoBackBtn :to="'/remote'" />
+      <h1 class="text-2xl sm:text-3xl capitalize">
+        {{ (appName ?? "Remote App").replace(/_/g, " ") }}
+      </h1>
     </div>
-
-    <div class="remote-wrapper w-full h-full p-2 grow">
-      <div
-        v-if="isLoading"
-        class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
+    <div
+      v-if="isLoading"
+      class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
+    >
+      <svg
+        class="animate-spin h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
       >
-        <svg
-          class="animate-spin h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-          <path d="M22 12a10 10 0 0 1-10 10" />
-        </svg>
-        <span>Loading...</span>
-      </div>
-
-      <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
-        <p>Error loading remote app: {{ error }}</p>
-        <button
-          @click="retryLoad"
-          class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Retry
-        </button>
-      </div>
-
-      <!-- container that hosts the shadowRoot -->
-      <div
-        ref="hostContainer"
-        class="remote-container rounded-none md:rounded-lg"
-      ></div>
+        <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+        <path d="M22 12a10 10 0 0 1-10 10" />
+      </svg>
+      <span>Loading...</span>
     </div>
+
+    <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
+      <p>Error loading remote app: {{ error }}</p>
+      <button
+        @click="retryLoad"
+        class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Retry
+      </button>
+    </div>
+
+    <div
+      ref="hostContainer"
+      class="remote-container grow overflow-y-auto"
+    ></div>
   </div>
 </template>
 
+<script lang="ts">
+// ─── MODULE-LEVEL CSS cache ───────────────────────────────────────────────────
+// Declared in a plain <script> block (not <script setup>) so it lives at
+// module scope and survives across component mount/unmount cycles.
+// <script setup> runs once per instance — navigating away destroys the instance
+// and its cssCache with it, so on the way back the bucket is empty and
+// replayCssIntoShadow has nothing to replay. Module scope fixes this.
+const cssCache = new Map<string, string[]>();
+</script>
+
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import GoBackBtn from "../components/GoBack/GoBackBtn.vue";
 
 const route = useRoute();
-const appName = ref(route.params.appName as string);
+const appName = ref(String(route.params.appName ?? ""));
 
 const hostContainer = ref<HTMLElement | null>(null);
 let shadowRoot: ShadowRoot | null = null;
@@ -69,246 +67,587 @@ let mountPoint: HTMLElement | null = null;
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 
-// Instances for cleanup
 let vueAppInstance: any = null;
 let reactRoot: any = null;
 let svelteInstance: any = null;
-let solidRoot: any = null;
-
-// restore fn for head patch
+let solidDisposer: any = null;
+let lastRemoteModule: any = null;
 let restoreHeadPatch: (() => void) | null = null;
 
-/** -------- style interception utils -------- */
-function shouldIntercept(node: Node) {
+let loadId = 0;
+
+function isStyleOrLink(node: Node): boolean {
   if (!(node instanceof HTMLElement)) return false;
-  const tag = node.tagName.toLowerCase();
+  const t = node.tagName.toLowerCase();
   return (
-    tag === "style" ||
-    (tag === "link" && (node as HTMLLinkElement).rel === "stylesheet")
+    t === "style" ||
+    (t === "link" && (node as HTMLLinkElement).rel === "stylesheet")
   );
 }
 
-function patchHeadToShadow(shadow: ShadowRoot) {
-  const docHead: any = document.head;
-  const origAppend = docHead.appendChild;
-  const origInsertBefore = docHead.insertBefore;
+// do not delete unless everything is working fine
+// function patchHeadToShadow(
+//   shadow: ShadowRoot,
+//   capturedId: number,
+//   remoteName: string,
+// ): () => void {
+//   const head = document.head as any;
+//   const origAppendChild = head.appendChild.bind(head);
+//   const origInsertBefore = head.insertBefore.bind(head);
+//   const origAppend = head.append?.bind(head);
+//   const origPrepend = head.prepend?.bind(head);
 
-  async function moveToShadow(node: HTMLElement) {
-    if (node.tagName.toLowerCase() === "style") {
+//   const isCancelled = () => capturedId !== loadId;
+
+//   if (!cssCache.has(remoteName)) cssCache.set(remoteName, []);
+//   const bucket = cssCache.get(remoteName)!;
+
+//   async function fetchAndInject(href: string) {
+//     try {
+//       const res = await fetch(href, { mode: "cors", cache: "force-cache" });
+//       if (!res.ok) return;
+//       const css = await res.text();
+//       if (isCancelled()) return;
+//       const s = document.createElement("style");
+//       s.setAttribute("data-remote-src", href);
+//       s.textContent = css;
+//       shadow.appendChild(s);
+//       if (!bucket.includes(css)) bucket.push(css);
+//     } catch {}
+//   }
+
+//   function intercept(node: Node): boolean {
+//     if (!isStyleOrLink(node)) return false;
+//     if (isCancelled()) return false;
+
+//     // if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
+//     //   const css = node.textContent ?? "";
+//     //   const clone = document.createElement("style");
+//     //   clone.setAttribute("data-remote-css", remoteName);
+//     //   clone.textContent = css;
+//     //   shadow.appendChild(clone);
+//     //   new MutationObserver(() => {
+//     //     clone.textContent = node.textContent;
+//     //   }).observe(node, { characterData: true, childList: true, subtree: true });
+//     //   if (!bucket.includes(css)) bucket.push(css);
+//     //   return true;
+//     // }
+
+//     if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
+//       const clone = document.createElement("style");
+//       clone.setAttribute("data-remote-css", remoteName);
+//       clone.textContent = node.textContent ?? "";
+//       shadow.appendChild(clone);
+
+//       // Keep clone in sync AND update the cache bucket lazily
+//       const bucketIndex = bucket.length;
+//       bucket.push(node.textContent ?? ""); // placeholder
+
+//       new MutationObserver(() => {
+//         const css = node.textContent ?? "";
+//         clone.textContent = css;
+//         bucket[bucketIndex] = css; // update in-place as style-loader fills it in
+//       }).observe(node, { characterData: true, childList: true, subtree: true });
+
+//       return true;
+//     }
+
+//     if (node instanceof HTMLLinkElement && node.rel === "stylesheet") {
+//       void fetchAndInject(node.href);
+//       return true;
+//     }
+
+//     return false;
+//   }
+
+//   head.appendChild = function <T extends Node>(node: T): T {
+//     if (intercept(node)) return node;
+//     return origAppendChild(node);
+//   };
+
+//   head.insertBefore = function <T extends Node>(node: T, ref: Node | null): T {
+//     if (intercept(node)) return node;
+//     return origInsertBefore(node, ref);
+//   };
+
+//   if (origAppend) {
+//     head.append = function (...nodes: (Node | string)[]) {
+//       for (const n of nodes) {
+//         if (typeof n !== "string" && intercept(n)) continue;
+//         origAppend(n);
+//       }
+//     };
+//   }
+
+//   if (origPrepend) {
+//     head.prepend = function (...nodes: (Node | string)[]) {
+//       for (const n of nodes) {
+//         if (typeof n !== "string" && intercept(n)) continue;
+//         origPrepend(n);
+//       }
+//     };
+//   }
+
+//   const mo = new MutationObserver((records) => {
+//     for (const r of records)
+//       for (const n of Array.from(r.addedNodes))
+//         if (isStyleOrLink(n)) intercept(n);
+//   });
+//   mo.observe(document.head, { childList: true });
+
+//   return () => {
+//     mo.disconnect();
+//     head.appendChild = origAppendChild;
+//     head.insertBefore = origInsertBefore;
+//     if (origAppend) head.append = origAppend;
+//     if (origPrepend) head.prepend = origPrepend;
+//   };
+// }
+
+function patchHeadToShadow(
+  shadow: ShadowRoot,
+  capturedId: number,
+  remoteName: string,
+): () => void {
+  const head = document.head as any;
+  const origAppendChild = head.appendChild.bind(head);
+  const origInsertBefore = head.insertBefore.bind(head);
+  const origAppend = head.append?.bind(head);
+  const origPrepend = head.prepend?.bind(head);
+  const origInsertAdjacentElement = head.insertAdjacentElement?.bind(head);
+  const origInsertAdjacentHTML = head.insertAdjacentHTML?.bind(head);
+
+  const isCancelled = () => capturedId !== loadId;
+
+  if (!cssCache.has(remoteName)) cssCache.set(remoteName, []);
+  const bucket = cssCache.get(remoteName)!;
+
+  async function fetchAndInject(href: string) {
+    try {
+      const res = await fetch(href, { mode: "cors", cache: "force-cache" });
+      if (!res.ok) return;
+      const css = await res.text();
+      if (isCancelled()) return;
       const s = document.createElement("style");
-      s.textContent = node.textContent;
+      s.setAttribute("data-remote-src", href);
+      s.textContent = css;
       shadow.appendChild(s);
-    } else if (node.tagName.toLowerCase() === "link") {
-      const link = node as HTMLLinkElement;
-      try {
-        const res = await fetch(link.href, { mode: "cors" });
-        if (res.ok) {
-          const css = await res.text();
-          const s = document.createElement("style");
-          s.textContent = css;
-          shadow.appendChild(s);
-        } else {
-          origAppend.call(docHead, node);
-        }
-      } catch {
-        origAppend.call(docHead, node);
-      }
-    } else {
-      origAppend.call(docHead, node);
-    }
+      if (!bucket.includes(css)) bucket.push(css);
+    } catch {}
   }
 
-  docHead.appendChild = function (node: Node) {
-    if (shouldIntercept(node)) {
-      moveToShadow(node as HTMLElement);
-      return node;
+  function intercept(node: Node): boolean {
+    if (!isStyleOrLink(node)) return false;
+    if (isCancelled()) return false;
+
+    if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
+      const clone = document.createElement("style");
+      clone.setAttribute("data-remote-css", remoteName);
+      clone.textContent = node.textContent ?? "";
+      shadow.appendChild(clone);
+
+      // Push a placeholder and update it in-place as style-loader/Angular
+      // fills the node content asynchronously after appendChild.
+      const bucketIndex = bucket.length;
+      bucket.push(node.textContent ?? "");
+
+      new MutationObserver(() => {
+        const css = node.textContent ?? "";
+        clone.textContent = css;
+        bucket[bucketIndex] = css;
+      }).observe(node, { characterData: true, childList: true, subtree: true });
+
+      return true;
     }
-    return origAppend.call(this, node);
+
+    if (node instanceof HTMLLinkElement && node.rel === "stylesheet") {
+      void fetchAndInject(node.href);
+      return true;
+    }
+
+    return false;
+  }
+
+  head.appendChild = function <T extends Node>(node: T): T {
+    if (intercept(node)) return node;
+    return origAppendChild(node);
   };
 
-  docHead.insertBefore = function (node: Node, refNode: Node | null) {
-    if (shouldIntercept(node)) {
-      moveToShadow(node as HTMLElement);
-      return node;
-    }
-    return origInsertBefore.call(this, node, refNode);
+  head.insertBefore = function <T extends Node>(node: T, ref: Node | null): T {
+    if (intercept(node)) return node;
+    return origInsertBefore(node, ref);
   };
+
+  if (origAppend) {
+    head.append = function (...nodes: (Node | string)[]) {
+      for (const n of nodes) {
+        if (typeof n !== "string" && intercept(n)) continue;
+        origAppend(n);
+      }
+    };
+  }
+
+  if (origPrepend) {
+    head.prepend = function (...nodes: (Node | string)[]) {
+      for (const n of nodes) {
+        if (typeof n !== "string" && intercept(n)) continue;
+        origPrepend(n);
+      }
+    };
+  }
+
+  if (origInsertAdjacentElement) {
+    head.insertAdjacentElement = function (
+      position: InsertPosition,
+      el: Element,
+    ): Element | null {
+      if (intercept(el)) return el;
+      return origInsertAdjacentElement(position, el);
+    };
+  }
+
+  if (origInsertAdjacentHTML) {
+    head.insertAdjacentHTML = function (
+      position: InsertPosition,
+      html: string,
+    ) {
+      // Parse the HTML string, intercept any style/link nodes,
+      // and only forward non-style/link content to the real head.
+      const tmp = document.createElement("div");
+      tmp.innerHTML = html;
+      const remaining: string[] = [];
+      for (const child of Array.from(tmp.children)) {
+        if (!intercept(child)) {
+          remaining.push(child.outerHTML);
+        }
+      }
+      if (remaining.length) {
+        origInsertAdjacentHTML(position, remaining.join(""));
+      }
+    };
+  }
+
+  const mo = new MutationObserver((records) => {
+    for (const r of records)
+      for (const n of Array.from(r.addedNodes))
+        if (isStyleOrLink(n)) intercept(n);
+  });
+  mo.observe(document.head, { childList: true });
 
   return () => {
-    docHead.appendChild = origAppend;
-    docHead.insertBefore = origInsertBefore;
+    mo.disconnect();
+    head.appendChild = origAppendChild;
+    head.insertBefore = origInsertBefore;
+    if (origAppend) head.append = origAppend;
+    if (origPrepend) head.prepend = origPrepend;
+    if (origInsertAdjacentElement)
+      head.insertAdjacentElement = origInsertAdjacentElement;
+    if (origInsertAdjacentHTML)
+      head.insertAdjacentHTML = origInsertAdjacentHTML;
   };
 }
 
-/** -------- remote loader -------- */
-async function loadRemote() {
-  error.value = null;
-  if (!mountPoint) return;
+function replayCssIntoShadow(remoteName: string, shadow: ShadowRoot) {
+  const bucket = cssCache.get(remoteName);
+  if (!bucket?.length) return;
+  for (const css of bucket) {
+    const s = document.createElement("style");
+    s.setAttribute("data-remote-css-replay", remoteName);
+    s.textContent = css;
+    shadow.appendChild(s);
+  }
+}
 
-  isLoading.value = true;
-  mountPoint.innerHTML = ""; // clear old content
+// async function sweepExistingHeadLinks(shadow: ShadowRoot, remoteName: string) {
+//   if (!cssCache.has(remoteName)) cssCache.set(remoteName, []);
+//   const bucket = cssCache.get(remoteName)!;
 
-  // patch head styles during load
-  restoreHeadPatch = patchHeadToShadow(shadowRoot!);
+//   const links = Array.from(
+//     document.head.querySelectorAll<HTMLLinkElement>("link[rel='stylesheet']"),
+//   );
+
+//   await Promise.all(
+//     links.map(async (link) => {
+//       const href = link.href;
+//       if (!href) return;
+
+//       // Skip if already injected into this shadow
+//       if (shadow.querySelector(`[data-remote-src="${href}"]`)) return;
+
+//       try {
+//         const res = await fetch(href, { mode: "cors", cache: "force-cache" });
+//         if (!res.ok) return;
+//         const css = await res.text();
+//         const s = document.createElement("style");
+//         s.setAttribute("data-remote-src", href);
+//         s.textContent = css;
+//         shadow.appendChild(s);
+//         if (!bucket.includes(css)) bucket.push(css);
+//       } catch {}
+//     }),
+//   );
+// }
+
+function buildShadow(): { shadow: ShadowRoot; mount: HTMLElement } {
+  if (shadowRoot) {
+    while (shadowRoot.firstChild) shadowRoot.removeChild(shadowRoot.firstChild);
+  } else {
+    shadowRoot = hostContainer.value!.attachShadow({ mode: "open" });
+  }
 
   try {
-    window.BASENAME = `/remote/${appName.value}`;
+    const computed = getComputedStyle(document.documentElement);
+    let vars = ":host{";
+    for (let i = 0; i < computed.length; i++) {
+      const p = computed[i];
+      if (p?.startsWith("--")) vars += `${p}:${computed.getPropertyValue(p)};`;
+    }
+    vars += "}";
+    const varStyle = document.createElement("style");
+    varStyle.textContent = vars;
+    shadowRoot.appendChild(varStyle);
+  } catch {}
+
+  const mount = document.createElement("div");
+  mount.style.cssText = "width:100%;height:100%;display:contents;";
+  mount.setAttribute("data-remote-mount", appName.value || "");
+  shadowRoot.appendChild(mount);
+
+  return { shadow: shadowRoot, mount };
+}
+
+async function loadRemote() {
+  error.value = null;
+  if (!hostContainer.value) return;
+
+  const currentId = ++loadId;
+
+  if (restoreHeadPatch) {
+    restoreHeadPatch();
+    restoreHeadPatch = null;
+  }
+
+  const { shadow, mount } = buildShadow();
+  mountPoint = mount;
+
+  isLoading.value = true;
+
+  restoreHeadPatch = patchHeadToShadow(shadow, currentId, appName.value);
+  replayCssIntoShadow(appName.value, shadow);
+
+  try {
+    (window as any).BASENAME = `/remote/${appName.value}`;
+    lastRemoteModule = null;
 
     if (appName.value === "vite_react_remoteapp") {
       const module =
         await import("vite_react_remoteapp/ViteReactRemoteComponent");
-      const component = module.default;
+      if (currentId !== loadId) return;
+      lastRemoteModule = module;
       const [React, ReactDOM] = await Promise.all([
         import("react"),
         import("react-dom/client"),
       ]);
-      reactRoot = ReactDOM.createRoot(mountPoint);
-      reactRoot.render(React.createElement(component));
-
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      if (currentId !== loadId) return;
+      reactRoot = (ReactDOM as any).createRoot(mountPoint!);
+      reactRoot.render(React.createElement(module.default));
     } else if (appName.value === "vite_vue_remoteapp") {
       const module = await import("vite_vue_remoteapp/ViteVueRemoteComponent");
-      const component = module.default;
-      const { createApp } = await import("vue");
-
-      vueAppInstance = createApp(component);
-      // In the vite_vue_remoteapp case, add this line:
-      vueAppInstance.config.globalProperties.$shadowRoot = shadowRoot;
-
-      vueAppInstance.mount(mountPoint);
+      if (currentId !== loadId) return;
+      lastRemoteModule = module;
+      if (typeof module.mount === "function") {
+        const result = await module.mount(mountPoint!, {
+          basename: (window as any).BASENAME,
+          memory: false,
+        });
+        vueAppInstance = result?.app ?? result ?? null;
+      } else {
+        const { createApp } = await import("vue");
+        vueAppInstance = (createApp as any)(module.default);
+        vueAppInstance.mount(mountPoint);
+      }
     } else if (appName.value === "vite_svelte_remoteapp") {
       const module =
         await import("vite_svelte_remoteapp/ViteSvelteRemoteComponent");
-      const SvelteComponent = module.default;
-      svelteInstance = new SvelteComponent({ target: mountPoint });
+      if (currentId !== loadId) return;
+      lastRemoteModule = module;
+      if (typeof module.mount === "function") {
+        svelteInstance = module.mount(mountPoint!, {
+          props: { basename: (window as any).BASENAME },
+        });
+      } else {
+        svelteInstance = new module.default({
+          target: mountPoint!,
+          props: { basename: (window as any).BASENAME },
+        });
+      }
     } else if (appName.value === "vite_solidjs_remoteapp") {
       const module =
         await import("vite_solidjs_remoteapp/ViteSolidRemoteComponent");
-      const SolidComponent = module.default;
+      if (currentId !== loadId) return;
+      lastRemoteModule = module;
       const { render } = await import("solid-js/web");
-      solidRoot = render(() => SolidComponent({}), mountPoint);
+      solidDisposer = render(() => (module.default as any)(), mountPoint!);
     } else if (appName.value === "webpack_react_remoteapp") {
       const module =
         await import("webpack_react_remoteapp/WebpackReactRemoteComponent");
-      const component = module.default;
-
-      // Get all stylesheets as text
-      const stylesheets = Array.from(document.styleSheets);
-      const cssTexts = await Promise.all(
-        stylesheets.map(async (sheet) => {
-          try {
-            return Array.from(sheet.cssRules)
-              .map((rule) => rule.cssText)
-              .join("\n");
-          } catch (e) {
-            // For external stylesheets, fetch the CSS
-            if (sheet.href) {
-              const response = await fetch(sheet.href);
-              return response.text();
-            }
-            return "";
-          }
-        }),
-      );
-
-      // Create adopted stylesheet for shadow DOM
-      const adoptedSheet = new CSSStyleSheet();
-      await adoptedSheet.replace(cssTexts.join("\n"));
-      shadowRoot!.adoptedStyleSheets = [adoptedSheet];
-
+      if (currentId !== loadId) return;
+      lastRemoteModule = module;
       const [React, ReactDOM] = await Promise.all([
         import("react"),
         import("react-dom/client"),
       ]);
-
-      reactRoot = ReactDOM.createRoot(mountPoint);
-      reactRoot.render(React.createElement(component));
-    } // In your loadRemote() function, add this case:
-    else if (appName.value === "webpack_vue_remoteapp") {
-      try {
-        // Import the Vue remote
-        const module =
-          await import("webpack_vue_remoteapp/WebpackVueRemoteComponent");
-        const remoteBootstrap = module.default;
-
-        // Mount the remote Vue app
-        const remoteApp = remoteBootstrap.mount(mountPoint);
-
-        // Store reference for cleanup
-        vueAppInstance = remoteApp;
-
-        console.info('Remote app "webpack_vue_remoteapp" loaded successfully');
-      } catch (e: any) {
-        error.value = e.message || "Error loading webpack vue remote";
-        console.error(`Failed to load remote app "${appName.value}":`, e);
+      if (currentId !== loadId) return;
+      reactRoot = (ReactDOM as any).createRoot(mountPoint!);
+      reactRoot.render(React.createElement(module.default));
+    } else if (appName.value === "webpack_vue_remoteapp") {
+      const module =
+        await import("webpack_vue_remoteapp/WebpackVueRemoteComponent");
+      if (currentId !== loadId) return;
+      lastRemoteModule = module;
+      if (typeof module.mount === "function") {
+        const result = await module.mount(mountPoint!);
+        vueAppInstance = result?.app ?? result ?? null;
+      } else {
+        try {
+          vueAppInstance = module.default(mountPoint) ?? null;
+        } catch {
+          const { createApp } = await import("vue");
+          vueAppInstance = (createApp as any)(module.default);
+          vueAppInstance.mount(mountPoint);
+        }
       }
+      // } else if (appName.value === "angular_remoteapp") {
+      //   const module = await import("angular_remoteapp/Component");
+      //   if (currentId !== loadId) return;
+      //   lastRemoteModule = module;
+      //   if (typeof module.mount !== "function")
+      //     throw new Error("Angular remote does not export a mount function");
+      //   const result = await module.mount(mountPoint!);
+      //   if (result?.destroy) lastRemoteModule.unmount = result.destroy;
+      // }
+      // } else if (appName.value === "angular_remoteapp") {
+      //   // Patch head BEFORE the import so Webpack runtime link injection is caught
+      //   restoreHeadPatch = patchHeadToShadow(shadow, currentId, appName.value);
+      //   replayCssIntoShadow(appName.value, shadow);
+
+      //   const module = await import("angular_remoteapp/Component");
+      //   if (currentId !== loadId) return;
+      //   lastRemoteModule = module;
+
+      //   // After import, sweep any <link> tags already in head that slipped through
+      //   // (Webpack runtime may have injected them before the patch was active on
+      //   // previous loads, and they won't be re-injected on subsequent imports
+      //   // because Webpack caches the module)
+      //   await sweepExistingHeadLinks(shadow, appName.value);
+
+      //   if (typeof module.mount !== "function")
+      //     throw new Error("Angular remote does not export a mount function");
+      //   const result = await module.mount(mountPoint!);
+      //   if (result?.destroy) lastRemoteModule.unmount = result.destroy;
+      // }
+    } else if (appName.value === "angular_remoteapp") {
+      await new Promise<void>((resolve, reject) => {
+        // If already loaded before, custom element is already registered —
+        // just mount it directly without reloading the script
+        if (customElements.get("angular-remote-app")) {
+          const el = document.createElement("angular-remote-app");
+          mountPoint!.appendChild(el);
+          lastRemoteModule = {
+            unmount: () => mountPoint!.removeChild(el),
+          };
+          resolve();
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "http://localhost:4201/main.js";
+        script.type = "module";
+        script.onload = async () => {
+          if (currentId !== loadId) {
+            resolve();
+            return;
+          }
+          // Give Angular a tick to register the custom element
+          await new Promise((r) => setTimeout(r, 50));
+          if (currentId !== loadId) {
+            resolve();
+            return;
+          }
+          const el = document.createElement("angular-remote-app");
+          mountPoint!.appendChild(el);
+          lastRemoteModule = {
+            unmount: () => {
+              try {
+                mountPoint!.removeChild(el);
+              } catch {}
+            },
+          };
+          resolve();
+        };
+        script.onerror = (_e) =>
+          reject(new Error("Failed to load Angular remote script"));
+        document.head.appendChild(script);
+      });
     } else {
       throw new Error(`Unknown remote app: ${appName.value}`);
     }
 
-    console.info(`Remote app "${appName?.value}" loaded successfully`);
+    console.info(`[RemoteWrapper] "${appName.value}" loaded OK`);
   } catch (e: any) {
-    error.value = e.message || "Error loading remote app";
-    console.error(`Failed to load remote app "${appName?.value}":`, e);
+    if (currentId !== loadId) return;
+    console.error(`[RemoteWrapper] Failed to load "${appName.value}"`, e);
+    error.value = e?.message ?? String(e);
   } finally {
-    if (restoreHeadPatch) {
-      restoreHeadPatch();
-      restoreHeadPatch = null;
-    }
-    isLoading.value = false;
+    if (currentId === loadId) isLoading.value = false;
   }
 }
 
-/** -------- cleanup -------- */
 function cleanup() {
-  // if (vueAppInstance) {
-  //   vueAppInstance.unmount();
-  //   vueAppInstance = null;
-  // }
-  if (vueAppInstance) {
-    // For regular Vue remotes
-    if (typeof vueAppInstance.unmount === "function") {
+  try {
+    lastRemoteModule?.unmount?.();
+  } catch {}
+  try {
+    if (vueAppInstance?.unmount) {
       vueAppInstance.unmount();
-    } else {
-      // For webpack Vue remotes with custom unmount
-      vueAppInstance.unmount();
+      vueAppInstance = null;
     }
-    vueAppInstance = null;
-  }
-  if (reactRoot) {
-    reactRoot.unmount();
-    reactRoot = null;
-  }
-  if (svelteInstance) {
-    svelteInstance.$destroy();
-    svelteInstance = null;
-  }
-  if (solidRoot) {
-    mountPoint!.innerHTML = "";
-    solidRoot = null;
-  }
+  } catch {}
+  try {
+    if (reactRoot?.unmount) {
+      reactRoot.unmount();
+      reactRoot = null;
+    }
+  } catch {}
+  try {
+    if (svelteInstance) {
+      (svelteInstance.unmount ?? svelteInstance.$destroy)?.call(svelteInstance);
+      svelteInstance = null;
+    }
+  } catch {}
+  try {
+    if (typeof solidDisposer === "function") {
+      solidDisposer();
+      solidDisposer = null;
+    }
+  } catch {}
   if (mountPoint) mountPoint.innerHTML = "";
+  if (restoreHeadPatch) {
+    restoreHeadPatch();
+    restoreHeadPatch = null;
+  }
+  lastRemoteModule = null;
 }
 
-/** -------- retry -------- */
 async function retryLoad() {
   cleanup();
+  await nextTick();
   await loadRemote();
 }
 
-/** -------- lifecycle -------- */
 onMounted(() => {
-  if (hostContainer.value) {
-    // attach shadow root once
-    if (!shadowRoot) {
-      shadowRoot = hostContainer.value.attachShadow({ mode: "open" });
-      mountPoint = document.createElement("div");
-      shadowRoot.appendChild(mountPoint);
-    }
-    loadRemote();
-  }
+  if (hostContainer.value) void loadRemote();
 });
-
 onBeforeUnmount(() => {
   cleanup();
 });
@@ -316,10 +655,9 @@ onBeforeUnmount(() => {
 watch(
   () => route.params.appName,
   async (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-      appName.value = newVal as string;
-      cleanup();
-      await loadRemote();
+    if (String(newVal) !== String(oldVal)) {
+      appName.value = String(newVal || "");
+      await retryLoad();
     }
   },
 );
@@ -330,7 +668,6 @@ watch(
   flex-grow: 1;
   width: 100%;
   height: 100%;
-  /* Ensure child remote app fills this container */
   box-sizing: border-box;
 }
 .animate-spin {

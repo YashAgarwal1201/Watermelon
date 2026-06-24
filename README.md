@@ -1,113 +1,110 @@
-# Watermelon (Vite Microfrontend Architecture with Module Federation)
+# Watermelon — Microfrontend Architecture Playground
 
-This demonstrates a microfrontend setup using [Vite](https://vitejs.dev/), [@originjs/vite-plugin-federation](https://github.com/originjs/vite-plugin-federation), and multiple frameworks: **Vue (host and remote)**, **React**, **Svelte**, and **SolidJS**.
+A polyglot microfrontend playground demonstrating multiple federation strategies
+and framework integrations under one monorepo. The Vue 3 host app consumes remote
+apps built with React, Vue, Svelte, SolidJS, and Angular — each using a different
+bundler or integration approach.
 
 ## Project Structure
 
 ```
+
 root/
-├─ vite-hostapp/             # Vue 3-based host application
-├─ vite-remoteapp-1/         # React-based remote app
-├─ vite-remoteapp-2/         # Vue-based remote app
-├─ vite-remoteapp-3/         # Svelte-based remote app
-├─ vite-remoteapp-4/         # SolidJS-based remote app
-...
+├── vite-hostapp/ # Vue 3 host app
+├── vite-remoteapp-1/ # React (Vite + Module Federation)
+├── vite-remoteapp-2/ # Vue 3 (Vite + Module Federation)
+├── vite-remoteapp-3/ # Svelte (Vite + Module Federation)
+├── vite-remoteapp-4/ # SolidJS (Vite + Module Federation)
+├── webpack-remoteapp-1/ # React (Webpack 5 + Module Federation)
+├── webpack-remoteapp-2/ # Vue 3 (Webpack 5 + Module Federation)
+└── angular-remoteapp/ # Angular 20 (Angular Elements / Web Components)
+
 ```
+
+## Apps & Ports
+
+| App                   | Framework  | Port | Integration                      |
+| --------------------- | ---------- | ---- | -------------------------------- |
+| `vite-hostapp`        | Vue 3      | 5150 | Host                             |
+| `vite-remoteapp-1`    | React 19   | 5251 | Vite Module Federation           |
+| `vite-remoteapp-2`    | Vue 3      | 5252 | Vite Module Federation           |
+| `vite-remoteapp-3`    | Svelte 5   | 5253 | Vite Module Federation           |
+| `vite-remoteapp-4`    | SolidJS    | 5254 | Vite Module Federation           |
+| `webpack-remoteapp-1` | React 19   | 5161 | Webpack Module Federation        |
+| `webpack-remoteapp-2` | Vue 3      | 5162 | Webpack Module Federation        |
+| `angular-remoteapp`   | Angular 20 | 4201 | Angular Elements (Web Component) |
 
 ---
 
-## Usage
+## Running the Project
 
-### 1. **Module Federation Mode (for Host + Remotes integration)**
+Each app has its own `node_modules` — run `npm install` inside each folder before starting.
 
-This mode is for when you want to run the full microfrontend architecture — the host loads remote apps' modules via module federation.  
-**Remotes must be run in build/preview mode so the host can fetch the `remoteEntry.js` files.**
+### Step 1 — Start the remote apps
 
-**For each remote app (React, Vue, Svelte, SolidJS):**
+**Vite remotes** need to be built and previewed (not `dev`) so the host can fetch their `remoteEntry.js`:
 
 ```sh
-cd vite-remoteapp-N
-npm install
-npm run build
-npm run preview
-# The default preview port is usually 4173, but check your config/terminal for the correct port
+# Run each in a separate terminal
+cd vite-remoteapp-1 && npm start    # builds then previews on :5251
+cd vite-remoteapp-2 && npm start    # builds then previews on :5252
+cd vite-remoteapp-3 && npm start    # builds then previews on :5253
+cd vite-remoteapp-4 && npm start    # builds then previews on :5254
 ```
 
-**Note:** Make sure each remote is previewing on the port specified in your host's federation config.
-
-**For the host app (Vue-based):**
+**Webpack remotes** run a dev server directly:
 
 ```sh
-cd vite-hostapp
-npm install
-npm run dev
-# The host will fetch remote modules from the preview servers.
+cd webpack-remoteapp-1 && npm start   # dev server on :5161
+cd webpack-remoteapp-2 && npm run dev # dev server on :5162
 ```
 
----
-
-### 2. **Standalone Development Mode (for working on an individual remote app)**
-
-If you want to work on any remote app as a regular standalone SPA, launch it with a special config that disables federation.
-
-**For any remote app:**
+**Angular remote** uses Angular CLI dev server:
 
 ```sh
-cd vite-remoteapp-N
-npm install
-npm run dev
-# This uses vite --config vite.dev.config.ts and loads the app as standalone.
+cd angular-remoteapp && npm start     # ng serve on :4201
 ```
 
-- This enables fast HMR and regular SPA behavior for isolated development.
-- You can access the app at the port specified in config.
+### Step 2 — Start the host app
+
+```sh
+cd vite-hostapp && npm run dev        # :5150
+```
+
+The host loads all remote apps from the ports above. Make sure all remotes are running before opening the host.
 
 ---
 
-## Scripts Explained
+## Standalone Development
 
-- **`npm run dev`**: Runs the app in standalone mode for individual development using `vite --config vite.dev.config.ts`
-- **`npm run build`**: Builds the remote/host for preview or production
-- **`npm run preview`**: Serves the built app (remotes must use this for federation!)
+To work on any **Vite remote** in isolation without federation (full HMR):
 
----
+```sh
+cd vite-remoteapp-N && npm run dev
+# Uses vite.dev.config.ts — runs as a normal standalone SPA
+```
 
-## Federation Configs
-
-- Remote apps: Main federation config is in `vite.config.ts` (for build/preview/federation usage).
-- Standalone mode: Uses `vite.dev.config.ts` to run as a normal SPA, with no federation.
-- Host app: Federation config in `vite.config.ts` uses remote URLs matching your remotes' preview ports.
+> `npm run dev` on Vite remotes intentionally skips federation config.
+> Use `npm start` (build + preview) only when integrating with the host.
 
 ---
 
-## Example Workflow
+## Tech Stack
 
-1. Start all remote apps in preview mode:
-
-   - `cd vite-remoteapp-1 && npm run build && npm run preview`
-   - `cd vite-remoteapp-2 && npm run build && npm run preview`
-   - ...repeat for other remotes
-
-2. Start host app:
-
-   - `cd vite-hostapp && npm run dev`
-
-3. The host loads remote components from the running preview servers.
+| Layer           | Technology                                                            |
+| --------------- | --------------------------------------------------------------------- |
+| Host            | Vue 3, Vue Router, Pinia, PrimeVue 4, Tailwind CSS v4                 |
+| Vite remotes    | React 19, Vue 3, Svelte 5, SolidJS — each with Tailwind CSS v4        |
+| Webpack remotes | React 19 (webpack-1), Vue 3 (webpack-2) — Webpack 5 Module Federation |
+| Angular remote  | Angular 20, Angular Elements, PrimeNG 20, PrimeFlex                   |
+| Bundlers        | Vite 7, Webpack 5, Angular CLI (esbuild)                              |
+| Federation      | `@originjs/vite-plugin-federation`, Webpack `ModuleFederationPlugin`  |
+| Language        | TypeScript throughout                                                 |
 
 ---
 
 ## Notes
 
-- **Never use `npm run dev` for remotes during federation.**  
-  The host requires the `remoteEntry.js` asset, which is only served in preview mode after build.
-- **Use `npm run dev` only for local, standalone development/testing on a single remote app.**
-- **Each app can be further customized—refer to its README or configs for framework-specific notes (Coming soon).**
-
----
-
-## Credits
-
-- Built with [Vite](https://vitejs.dev/) and [@originjs/vite-plugin-federation](https://github.com/originjs/vite-plugin-federation).
-- Example covers federated microfrontends in React, Vue, Svelte, and SolidJS.
-
----
+- Each remote app has its own README (coming soon) with framework-specific setup details.
+- The Angular remote uses a different embedding strategy (Web Components) compared to the
+  Vite/Webpack remotes (Module Federation) — see `angular-remoteapp/README.md` for details.

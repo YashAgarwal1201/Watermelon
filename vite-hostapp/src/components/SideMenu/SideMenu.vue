@@ -5,12 +5,12 @@
       @hide="navbarStore.showSideMenu = false"
       :dismissable="true"
       position="right"
-      class="!w-full md:!w-[768px] rounded-none md:!rounded-l-xl !bg-white dark:!bg-gray-950 !text-gray-900 dark:!text-white"
+      class="w-full! md:w-[768px]! rounded-none md:rounded-l-xl! bg-white! dark:bg-gray-950! text-gray-900! dark:text-white!"
     >
       <template #header>
         <div class="flex justify-between items-center w-full font-heading">
           <h3
-            class="text-lg sm:text-xl md:text-2xl bg-gradient-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent"
+            class="text-lg sm:text-xl md:text-2xl bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent"
           >
             Menu
           </h3>
@@ -20,12 +20,12 @@
       <div class="w-full font-content">
         <div class="flex flex-col">
           <div
-            class="w-full flex flex-col rounded-xl bg-gradient-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 p-4 border border-pink-200 dark:border-gray-700"
+            class="w-full flex flex-col rounded-xl bg-linear-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 p-4 border border-pink-200 dark:border-gray-700"
           >
             <Panel
               :class="buttonStyles"
               :collapsed="isPanelCollapsed"
-              class="!border-none *:!p-0 flex-col flex-wrap items-start font-content w-full"
+              class="border-none! *:p-0! flex-col flex-wrap items-start font-content w-full"
               toggleable
             >
               <template #header class="w-full">
@@ -35,10 +35,10 @@
                 >
                   <Blocks
                     :size="16"
-                    class="!text-pink-600 dark:!text-pink-400"
+                    class="text-pink-600! dark:text-pink-400!"
                   />
                   <span
-                    class="text-lg text-red-700 dark:!text-red-300 hover:!bg-pink-100 dark:hover:!bg-pink-950/30"
+                    class="text-lg text-red-700 dark:text-red-300! hover:bg-pink-100! dark:hover:bg-pink-950/30!"
                   >
                     Remote Applications
                   </span>
@@ -59,7 +59,7 @@
               <RouterLink :class="buttonStyles" :to="`/remote`">
                 <Folders
                   :size="16"
-                  class="!text-pink-600 dark:!text-pink-400"
+                  class="text-pink-600! dark:text-pink-400!"
                 />
                 <span>Remote Apps List</span>
               </RouterLink>
@@ -68,24 +68,17 @@
                 class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-pink-200 dark:bg-red-800"
               ></div>
 
-              <div v-for="app in remoteApps" :key="app.key">
-                <RouterLink
-                  v-if="!app.key?.includes('angular')"
-                  :class="buttonStyles"
-                  :to="`/remote/${app.key}`"
-                >
+              <div v-for="(app, index) in remoteApps" :key="app.key">
+                <RouterLink :class="buttonStyles" :to="`/remote/${app.key}`">
                   <Folder
                     :size="16"
-                    class="!text-pink-600 dark:!text-pink-400"
+                    class="text-pink-600! dark:text-pink-400!"
                   />
                   <span>{{ app.label }}</span>
                 </RouterLink>
 
                 <div
-                  v-show="
-                    !app.key.includes('webpack_vue') &&
-                    !app.key.includes('angular')
-                  "
+                  v-show="index !== remoteApps.length - 1"
                   class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-pink-200 dark:bg-red-800"
                 ></div>
               </div>
@@ -105,7 +98,7 @@
                   { label: 'Dark', value: 'dark' },
                   { label: 'Light', value: 'light' },
                 ]"
-                class="!ml-auto !w-auto !text-sm !rounded-lg !bg-red-50 dark:!bg-red-900/30 !text-red-800 dark:!text-red-300 !border-red-200 dark:!border-red-700"
+                class="ml-auto! w-auto! text-sm! rounded-lg! bg-red-50! dark:bg-red-900/30! text-red-800! dark:text-red-300! border-red-200! dark:border-red-700!"
                 labelClass="!text-red-800 dark:!text-red-300"
                 optionLabel="label"
                 optionValue="value"
@@ -120,7 +113,7 @@
             <a
               :class="buttonStyles"
               :href="DEVELOPER_PROFILE"
-              class="!text-pink-700 dark:!text-pink-300 !border-none !flex !items-center !justify-start shadow-none"
+              class="text-pink-700! dark:text-pink-300! border-none! flex! items-center! justify-start! shadow-none"
               rel="noopener noreferrer nofollow"
               target="_blank"
             >
