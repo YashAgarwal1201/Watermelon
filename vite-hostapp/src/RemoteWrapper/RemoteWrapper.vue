@@ -1,45 +1,63 @@
-// File: RemoteWrapper/RemoteWrapper.vue
+<!-- vite-hostapp/src/RemoteWrapper/RemoteWrapper.vue -->
 
 <template>
-  <div class="remote-wrapper w-full h-full p-2">
-    <div
-      v-if="isLoading"
-      class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
-    >
-      <svg
-        class="animate-spin h-5 w-5"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-        <path d="M22 12a10 10 0 0 1-10 10" />
-      </svg>
-      <span>Loading...</span>
+  <div class="w-full h-full flex flex-col bg-white dark:bg-gray-950 p-3 sm:p-5">
+    <div class="w-full flex flex-col mb-8 shrink-0">
+      <div class="flex items-center justify-start gap-x-2">
+        <GoBackBtn />
+        <h2
+          class="text-3xl font-bold bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent font-heading"
+        >
+          Available Remote Apps
+        </h2>
+      </div>
+
+      <p class="text-gray-600 dark:text-gray-400">
+        Click on any remote app to load its components
+      </p>
     </div>
 
-    <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
-      <p>Error loading remote app: {{ error }}</p>
-      <button
-        @click="retryLoad"
-        class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+    <div class="remote-wrapper w-full h-full p-2 grow">
+      <div
+        v-if="isLoading"
+        class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
       >
-        Retry
-      </button>
-    </div>
+        <svg
+          class="animate-spin h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+          <path d="M22 12a10 10 0 0 1-10 10" />
+        </svg>
+        <span>Loading...</span>
+      </div>
 
-    <!-- container that hosts the shadowRoot -->
-    <div
-      ref="hostContainer"
-      class="remote-container rounded-none md:rounded-lg"
-    ></div>
+      <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
+        <p>Error loading remote app: {{ error }}</p>
+        <button
+          @click="retryLoad"
+          class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Retry
+        </button>
+      </div>
+
+      <!-- container that hosts the shadowRoot -->
+      <div
+        ref="hostContainer"
+        class="remote-container rounded-none md:rounded-lg"
+      ></div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { useRoute } from "vue-router";
+import GoBackBtn from "../components/GoBack/GoBackBtn.vue";
 
 const route = useRoute();
 const appName = ref(route.params.appName as string);
@@ -137,9 +155,8 @@ async function loadRemote() {
     window.BASENAME = `/remote/${appName.value}`;
 
     if (appName.value === "vite_react_remoteapp") {
-      const module = await import(
-        "vite_react_remoteapp/ViteReactRemoteComponent"
-      );
+      const module =
+        await import("vite_react_remoteapp/ViteReactRemoteComponent");
       const component = module.default;
       const [React, ReactDOM] = await Promise.all([
         import("react"),
@@ -160,22 +177,19 @@ async function loadRemote() {
 
       vueAppInstance.mount(mountPoint);
     } else if (appName.value === "vite_svelte_remoteapp") {
-      const module = await import(
-        "vite_svelte_remoteapp/ViteSvelteRemoteComponent"
-      );
+      const module =
+        await import("vite_svelte_remoteapp/ViteSvelteRemoteComponent");
       const SvelteComponent = module.default;
       svelteInstance = new SvelteComponent({ target: mountPoint });
     } else if (appName.value === "vite_solidjs_remoteapp") {
-      const module = await import(
-        "vite_solidjs_remoteapp/ViteSolidRemoteComponent"
-      );
+      const module =
+        await import("vite_solidjs_remoteapp/ViteSolidRemoteComponent");
       const SolidComponent = module.default;
       const { render } = await import("solid-js/web");
       solidRoot = render(() => SolidComponent({}), mountPoint);
     } else if (appName.value === "webpack_react_remoteapp") {
-      const module = await import(
-        "webpack_react_remoteapp/WebpackReactRemoteComponent"
-      );
+      const module =
+        await import("webpack_react_remoteapp/WebpackReactRemoteComponent");
       const component = module.default;
 
       // Get all stylesheets as text
@@ -194,7 +208,7 @@ async function loadRemote() {
             }
             return "";
           }
-        })
+        }),
       );
 
       // Create adopted stylesheet for shadow DOM
@@ -213,9 +227,8 @@ async function loadRemote() {
     else if (appName.value === "webpack_vue_remoteapp") {
       try {
         // Import the Vue remote
-        const module = await import(
-          "webpack_vue_remoteapp/WebpackVueRemoteComponent"
-        );
+        const module =
+          await import("webpack_vue_remoteapp/WebpackVueRemoteComponent");
         const remoteBootstrap = module.default;
 
         // Mount the remote Vue app
@@ -308,7 +321,7 @@ watch(
       cleanup();
       await loadRemote();
     }
-  }
+  },
 );
 </script>
 

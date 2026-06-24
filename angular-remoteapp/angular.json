@@ -11,26 +11,26 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "ngx-build-plus:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "polyfills": [],
-            "tsConfig": "tsconfig.app.json",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public",
-                "output": "."
-              }
-            ],
-            "styles": ["src/styles.css"],
-            "main": "src/main.ts",
             "outputPath": "dist/angular-remoteapp",
             "index": "src/index.html",
-            "extraWebpackConfig": "webpack.config.js",
-            "commonChunk": false
+            "browser": "src/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "tsconfig.app.json",
+            "outputHashing": "none",
+            "namedChunks": true,
+            "externalDependencies": [],
+            "assets": [{ "glob": "**/*", "input": "public" }],
+            "styles": [
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/primeflex/primeflex.css",
+              "src/styles.css"
+            ]
           },
           "configurations": {
             "production": {
+              "outputHashing": "none",
               "budgets": [
                 {
                   "type": "initial",
@@ -42,11 +42,10 @@
                   "maximumWarning": "4kB",
                   "maximumError": "8kB"
                 }
-              ],
-              "outputHashing": "all",
-              "extraWebpackConfig": "webpack.prod.config.js"
+              ]
             },
             "development": {
+              "outputHashing": "none",
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
@@ -55,22 +54,26 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "ngx-build-plus:dev-server",
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "port": 4201,
+            "hmr": false,
+            "liveReload": false,
+            "headers": {
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "GET, OPTIONS",
+              "Access-Control-Allow-Headers": "*"
+            }
+          },
           "configurations": {
             "production": {
-              "buildTarget": "angular-remoteapp:build:production",
-              "extraWebpackConfig": "webpack.prod.config.js"
+              "buildTarget": "angular-remoteapp:build:production"
             },
             "development": {
               "buildTarget": "angular-remoteapp:build:development"
             }
           },
-          "defaultConfiguration": "development",
-          "options": {
-            "port": 4201,
-            "publicHost": "http://localhost:4201",
-            "extraWebpackConfig": "webpack.config.js"
-          }
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n"
@@ -86,7 +89,11 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.css"]
+            "styles": [
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/primeflex/primeflex.css",
+              "src/styles.css"
+            ]
           }
         }
       }

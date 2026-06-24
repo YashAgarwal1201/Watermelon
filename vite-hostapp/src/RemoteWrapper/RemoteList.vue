@@ -1,15 +1,19 @@
 // File: RemoteWrapper/RemoteList.vue
 
 <template>
-  <div class="w-full min-h-screen bg-white dark:bg-gray-950 py-8">
-    <div class="max-w-2xl mx-auto p-6">
+  <div class="w-full h-full bg-white dark:bg-gray-950 p-3 sm:p-5">
+    <div class="">
       <!-- Header -->
-      <div class="text-center mb-8">
-        <h2
-          class="text-3xl font-bold bg-gradient-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent mb-2 font-heading"
-        >
-          🍉 Available Remote Apps
-        </h2>
+      <div class="w-full flex flex-col mb-6">
+        <div class="flex items-center justify-start gap-x-2">
+          <GoBackBtn :to="'/'" />
+          <h2
+            class="text-3xl font-bold bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent font-heading"
+          >
+            Remote Apps
+          </h2>
+        </div>
+
         <p class="text-gray-600 dark:text-gray-400">
           Click on any remote app to load its components
         </p>
@@ -17,17 +21,17 @@
 
       <!-- Remote Apps List -->
       <div class="space-y-4">
-        <div
+        <button
           v-for="app in remoteApps"
           :key="app.name"
-          class="group cursor-pointer p-6 bg-gradient-to-r from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 border border-pink-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.02] transform transition-all duration-200 hover:from-pink-100 hover:to-red-100 dark:hover:from-gray-800 dark:hover:to-gray-700"
+          class="w-full group cursor-pointer disabled:pointer-events-none disabled:opacity-50 p-6 bg-linear-to-r from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 border border-pink-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg hover:scale-[1.02] transform transition-all duration-200 hover:from-pink-100 hover:to-red-100 dark:hover:from-gray-800 dark:hover:to-gray-700"
           @click="goToRemote(app.name)"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <!-- Framework Icon -->
               <div
-                class="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-red-500 flex items-center justify-center text-white font-bold text-lg shadow-lg"
+                class="w-12 h-12 rounded-full bg-linear-to-r from-pink-500 to-red-500 flex items-center justify-center text-white font-bold text-lg shadow-lg"
               >
                 {{ app.icon }}
               </div>
@@ -35,11 +39,11 @@
               <!-- App Info -->
               <div>
                 <h3
-                  class="font-heading text-xl font-bold text-gray-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors"
+                  class="text-left font-heading text-xl font-bold text-gray-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors"
                 >
                   {{ app.displayName }}
                 </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
+                <p class="text-left text-sm text-gray-600 dark:text-gray-400">
                   {{ app.description }}
                 </p>
               </div>
@@ -64,12 +68,12 @@
               </svg>
             </div>
           </div>
-        </div>
+        </button>
       </div>
 
       <!-- Footer Note -->
       <div
-        class="mt-8 p-4 bg-gradient-to-r from-green-50 to-pink-50 dark:from-green-950/20 dark:to-pink-950/20 rounded-lg border border-green-200 dark:border-green-800 text-center"
+        class="mt-8 p-4 bg-linear-to-r from-green-50 to-pink-50 dark:from-green-950/20 dark:to-pink-950/20 rounded-lg border border-green-200 dark:border-green-800 text-center"
       >
         <p class="text-sm text-green-700 dark:text-green-400">
           <strong>💡 POC Demo:</strong> Each remote app runs independently and
@@ -82,6 +86,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import GoBackBtn from "../components/GoBack/GoBackBtn.vue";
 
 const router = useRouter();
 
@@ -121,6 +126,12 @@ const remoteApps = [
     displayName: "Webpack + Vue Remote",
     description: "Vue 3 + TypeScript + SCSS + Module Federation",
     icon: "🟢",
+  },
+  {
+    name: "angular_remoteapp",
+    displayName: "Angular Remote",
+    description: "Angular + TypeScript + Module Federation",
+    icon: "🔴",
   },
 ];
 

@@ -20,12 +20,17 @@
   },
   "devDependencies": {
     "@originjs/vite-plugin-federation": "^1.4.1",
+    "@tailwindcss/postcss": "^4.3.1",
     "@types/node": "^24.2.0",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
+    "autoprefixer": "^10.5.0",
     "typescript": "~5.8.3",
     "vite": "^7.0.4",
     "vite-plugin-css-injected-by-js": "^3.5.2",
     "vue-tsc": "^2.2.12"
+  },
+  "volta": {
+    "node": "24.15.0"
   }
 }

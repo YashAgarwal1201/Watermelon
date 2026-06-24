@@ -1,9 +1,5 @@
-// import { Routes } from '@angular/router';
-
-// export const routes: Routes = [];
-
 import { Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home';
+import { HomeComponent } from './pages/homes';
 import { SubPage1Component } from './pages/sub-page1/sub-page1';
 import { SubPage2Component } from './pages/sub-page2/sub-page2';
 

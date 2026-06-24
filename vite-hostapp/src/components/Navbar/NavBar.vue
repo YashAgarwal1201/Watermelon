@@ -1,41 +1,80 @@
-// File: components/Navbar/NavBar.vue
+<!-- vite-hostapp/src/components/Navbar/NavBar.vue -->
 
 <script lang="ts" setup>
-import { Home, Menu } from "lucide-vue-next";
+import { Blocks, Home, Menu } from "lucide-vue-next";
 import { useNavbarStore } from "../../stores/navbarStore";
-import { Button } from "primevue";
 import { RouterLink } from "vue-router";
-// import { storeToRefs } from "pinia";
-// import { ref } from "vue";
-
-// const feature = ref();
 
 const navbarStore = useNavbarStore();
-// const { showSideMenu } = storeToRefs(navbarStore);
+
+const navOptions = [
+  {
+    route: "/",
+    title: "Go to home page",
+    ariaLabel: "Home page",
+    label: "Home",
+    icon: Home,
+  },
+  {
+    route: "/remote",
+    title: "All remote apps",
+    ariaLabel: "Remote apps list",
+    label: "Apps",
+    icon: Blocks,
+  },
+];
 </script>
 
 <template>
   <div
-    class="w-full h-full flex flex-row md:flex-col justify-between items-center text-black py-1 md:py-2 px-1 md:px-1"
+    class="w-full h-full grid grid-cols-3 md:flex md:flex-col justify-center gap-3 text-black dark:text-white py-1 md:py-2 px-1"
   >
     <RouterLink
-      to="/"
-      class="p-button w-auto md:w-full h-full md:h-auto aspect-square !bg-green-700 dark:!bg-green-400 flex justify-center items-center !rounded-2xl !border-none cursor-pointer"
+      v-for="item in navOptions"
+      :key="item.route"
+      :to="item.route"
+      :title="item.title"
+      :aria-label="item.ariaLabel"
+      class="flex flex-col justify-center items-center group"
+      active-class="nav-active"
     >
-      <Home :size="16" />
+      <!-- ICON PILL -->
+      <span
+        class="rounded-full px-3 py-1 transition-all duration-200 bg-slate-100 dark:bg-slate-800 group-[&.nav-active]:bg-green-600 dark:group-[&.nav-active]:bg-green-500"
+      >
+        <component
+          :is="item.icon"
+          :size="16"
+          class="transition-colors duration-200 text-slate-600 dark:text-slate-300 group-[&.nav-active]:text-white"
+        />
+      </span>
+
+      <!-- LABEL -->
+      <span
+        class="mt-1 text-xs font-medium transition-colors duration-200 text-slate-600 dark:text-slate-300 group-[&.nav-active]:text-green-700 dark:group-[&.nav-active]:text-green-400"
+      >
+        {{ item.label }}
+      </span>
     </RouterLink>
 
-    <Button
-      class="w-auto md:w-full h-full md:h-auto aspect-square !bg-green-700 dark:!bg-green-400 flex justify-center items-center !rounded-2xl !border-none cursor-pointer"
+    <!-- MENU BUTTON (same visual system) -->
+    <button
+      class="flex flex-col justify-center items-center group"
       @click="navbarStore.showSideMenu = true"
+      aria-label="Open menu"
     >
-      <Menu :size="16" />
-    </Button>
+      <span
+        class="rounded-full px-3 py-1 transition-all duration-200 bg-slate-100 dark:bg-slate-800 group-active:bg-green-600 dark:group-active:bg-green-500"
+      >
+        <Menu
+          :size="16"
+          class="transition-colors duration-200 text-slate-600 dark:text-slate-300 group-active:text-white"
+        />
+      </span>
+
+      <span class="mt-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+        Menu
+      </span>
+    </button>
   </div>
 </template>
-
-<style lang="css" scoped>
-.aspect-square {
-  aspect-ratio: 1/1;
-}
-</style>

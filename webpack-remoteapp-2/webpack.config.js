@@ -147,7 +147,7 @@ module.exports = (env, argv) => {
         filename: "remoteEntry.js",
         runtime: false,
         exposes: {
-          "./WebpackVueRemoteComponent": "./src/bootstrap.ts", // or your main component
+          "./WebpackVueRemoteComponent": "./src/App.vue", //"./src/bootstrap.ts", // or your main component
         },
         shared: {
           vue: {

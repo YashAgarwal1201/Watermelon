@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import RemoteWrapper from "./../src/RemoteWrapper/RemoteWrapper.vue";
+// import RemoteWrapper from "./../src/RemoteWrapper/RemoteWrapper.vue";
 import RemoteList from "../src/RemoteWrapper/RemoteList.vue";
 import NewRemoteWrapper from "../src/RemoteWrapper/NewRemoteWrapper.vue";
 

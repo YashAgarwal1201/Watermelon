@@ -1,56 +1,45 @@
-// // import { fileURLToPath, URL } from "node:url";
-// import { defineConfig } from "vite";
-// import vue from "@vitejs/plugin-vue";
-// import federation from "@originjs/vite-plugin-federation";
-// import tailwindcss from "@tailwindcss/vite";
-
-// export default defineConfig({
-//   plugins: [
-//     vue(),
-//     tailwindcss(),
-//     federation({
-//       name: "vite_vue_remoteapp", // Unique name for this remote
-//       filename: "remoteEntry.js",
-//       exposes: {
-//         "./ViteVueRemoteComponent": "./src/App.vue", // Adjust path if needed
-//       },
-//       shared: ["vue"],
-//     }),
-//   ],
-//   build: {
-//     target: "esnext",
-//     minify: false,
-//     cssCodeSplit: false,
-//   },
-//   server: {
-//     port: 5252, // Use a unique port
-//     // cors: true,
-//     cors: {
-//       origin: "*",
-//       methods: ["GET", "OPTIONS", "POST"],
-//       allowedHeaders: ["Content-Type"],
-//     },
-//     headers: {
-//       // This is critical for module loading
-//       "Access-Control-Allow-Origin": "*",
-//       "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
-//       "Access-Control-Allow-Headers": "*",
-//       "Content-Type": "application/javascript",
-//     },
-//   },
-//   preview: {
-//     port: 5252,
-//     strictPort: true,
-//   },
-// });
-
-// import { fileURLToPath, URL } from "node:url";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import vue from "@vitejs/plugin-vue";
 import federation from "@originjs/vite-plugin-federation";
-import tailwindcss from "@tailwindcss/vite";
-import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
+// import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "url";
+import tailwindcss from "@tailwindcss/postcss";
+import autoprefixer from "autoprefixer";
+
+function injectCssIntoJs(): Plugin {
+  const cssChunks = new Map<string, string>();
+
+  return {
+    name: "inject-css-into-js",
+    apply: "build",
+    generateBundle(_, bundle) {
+      for (const [fileName, chunk] of Object.entries(bundle)) {
+        if (chunk.type === "asset" && fileName.endsWith(".css")) {
+          cssChunks.set(fileName, chunk.source as string);
+          delete bundle[fileName];
+        }
+      }
+
+      for (const [, chunk] of Object.entries(bundle)) {
+        if (chunk.type === "chunk" && chunk.isEntry) {
+          const allCss = Array.from(cssChunks.values()).join("\n");
+          const injection = `(function(){
+  try {
+    if (typeof document === 'undefined') return;
+    var css = ${JSON.stringify(allCss)};
+    var s = document.createElement('style');
+    s.setAttribute('data-remote-css', 'vite_vue_remoteapp');
+    s.textContent = css;
+    document.head.appendChild(s);
+  } catch(e) { console.warn('[vite_vue_remoteapp] css inject failed', e); }
+})();\n`;
+          chunk.code = injection + chunk.code;
+          break;
+        }
+      }
+    },
+  };
+}
 
 export default defineConfig({
   resolve: {
@@ -58,20 +47,24 @@ export default defineConfig({
       vue: "vue/dist/vue.esm-bundler.js",
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
-    dedupe: ["vue"], // Force single Vue instance
+    dedupe: ["vue"],
+  },
+  css: {
+    postcss: {
+      plugins: [tailwindcss(), autoprefixer()],
+    },
   },
   plugins: [
     vue(),
-    tailwindcss(),
+    injectCssIntoJs(),
     federation({
-      name: "vite_vue_remoteapp", // Unique name for this remote
+      name: "vite_vue_remoteapp",
       filename: "remoteEntry.js",
       exposes: {
-        "./ViteVueRemoteComponent": "./src/bootstrap.js", // Adjust path if needed
+        "./ViteVueRemoteComponent": "./src/bootstrap.js",
       },
       shared: ["vue", "vue-router"],
     }),
-    cssInjectedByJsPlugin(), // Add the CSS injection plugin
   ],
   build: {
     target: "esnext",
@@ -79,19 +72,16 @@ export default defineConfig({
     cssCodeSplit: false,
   },
   server: {
-    port: 5252, // Use a unique port
-    // cors: true,
+    port: 5252,
     cors: {
       origin: "*",
       methods: ["GET", "OPTIONS", "POST"],
       allowedHeaders: ["Content-Type"],
     },
     headers: {
-      // This is critical for module loading
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
       "Access-Control-Allow-Headers": "*",
-      "Content-Type": "application/javascript",
     },
   },
   preview: {
