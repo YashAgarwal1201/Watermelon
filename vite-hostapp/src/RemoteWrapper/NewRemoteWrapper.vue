@@ -1,46 +1,44 @@
 <template>
-  <div class="remote-wrapper w-full h-full p-2">
-    <div>
-      <div
-        class="py-3 flex items-center gap-x-3 border-b border-pink-200 dark:border-red-800"
-      >
-        <GoBackBtn :to="'/remote'" />
-        <h1 class="text-2xl sm:text-3xl capitalize">
-          {{ (appName ?? "Remote App").replace(/_/g, " ") }}
-        </h1>
-      </div>
-      <div
-        v-if="isLoading"
-        class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
-      >
-        <svg
-          class="animate-spin h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-          <path d="M22 12a10 10 0 0 1-10 10" />
-        </svg>
-        <span>Loading...</span>
-      </div>
-
-      <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
-        <p>Error loading remote app: {{ error }}</p>
-        <button
-          @click="retryLoad"
-          class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Retry
-        </button>
-      </div>
-
-      <div
-        ref="hostContainer"
-        class="remote-container rounded-none md:rounded-lg"
-      ></div>
+  <div class="remote-wrapper w-full h-full flex flex-col">
+    <div
+      class="shrink-0 py-3 flex items-center gap-x-3 border-b border-pink-200 dark:border-red-800"
+    >
+      <GoBackBtn :to="'/remote'" />
+      <h1 class="text-2xl sm:text-3xl capitalize">
+        {{ (appName ?? "Remote App").replace(/_/g, " ") }}
+      </h1>
     </div>
+    <div
+      v-if="isLoading"
+      class="p-4 bg-blue-100 text-blue-800 rounded mb-4 flex items-center space-x-2"
+    >
+      <svg
+        class="animate-spin h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+        <path d="M22 12a10 10 0 0 1-10 10" />
+      </svg>
+      <span>Loading...</span>
+    </div>
+
+    <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
+      <p>Error loading remote app: {{ error }}</p>
+      <button
+        @click="retryLoad"
+        class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Retry
+      </button>
+    </div>
+
+    <div
+      ref="hostContainer"
+      class="remote-container grow overflow-y-auto"
+    ></div>
   </div>
 </template>
 
@@ -360,35 +358,35 @@ function replayCssIntoShadow(remoteName: string, shadow: ShadowRoot) {
   }
 }
 
-async function sweepExistingHeadLinks(shadow: ShadowRoot, remoteName: string) {
-  if (!cssCache.has(remoteName)) cssCache.set(remoteName, []);
-  const bucket = cssCache.get(remoteName)!;
+// async function sweepExistingHeadLinks(shadow: ShadowRoot, remoteName: string) {
+//   if (!cssCache.has(remoteName)) cssCache.set(remoteName, []);
+//   const bucket = cssCache.get(remoteName)!;
 
-  const links = Array.from(
-    document.head.querySelectorAll<HTMLLinkElement>("link[rel='stylesheet']"),
-  );
+//   const links = Array.from(
+//     document.head.querySelectorAll<HTMLLinkElement>("link[rel='stylesheet']"),
+//   );
 
-  await Promise.all(
-    links.map(async (link) => {
-      const href = link.href;
-      if (!href) return;
+//   await Promise.all(
+//     links.map(async (link) => {
+//       const href = link.href;
+//       if (!href) return;
 
-      // Skip if already injected into this shadow
-      if (shadow.querySelector(`[data-remote-src="${href}"]`)) return;
+//       // Skip if already injected into this shadow
+//       if (shadow.querySelector(`[data-remote-src="${href}"]`)) return;
 
-      try {
-        const res = await fetch(href, { mode: "cors", cache: "force-cache" });
-        if (!res.ok) return;
-        const css = await res.text();
-        const s = document.createElement("style");
-        s.setAttribute("data-remote-src", href);
-        s.textContent = css;
-        shadow.appendChild(s);
-        if (!bucket.includes(css)) bucket.push(css);
-      } catch {}
-    }),
-  );
-}
+//       try {
+//         const res = await fetch(href, { mode: "cors", cache: "force-cache" });
+//         if (!res.ok) return;
+//         const css = await res.text();
+//         const s = document.createElement("style");
+//         s.setAttribute("data-remote-src", href);
+//         s.textContent = css;
+//         shadow.appendChild(s);
+//         if (!bucket.includes(css)) bucket.push(css);
+//       } catch {}
+//     }),
+//   );
+// }
 
 function buildShadow(): { shadow: ShadowRoot; mount: HTMLElement } {
   if (shadowRoot) {
@@ -587,7 +585,7 @@ async function loadRemote() {
           };
           resolve();
         };
-        script.onerror = (e) =>
+        script.onerror = (_e) =>
           reject(new Error("Failed to load Angular remote script"));
         document.head.appendChild(script);
       });

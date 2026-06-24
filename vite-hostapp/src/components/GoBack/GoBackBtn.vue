@@ -2,7 +2,7 @@
   <div>
     <RouterLink
       rounded
-      class="bg-transparent! border-transparent! text-green-500!"
+      class="bg-transparent! border-transparent! text-green-500! rounded-full"
       :to="to"
       replace
     >
@@ -17,4 +17,6 @@ import { ArrowLeft } from "lucide-vue-next";
 const props = defineProps<{
   to: string;
 }>();
+
+console.info(props.to);
 </script>
