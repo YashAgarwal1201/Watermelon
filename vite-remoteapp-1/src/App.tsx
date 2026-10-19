@@ -37,7 +37,7 @@ export default function App() {
   // When loaded as a remote, host sets window.BASENAME before mounting.
   // When running standalone (npm run dev / npm run preview), BASENAME is
   // undefined so we fall back to "/" so the router actually matches routes.
-  const basename = (window as any)?.BASENAME ?? "/";
+  const basename = (window as Window & { BASENAME?: string }).BASENAME ?? "/";
 
   return (
     <BrowserRouter basename={basename}>

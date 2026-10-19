@@ -1,4 +1,5 @@
 // webpack.config.js
+const fs = require("fs");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
@@ -8,18 +9,37 @@ const webpack = require("webpack");
 module.exports = (env, argv) => {
   const isProduction = argv.mode === "production";
 
+  const certPath = path.resolve(__dirname, "../certs/localhost.pem");
+  const keyPath = path.resolve(__dirname, "../certs/localhost-key.pem");
+  const hasCerts = fs.existsSync(certPath) && fs.existsSync(keyPath);
+
   return {
     mode: isProduction ? "production" : "development",
     target: "web",
     entry: path.resolve(__dirname, "src", "index.tsx"),
-    devtool: isProduction ? "source-map" : "inline-source-map",
+    devtool: isProduction ? "source-map" : "eval-cheap-module-source-map",
+    cache: {
+      type: "filesystem",
+      buildDependencies: {
+        config: [__filename],
+      },
+    },
 
     devServer: {
       port: 5161,
       hot: true,
-      open: true,
+      open: false,
       historyApiFallback: true,
       compress: true,
+      server: hasCerts
+        ? {
+            type: "https",
+            options: {
+              cert: fs.readFileSync(certPath),
+              key: fs.readFileSync(keyPath),
+            },
+          }
+        : "http",
       client: {
         overlay: false, // This fixes the overlay error
       },
@@ -75,6 +95,7 @@ module.exports = (env, argv) => {
           use: {
             loader: "babel-loader",
             options: {
+              cacheDirectory: true,
               presets: [
                 "@babel/preset-env",
                 "@babel/preset-react",
@@ -190,10 +211,6 @@ module.exports = (env, argv) => {
       ],
     },
 
-    // externals: {
-    //   react: "react",
-    //   "react-dom": "react-dom",
-    // },
 
     plugins: [
       new CleanWebpackPlugin(),
@@ -206,14 +223,7 @@ module.exports = (env, argv) => {
         exposes: {
           "./WebpackReactRemoteComponent": "./src/App.tsx",
         },
-        // shared: {
-        //   react: { singleton: true, requiredVersion: "^18.0.0", eager: true },
-        //   "react-dom": {
-        //     singleton: true,
-        //     requiredVersion: "^18.0.0",
-        //     eager: true,
-        //   },
-        // },
+
         shared: {
           react: {
             singleton: true,
@@ -259,9 +269,6 @@ module.exports = (env, argv) => {
     ],
 
     optimization: {
-      // splitChunks: {
-      //   chunks: "all",
-      // },
       runtimeChunk: false,
       splitChunks: {
         // Only split async chunks, not all chunks

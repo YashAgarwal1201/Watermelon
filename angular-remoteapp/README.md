@@ -1,59 +1,64 @@
-# AngularRemoteapp
+# angular-remoteapp — Angular 20 Interactive Cheat Sheet
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.5.
+An interactive, responsive developer reference application and microfrontend built with **Angular 20**, **Angular Elements**, **PrimeNG 20** (Aura theme), and **PrimeFlex**, packaged as a standard W3C Custom Element (`<angular-remote-app>`).
 
-## Development server
+---
 
-To start a local development server, run:
+## Architecture & Features
 
-```bash
-ng serve
-```
+This application serves as a comprehensive **interactive cheat sheet** for modern Angular features with live playgrounds, code blocks with clipboard copying, and deeply nested sub-routes:
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### 1. Control Flow & Templates (`/components/control-flow`)
+- `&#64;if` / `&#64;else if` / `&#64;else` compiler-native conditional logic
+- `&#64;for` with mandatory `track` expression and `&#64;empty` fallback state
+- `&#64;switch` / `&#64;case` strict equality type-safe status machine
+- `&#64;let` in-template scoped variable declarations and calculation caching (Angular 18.1+)
 
-## Code scaffolding
+### 2. Signal-Based Components (`/components/inputs-outputs`)
+- `input()` & `input.required()` functional reactive props
+- `output()` lightweight event emission replacing `@Output() EventEmitter`
+- `model()` two-way signal synchronization with "banana-in-a-box" syntax
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### 3. Templates & Lifecycle (`/components/templates`, `/components/lifecycle`)
+- `&#64;defer` declarative lazy-loading triggered on idle, viewport, interaction, timer, or conditions
+- `<ng-content select="...">` multi-slot content projection
+- `DestroyRef` and `afterNextRender` modern functional lifecycle primitives
 
-```bash
-ng generate component component-name
-```
+### 4. Signals & Reactivity (`/signals`)
+- **Core Primitives (`/signals/basics`)**: `signal()`, `computed()`, `effect()`
+- **Advanced State (`/signals/advanced`)**: `linkedSignal()` (v19+) for source-resetting writable signals, `resource()` (v19/20) for declarative async data fetching
+- **RxJS Interoperability (`/signals/rxjs-interop`)**: `toSignal()` and `toObservable()`
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### 5. Dependency Injection & Architecture (`/di`)
+- `inject()` function eliminating constructor ceremony and enabling custom composables
+- Functional routing guards (`CanActivateFn`, `ResolveFn`)
 
-```bash
-ng generate --help
-```
+---
 
-## Building
+## Integration Strategy
 
-To build the project run:
+Unlike the Vite and Webpack remotes that use Module Federation, the Angular remote uses **Angular Elements**:
 
-```bash
-ng build
-```
+1. **Custom Element Registration**:
+   The Angular application uses `createCustomElement` from `@angular/elements` to define a custom element:
+   ```typescript
+   customElements.define('angular-remote-app', el);
+   ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+2. **Host Consumption**:
+   The Vue 3 host shell dynamically loads the Angular script bundle (`https://localhost:4201/main.js`) and mounts it as a native HTML custom element:
+   ```html
+   <angular-remote-app></angular-remote-app>
+   ```
+   This ensures complete framework isolation, zone encapsulation, and independent lifecycle management.
 
-## Running unit tests
+---
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Ports & Scripts
 
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+| Command | Description | Port |
+| :--- | :--- | :---: |
+| `npm start` | Runs Angular CLI development server with HTTPS (mkcert) | `4201` |
+| `npm run build` | Compiles production bundle with budget verification | — |
+| `npm run watch` | Builds and watches for changes in development mode | — |
+| `npm run test` | Runs unit tests using Karma | — |

@@ -1,0 +1,84 @@
+#!/bin/sh
+
+# Stop immediately if any check fails
+set -e
+
+# Resolve repository root
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo ""
+echo "🚀 [Pre-Push Guard] Running full monorepo validation across all 8 apps..."
+echo "──────────────────────────────────────────────────────────────────────────"
+
+# ─── PHASE 1: STATIC TYPECHECKING ───────────────────────────────────────────
+echo "⚡ Step 1/3: Checking TypeScript types across all applications..."
+
+echo "  → vite-hostapp (vue-tsc)"
+(cd "$REPO_ROOT/vite-hostapp" && npx vue-tsc -b)
+
+echo "  → vite-remoteapp-1 (tsc)"
+(cd "$REPO_ROOT/vite-remoteapp-1" && npx tsc -b)
+
+echo "  → vite-remoteapp-2 (vue-tsc)"
+(cd "$REPO_ROOT/vite-remoteapp-2" && npx vue-tsc -b)
+
+echo "  → vite-remoteapp-3 (svelte-check & tsc)"
+(cd "$REPO_ROOT/vite-remoteapp-3" && npm run check)
+
+echo "  → vite-remoteapp-4 (tsc)"
+(cd "$REPO_ROOT/vite-remoteapp-4" && npx tsc -b)
+
+echo "  → webpack-remoteapp-1 (tsc)"
+(cd "$REPO_ROOT/webpack-remoteapp-1" && npm run type-check)
+
+echo "  → webpack-remoteapp-2 (tsc)"
+(cd "$REPO_ROOT/webpack-remoteapp-2" && npx tsc --noEmit)
+
+echo "  → angular-remoteapp (tsc)"
+(cd "$REPO_ROOT/angular-remoteapp" && npx tsc --noEmit)
+
+echo "  ✓ All type checks passed."
+
+# ─── PHASE 2: LINTING ───────────────────────────────────────────────────────
+echo ""
+echo "🔍 Step 2/3: Running linters..."
+
+echo "  → vite-remoteapp-1 (eslint)"
+(cd "$REPO_ROOT/vite-remoteapp-1" && npm run lint)
+
+echo "  ✓ All lint checks passed."
+
+# ─── PHASE 3: PRODUCTION BUILDS ─────────────────────────────────────────────
+echo ""
+echo "📦 Step 3/3: Running production builds across all 8 applications..."
+
+echo "  → vite-remoteapp-1 (build)"
+(cd "$REPO_ROOT/vite-remoteapp-1" && npm run build)
+
+echo "  → vite-remoteapp-2 (build)"
+(cd "$REPO_ROOT/vite-remoteapp-2" && npm run build)
+
+echo "  → vite-remoteapp-3 (build)"
+(cd "$REPO_ROOT/vite-remoteapp-3" && npm run build)
+
+echo "  → vite-remoteapp-4 (build)"
+(cd "$REPO_ROOT/vite-remoteapp-4" && npm run build)
+
+echo "  → webpack-remoteapp-1 (build)"
+(cd "$REPO_ROOT/webpack-remoteapp-1" && npm run build)
+
+echo "  → webpack-remoteapp-2 (build)"
+(cd "$REPO_ROOT/webpack-remoteapp-2" && npm run build)
+
+echo "  → angular-remoteapp (build)"
+(cd "$REPO_ROOT/angular-remoteapp" && npm run build)
+
+echo "  → vite-hostapp (build)"
+(cd "$REPO_ROOT/vite-hostapp" && npm run build)
+
+echo ""
+echo "──────────────────────────────────────────────────────────────────────────"
+echo "✅ All 8 applications passed type-checking, linting, and production builds!"
+echo "🚀 Proceeding with push."
+echo ""

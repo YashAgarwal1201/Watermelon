@@ -1,3 +1,4 @@
+const fs = require("fs");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -7,20 +8,39 @@ const { VueLoaderPlugin } = require("vue-loader");
 module.exports = (env, argv) => {
   const isProduction = argv.mode === "production";
 
+  const certPath = path.resolve(__dirname, "../certs/localhost.pem");
+  const keyPath = path.resolve(__dirname, "../certs/localhost-key.pem");
+  const hasCerts = fs.existsSync(certPath) && fs.existsSync(keyPath);
+
   return {
     mode: isProduction ? "production" : "development",
     target: "web",
     entry: "./src/main.ts",
-    devtool: isProduction ? "source-map" : "inline-source-map",
+    devtool: isProduction ? "source-map" : "eval-cheap-module-source-map",
+    cache: {
+      type: "filesystem",
+      buildDependencies: {
+        config: [__filename],
+      },
+    },
 
     devServer: {
       port: 5162,
       hot: true,
-      open: true,
+      open: false,
       liveReload: true,
 
       historyApiFallback: true,
       compress: true,
+      server: hasCerts
+        ? {
+            type: "https",
+            options: {
+              cert: fs.readFileSync(certPath),
+              key: fs.readFileSync(keyPath),
+            },
+          }
+        : "http",
       client: {
         overlay: false, // Disable overlay for federation compatibility
       },

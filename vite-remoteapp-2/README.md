@@ -1,5 +1,36 @@
-# Vue 3 + TypeScript + Vite
+# vite-remoteapp-2 — Vue 3 Remote
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A federated microfrontend built with **Vue 3**, **PrimeVue 4**, **Tailwind CSS v4**, and **Vite 7**.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+---
+
+## Federation Details
+
+- **Federation Library**: `@originjs/vite-plugin-federation`
+- **Federation Name**: `vite_vue_remoteapp`
+- **Filename**: `remoteEntry.js` (emitted to `dist/assets/remoteEntry.js`)
+- **Exposed Component**:
+  ```typescript
+  exposes: {
+    "./ViteVueRemoteComponent": "./src/bootstrap.js",
+  }
+  ```
+- **Shared Dependencies**: `vue`, `vue-router`
+- **CSS Strategy**: Uses `injectCssIntoJs()` to inject scoped styles via JS at runtime (`data-remote-css="vite_vue_remoteapp"`), preventing style loss during client routing inside the host.
+
+---
+
+## Ports & Scripts
+
+| Command | Description | Port |
+| :--- | :--- | :---: |
+| `npm run dev` | Runs standalone Vue 3 SPA with HMR | `5252` |
+| `npm run build` | Runs typecheck (`vue-tsc -b`) and builds federation bundle | — |
+| `npm run preview` | Serves `dist/` production preview | `5252` |
+| `npm start` | Builds then serves preview for host integration | `5252` |
+
+---
+
+## Bootstrap Pattern
+
+The exposed module is [`src/bootstrap.js`](./src/bootstrap.js), which provides a mounting function that accepts a host container and optional host router context, allowing the Vue 3 component to mount seamlessly into the Vue 3 host shell.

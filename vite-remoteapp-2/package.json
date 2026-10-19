@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --config vite.dev.config.ts",
+    "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview --port 5252",
+    "preview": "vite preview",
     "start": "npm run build && npm run preview"
   },
   "dependencies": {

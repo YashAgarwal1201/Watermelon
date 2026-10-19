@@ -1,11 +1,42 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './pages/homes';
-import { SubPage1Component } from './pages/sub-page1/sub-page1';
-import { SubPage2Component } from './pages/sub-page2/sub-page2';
+import { CheatSheetComponent } from './pages/cheat-sheet/cheat-sheet';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'sub-page1', component: SubPage1Component },
-  { path: 'sub-page2', component: SubPage2Component },
-  { path: '**', redirectTo: '' },
+  { path: '', redirectTo: 'overview', pathMatch: 'full' },
+  {
+    path: 'overview',
+    component: CheatSheetComponent,
+    data: { category: 'All' },
+  },
+  {
+    path: 'control-flow',
+    component: CheatSheetComponent,
+    data: { category: 'Control Flow' },
+  },
+  {
+    path: 'signals',
+    component: CheatSheetComponent,
+    data: { category: 'Signals' },
+  },
+  {
+    path: 'components',
+    component: CheatSheetComponent,
+    data: { category: 'Component I/O' },
+  },
+  {
+    path: 'templates',
+    component: CheatSheetComponent,
+    data: { category: 'Templates' },
+  },
+  {
+    path: 'di',
+    component: CheatSheetComponent,
+    data: { category: 'Dependency Injection' },
+  },
+
+  // Gracefully handle any legacy or deep subroute links
+  { path: 'components/**', redirectTo: 'components' },
+  { path: 'signals/**', redirectTo: 'signals' },
+  { path: 'di/**', redirectTo: 'di' },
+  { path: '**', redirectTo: 'overview' },
 ];
