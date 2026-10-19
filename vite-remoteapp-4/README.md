@@ -1,28 +1,30 @@
-## Usage
+# vite-remoteapp-4 — SolidJS Remote
 
-```bash
-$ npm install # or pnpm install or yarn install
-```
+A federated microfrontend built with **SolidJS**, **TypeScript**, and **Vite 7** (`vite-plugin-solid`).
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+---
 
-## Available Scripts
+## Federation Details
 
-In the project directory, you can run:
+- **Federation Library**: `@originjs/vite-plugin-federation`
+- **Federation Name**: `vite_solidjs_remoteapp`
+- **Filename**: `remoteEntry.js` (emitted to `dist/assets/remoteEntry.js`)
+- **Exposed Component**:
+  ```typescript
+  exposes: {
+    "./ViteSolidRemoteComponent": "./src/App.tsx",
+  }
+  ```
+- **Shared Dependencies**: `solid-js`
+- **CSS Strategy**: Uses `cssInjectedByJsPlugin()` to bundle styles directly into JS entry chunks, ensuring that component styles load cleanly without external `<link>` tag dependencies in the host.
 
-### `npm run dev`
+---
 
-Runs the app in the development mode.<br>
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+## Ports & Scripts
 
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-Learn more about deploying your application with the [documentations](https://vite.dev/guide/static-deploy.html)
+| Command | Description | Port |
+| :--- | :--- | :---: |
+| `npm run dev` | Runs standalone SolidJS SPA with HMR | `5254` |
+| `npm run build` | Compiles typechecks (`tsc -b`) and bundles federation output | — |
+| `npm run preview` | Serves `dist/` production preview | `5254` |
+| `npm start` | Builds then serves preview for host integration | `5254` |

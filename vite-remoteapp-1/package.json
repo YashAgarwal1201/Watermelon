@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --config vite.dev.config.ts",
+    "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview --port 5251",
+    "preview": "vite preview",
     "start": "npm run build && npm run preview"
   },
   "dependencies": {

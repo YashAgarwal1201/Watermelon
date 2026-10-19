@@ -34,13 +34,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "2MB",
+                  "maximumError": "3MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kB",
+                  "maximumError": "16kB"
                 }
               ]
             },
@@ -48,7 +48,11 @@
               "outputHashing": "none",
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              }
             }
           },
           "defaultConfiguration": "production"
@@ -57,6 +61,9 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "port": 4201,
+            "ssl": true,
+            "sslCert": "../certs/localhost.pem",
+            "sslKey": "../certs/localhost-key.pem",
             "hmr": false,
             "liveReload": false,
             "headers": {

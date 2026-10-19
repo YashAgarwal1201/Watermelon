@@ -25,14 +25,52 @@
       <span>Loading...</span>
     </div>
 
-    <div v-if="error" class="p-4 bg-red-100 text-red-800 rounded mb-4">
-      <p>Error loading remote app: {{ error }}</p>
-      <button
-        @click="retryLoad"
-        class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-      >
-        Retry
-      </button>
+    <div
+      v-if="error"
+      class="p-6 m-4 bg-amber-50 dark:bg-zinc-900 border border-amber-200 dark:border-amber-800 rounded-xl shadow-sm"
+    >
+      <div class="flex items-start gap-4">
+        <div class="p-2 bg-amber-100 dark:bg-amber-950/50 rounded-lg text-amber-600 dark:text-amber-400">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            Remote Application Offline or Unreachable
+          </h3>
+          <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+            Could not connect to <code class="px-1.5 py-0.5 bg-zinc-200 dark:bg-zinc-800 rounded font-mono text-xs">{{ appName }}</code>:
+            <span class="text-red-500 font-mono text-xs block mt-1">{{ error }}</span>
+          </p>
+
+          <div class="mt-4 p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-xs font-mono text-zinc-700 dark:text-zinc-300">
+            <p class="font-bold mb-1 font-sans text-zinc-800 dark:text-zinc-200">To run this remote in live dev mode:</p>
+            <p class="text-emerald-700 dark:text-emerald-400 font-semibold mb-2">
+              $ npm run dev -- --remote={{ getCliFlag(appName) }}
+            </p>
+            <p class="font-sans text-zinc-600 dark:text-zinc-400">Or serve all prebuilt remotes in 1 lightweight process (~40 MB RAM):</p>
+            <p class="text-blue-600 dark:text-blue-400 font-semibold mt-1">
+              $ npm run serve:remotes
+            </p>
+          </div>
+
+          <div class="mt-4 flex items-center gap-3">
+            <button
+              @click="retryLoad"
+              class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2"
+            >
+              <span>Retry Connection</span>
+            </button>
+            <RouterLink
+              to="/remote"
+              class="px-4 py-2 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-sm font-medium rounded-lg transition-colors"
+            >
+              Back to Remote Gallery
+            </RouterLink>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div
@@ -60,6 +98,19 @@ import GoBackBtn from "../components/GoBack/GoBackBtn.vue";
 const route = useRoute();
 const appName = ref(String(route.params.appName ?? ""));
 
+function getCliFlag(app: string): string {
+  switch (app) {
+    case "vite_react_remoteapp": return "v-react";
+    case "vite_vue_remoteapp": return "v-vue";
+    case "vite_svelte_remoteapp": return "v-svelte";
+    case "vite_solidjs_remoteapp": return "v-solid";
+    case "webpack_react_remoteapp": return "w-react";
+    case "webpack_vue_remoteapp": return "w-vue";
+    case "angular_remoteapp": return "angular";
+    default: return app;
+  }
+}
+
 const hostContainer = ref<HTMLElement | null>(null);
 let shadowRoot: ShadowRoot | null = null;
 let mountPoint: HTMLElement | null = null;
@@ -85,124 +136,7 @@ function isStyleOrLink(node: Node): boolean {
   );
 }
 
-// do not delete unless everything is working fine
-// function patchHeadToShadow(
-//   shadow: ShadowRoot,
-//   capturedId: number,
-//   remoteName: string,
-// ): () => void {
-//   const head = document.head as any;
-//   const origAppendChild = head.appendChild.bind(head);
-//   const origInsertBefore = head.insertBefore.bind(head);
-//   const origAppend = head.append?.bind(head);
-//   const origPrepend = head.prepend?.bind(head);
 
-//   const isCancelled = () => capturedId !== loadId;
-
-//   if (!cssCache.has(remoteName)) cssCache.set(remoteName, []);
-//   const bucket = cssCache.get(remoteName)!;
-
-//   async function fetchAndInject(href: string) {
-//     try {
-//       const res = await fetch(href, { mode: "cors", cache: "force-cache" });
-//       if (!res.ok) return;
-//       const css = await res.text();
-//       if (isCancelled()) return;
-//       const s = document.createElement("style");
-//       s.setAttribute("data-remote-src", href);
-//       s.textContent = css;
-//       shadow.appendChild(s);
-//       if (!bucket.includes(css)) bucket.push(css);
-//     } catch {}
-//   }
-
-//   function intercept(node: Node): boolean {
-//     if (!isStyleOrLink(node)) return false;
-//     if (isCancelled()) return false;
-
-//     // if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
-//     //   const css = node.textContent ?? "";
-//     //   const clone = document.createElement("style");
-//     //   clone.setAttribute("data-remote-css", remoteName);
-//     //   clone.textContent = css;
-//     //   shadow.appendChild(clone);
-//     //   new MutationObserver(() => {
-//     //     clone.textContent = node.textContent;
-//     //   }).observe(node, { characterData: true, childList: true, subtree: true });
-//     //   if (!bucket.includes(css)) bucket.push(css);
-//     //   return true;
-//     // }
-
-//     if (node instanceof HTMLElement && node.tagName.toLowerCase() === "style") {
-//       const clone = document.createElement("style");
-//       clone.setAttribute("data-remote-css", remoteName);
-//       clone.textContent = node.textContent ?? "";
-//       shadow.appendChild(clone);
-
-//       // Keep clone in sync AND update the cache bucket lazily
-//       const bucketIndex = bucket.length;
-//       bucket.push(node.textContent ?? ""); // placeholder
-
-//       new MutationObserver(() => {
-//         const css = node.textContent ?? "";
-//         clone.textContent = css;
-//         bucket[bucketIndex] = css; // update in-place as style-loader fills it in
-//       }).observe(node, { characterData: true, childList: true, subtree: true });
-
-//       return true;
-//     }
-
-//     if (node instanceof HTMLLinkElement && node.rel === "stylesheet") {
-//       void fetchAndInject(node.href);
-//       return true;
-//     }
-
-//     return false;
-//   }
-
-//   head.appendChild = function <T extends Node>(node: T): T {
-//     if (intercept(node)) return node;
-//     return origAppendChild(node);
-//   };
-
-//   head.insertBefore = function <T extends Node>(node: T, ref: Node | null): T {
-//     if (intercept(node)) return node;
-//     return origInsertBefore(node, ref);
-//   };
-
-//   if (origAppend) {
-//     head.append = function (...nodes: (Node | string)[]) {
-//       for (const n of nodes) {
-//         if (typeof n !== "string" && intercept(n)) continue;
-//         origAppend(n);
-//       }
-//     };
-//   }
-
-//   if (origPrepend) {
-//     head.prepend = function (...nodes: (Node | string)[]) {
-//       for (const n of nodes) {
-//         if (typeof n !== "string" && intercept(n)) continue;
-//         origPrepend(n);
-//       }
-//     };
-//   }
-
-//   const mo = new MutationObserver((records) => {
-//     for (const r of records)
-//       for (const n of Array.from(r.addedNodes))
-//         if (isStyleOrLink(n)) intercept(n);
-//   });
-//   mo.observe(document.head, { childList: true });
-
-//   return () => {
-//     mo.disconnect();
-//     head.appendChild = origAppendChild;
-//     head.insertBefore = origInsertBefore;
-//     if (origAppend) head.append = origAppend;
-//     if (origPrepend) head.prepend = origPrepend;
-//   };
-// }
 
 function patchHeadToShadow(
   shadow: ShadowRoot,
@@ -358,35 +292,7 @@ function replayCssIntoShadow(remoteName: string, shadow: ShadowRoot) {
   }
 }
 
-// async function sweepExistingHeadLinks(shadow: ShadowRoot, remoteName: string) {
-//   if (!cssCache.has(remoteName)) cssCache.set(remoteName, []);
-//   const bucket = cssCache.get(remoteName)!;
 
-//   const links = Array.from(
-//     document.head.querySelectorAll<HTMLLinkElement>("link[rel='stylesheet']"),
-//   );
-
-//   await Promise.all(
-//     links.map(async (link) => {
-//       const href = link.href;
-//       if (!href) return;
-
-//       // Skip if already injected into this shadow
-//       if (shadow.querySelector(`[data-remote-src="${href}"]`)) return;
-
-//       try {
-//         const res = await fetch(href, { mode: "cors", cache: "force-cache" });
-//         if (!res.ok) return;
-//         const css = await res.text();
-//         const s = document.createElement("style");
-//         s.setAttribute("data-remote-src", href);
-//         s.textContent = css;
-//         shadow.appendChild(s);
-//         if (!bucket.includes(css)) bucket.push(css);
-//       } catch {}
-//     }),
-//   );
-// }
 
 function buildShadow(): { shadow: ShadowRoot; mount: HTMLElement } {
   if (shadowRoot) {
@@ -517,35 +423,7 @@ async function loadRemote() {
           vueAppInstance.mount(mountPoint);
         }
       }
-      // } else if (appName.value === "angular_remoteapp") {
-      //   const module = await import("angular_remoteapp/Component");
-      //   if (currentId !== loadId) return;
-      //   lastRemoteModule = module;
-      //   if (typeof module.mount !== "function")
-      //     throw new Error("Angular remote does not export a mount function");
-      //   const result = await module.mount(mountPoint!);
-      //   if (result?.destroy) lastRemoteModule.unmount = result.destroy;
-      // }
-      // } else if (appName.value === "angular_remoteapp") {
-      //   // Patch head BEFORE the import so Webpack runtime link injection is caught
-      //   restoreHeadPatch = patchHeadToShadow(shadow, currentId, appName.value);
-      //   replayCssIntoShadow(appName.value, shadow);
 
-      //   const module = await import("angular_remoteapp/Component");
-      //   if (currentId !== loadId) return;
-      //   lastRemoteModule = module;
-
-      //   // After import, sweep any <link> tags already in head that slipped through
-      //   // (Webpack runtime may have injected them before the patch was active on
-      //   // previous loads, and they won't be re-injected on subsequent imports
-      //   // because Webpack caches the module)
-      //   await sweepExistingHeadLinks(shadow, appName.value);
-
-      //   if (typeof module.mount !== "function")
-      //     throw new Error("Angular remote does not export a mount function");
-      //   const result = await module.mount(mountPoint!);
-      //   if (result?.destroy) lastRemoteModule.unmount = result.destroy;
-      // }
     } else if (appName.value === "angular_remoteapp") {
       await new Promise<void>((resolve, reject) => {
         // If already loaded before, custom element is already registered —
@@ -561,7 +439,8 @@ async function loadRemote() {
         }
 
         const script = document.createElement("script");
-        script.src = "http://localhost:4201/main.js";
+        const angularUrl = ((import.meta as any).env?.VITE_REMOTE_ANGULAR_URL ?? "https://localhost:4201").replace(/\/+$/, "");
+        script.src = `${angularUrl}/main.js`;
         script.type = "module";
         script.onload = async () => {
           if (currentId !== loadId) {

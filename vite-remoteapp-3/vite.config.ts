@@ -1,6 +1,22 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import federation from "@originjs/vite-plugin-federation";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const certPath = path.resolve(__dirname, "../certs/localhost.pem");
+const keyPath = path.resolve(__dirname, "../certs/localhost-key.pem");
+const hasCerts = fs.existsSync(certPath) && fs.existsSync(keyPath);
+const httpsConfig = hasCerts
+  ? {
+      cert: fs.readFileSync(certPath),
+      key: fs.readFileSync(keyPath),
+    }
+  : undefined;
 
 export default defineConfig({
   plugins: [
@@ -16,7 +32,7 @@ export default defineConfig({
       name: "vite_svelte_remoteapp",
       filename: "remoteEntry.js",
       exposes: {
-        "./ViteSvelteRemoteComponent": "./src/App.svelte", // or another .svelte file you'd like to expose
+        "./ViteSvelteRemoteComponent": "./src/App.svelte",
       },
       shared: ["svelte"],
     }),
@@ -42,11 +58,21 @@ export default defineConfig({
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "*",
-      "Content-Type": "application/javascript",
     },
+    https: httpsConfig,
   },
   preview: {
     port: 5253,
     strictPort: true,
+    cors: {
+      origin: "*",
+      methods: ["GET", "OPTIONS", "POST"],
+      allowedHeaders: ["Content-Type"],
+    },
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "*",
+    },
+    https: httpsConfig,
   },
 });

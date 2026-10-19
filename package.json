@@ -1,0 +1,36 @@
+{
+  "name": "watermelon-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Polyglot Microfrontend Monorepo (Vue 3 Host + React, Vue, Svelte, SolidJS, Angular Remotes)",
+  "scripts": {
+    "dev": "bash scripts/dev.sh",
+    "dev:host": "bash scripts/dev.sh --remote=host",
+    "dev:angular": "bash scripts/dev.sh --remote=angular",
+    "dev:react": "bash scripts/dev.sh --remote=v-react",
+    "dev:vue": "bash scripts/dev.sh --remote=v-vue",
+    "dev:svelte": "bash scripts/dev.sh --remote=v-svelte",
+    "dev:solid": "bash scripts/dev.sh --remote=v-solid",
+    "dev:webpack-react": "bash scripts/dev.sh --remote=w-react",
+    "dev:webpack-vue": "bash scripts/dev.sh --remote=w-vue",
+    "dev:all": "bash scripts/start-all.sh",
+    "start": "bash scripts/dev.sh",
+    "start:all": "bash scripts/start-all.sh",
+    "serve:remotes": "node scripts/serve-remotes.mjs",
+    "setup": "bash scripts/setup.sh",
+    "build:all": "bash scripts/build-all.sh",
+    "check:all": "bash scripts/typecheck-all.sh",
+    "clean:all": "bash scripts/clean-all.sh",
+    "kill:ports": "bash scripts/kill-ports.sh",
+    "generate-certs": "bash scripts/generate-certs.sh",
+    "setup-hooks": "bash scripts/setup-hooks.sh",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "concurrently": "^9.1.2"
+  },
+  "volta": {
+    "node": "24.15.0"
+  }
+}

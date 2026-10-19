@@ -1,35 +1,32 @@
-// // src/bootstrap.ts
-import { createApp, App } from "vue";
-import AppComponent from "./App.vue";
+// src/bootstrap.ts
+import { createApp, type App as VueApp } from "vue";
+import App from "./App.vue";
 import "./styles/globals.scss";
 import "./styles/Home.module.scss";
 
-let app: App<Element> | null = null;
+// Standalone mode: mount to #app if container exists in index.html
+const mountElement = document.getElementById("app");
+if (mountElement) {
+  const app = createApp(App);
+  app.mount(mountElement);
+}
 
-export default {
-  mount: (element: HTMLElement) => {
-    if (app) {
-      // If already mounted, unmount first
-      app.unmount();
-    }
+let appInstance: VueApp<Element> | null = null;
 
-    app = createApp(AppComponent);
-    app.mount(element);
-    return app;
-  },
-  unmount: () => {
-    if (app) {
-      app.unmount();
-      app = null;
-    }
-  },
+export const mount = (element: HTMLElement) => {
+  if (appInstance) {
+    appInstance.unmount();
+  }
+  appInstance = createApp(App);
+  appInstance.mount(element);
+  return appInstance;
 };
 
-// src/bootstrap.ts
-// import { createApp } from "vue";
-// import App from "./App.vue";
+export const unmount = () => {
+  if (appInstance) {
+    appInstance.unmount();
+    appInstance = null;
+  }
+};
 
-// const app = createApp(App);
-// app.mount("#app");
-
-// export default app;
+export default { mount, unmount };

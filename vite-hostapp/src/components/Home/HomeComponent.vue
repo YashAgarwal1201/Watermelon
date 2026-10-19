@@ -565,12 +565,7 @@
                   >npm run dev</code
                 >
                 <p class="text-sm text-gray-500 dark:text-gray-500">
-                  Uses
-                  <code
-                    class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded"
-                    >vite.dev.config.ts</code
-                  >
-                  — no federation
+                  Runs local dev server with full HMR
                 </p>
               </div>
               <div class="space-y-1">

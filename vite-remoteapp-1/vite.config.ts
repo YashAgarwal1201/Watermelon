@@ -3,6 +3,22 @@ import react from "@vitejs/plugin-react";
 import federation from "@originjs/vite-plugin-federation";
 import tailwindcss from "@tailwindcss/postcss";
 import autoprefixer from "autoprefixer";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const certPath = path.resolve(__dirname, "../certs/localhost.pem");
+const keyPath = path.resolve(__dirname, "../certs/localhost-key.pem");
+const hasCerts = fs.existsSync(certPath) && fs.existsSync(keyPath);
+const httpsConfig = hasCerts
+  ? {
+      cert: fs.readFileSync(certPath),
+      key: fs.readFileSync(keyPath),
+    }
+  : undefined;
 
 // Custom plugin: collects ALL generated CSS from the bundle and injects
 // it as a <style> tag via JS — replaces cssInjectedByJsPlugin entirely.
@@ -82,6 +98,22 @@ export default defineConfig({
       "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
       "Access-Control-Allow-Headers": "*",
     },
+    https: httpsConfig,
+  },
+  preview: {
+    port: 5251,
+    strictPort: true,
+    cors: {
+      origin: "*",
+      methods: ["GET", "OPTIONS", "POST"],
+      allowedHeaders: ["Content-Type"],
+    },
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
+      "Access-Control-Allow-Headers": "*",
+    },
+    https: httpsConfig,
   },
   root: process.cwd(),
   base: "/",
