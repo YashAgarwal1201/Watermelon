@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Polyglot Microfrontend Monorepo (Vue 3 Host + React, Vue, Svelte, SolidJS, Angular Remotes)",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "bash scripts/dev.sh",
     "dev:host": "bash scripts/dev.sh --remote=host",
@@ -13,6 +16,10 @@
     "dev:solid": "bash scripts/dev.sh --remote=v-solid",
     "dev:webpack-react": "bash scripts/dev.sh --remote=w-react",
     "dev:webpack-vue": "bash scripts/dev.sh --remote=w-vue",
+    "dev:wc-lit": "bash scripts/dev.sh --remote=wc-lit",
+    "dev:wc-vue": "bash scripts/dev.sh --remote=wc-vue",
+    "dev:iframe-vite": "bash scripts/dev.sh --remote=iframe-vite",
+    "dev:iframe-nextjs": "bash scripts/dev.sh --remote=iframe-nextjs",
     "dev:all": "bash scripts/start-all.sh",
     "start": "bash scripts/dev.sh",
     "start:all": "bash scripts/start-all.sh",

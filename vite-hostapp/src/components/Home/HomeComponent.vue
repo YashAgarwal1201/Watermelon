@@ -11,7 +11,7 @@
           <span
             class="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse inline-block"
           ></span>
-          Module Federation · Proof of Concept
+          Microfrontends · 3 Paradigms · 10 Remotes
         </div>
         <h1
           class="font-heading text-5xl md:text-7xl bg-gradient-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent leading-tight"
@@ -21,8 +21,8 @@
         <p
           class="text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed"
         >
-          A multi-framework micro-frontend built with Vite — four independent
-          remotes, one host, zero coordination overhead.
+          A polyglot microfrontend platform orchestrating 10 independent remotes across
+          Module Federation, W3C Web Components, and Sandboxed Iframes.
         </p>
       </section>
 
@@ -376,14 +376,125 @@
                 Vue 3 · TypeScript · Webpack 5
               </p>
             </RouterLink>
+
+            <RouterLink
+              to="/remote/angular_remoteapp"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-pink-400 dark:hover:border-pink-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
+            >
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-base font-semibold text-pink-600 dark:text-pink-400"
+                >
+                  Angular
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Element</span
+                  >
+                </span>
+                <span
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-pink-500 transition-colors"
+                  >→</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Angular 20 · Zoneless · Cheat Sheet
+              </p>
+            </RouterLink>
+
+            <RouterLink
+              to="/remote/wc_lit_remoteapp"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-cyan-400 dark:hover:border-cyan-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
+            >
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-base font-semibold text-cyan-600 dark:text-cyan-400"
+                >
+                  Lit 3
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Web Component</span
+                  >
+                </span>
+                <span
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-cyan-500 transition-colors"
+                  >→</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Lit 3 · W3C Custom Element (<span class="font-mono text-xs">&lt;wm-notification-center&gt;</span>)
+              </p>
+            </RouterLink>
+
+            <RouterLink
+              to="/remote/wc_vue_remoteapp"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
+            >
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-base font-semibold text-emerald-600 dark:text-emerald-400"
+                >
+                  Vue 3
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Custom Element</span
+                  >
+                </span>
+                <span
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-emerald-500 transition-colors"
+                  >→</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Vue 3 CE · Reactive Attributes (<span class="font-mono text-xs">&lt;wm-user-profile&gt;</span>)
+              </p>
+            </RouterLink>
+
+            <RouterLink
+              to="/remote/iframe_vite_app"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-amber-400 dark:hover:border-amber-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
+            >
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-base font-semibold text-amber-600 dark:text-amber-400"
+                >
+                  React 19
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Iframe Vite</span
+                  >
+                </span>
+                <span
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-amber-500 transition-colors"
+                  >→</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Asset Manager · Hard Sandbox · WatermelonBridge
+              </p>
+            </RouterLink>
+
+            <RouterLink
+              to="/remote/iframe_nextjs_app"
+              class="group rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:border-indigo-400 dark:hover:border-indigo-600 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1"
+            >
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-base font-semibold text-indigo-600 dark:text-indigo-400"
+                >
+                  Next.js 16
+                  <span class="text-gray-400 dark:text-gray-600 font-normal">
+                    / Iframe Turbopack</span
+                  >
+                </span>
+                <span
+                  class="text-xs text-gray-400 dark:text-gray-600 group-hover:text-indigo-500 transition-colors"
+                  >→</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Analytics Dashboard · App Router · WatermelonBridge
+              </p>
+            </RouterLink>
           </div>
 
           <p class="text-sm text-gray-400 dark:text-gray-600 mt-3 pl-1">
-            Each remote exposes its component via
-            <code
-              class="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
-              >remoteEntry.js</code
-            >, dynamically loaded by this host at runtime.
+            Independent remotes loaded dynamically at runtime via Module Federation, W3C Custom Elements, and Sandboxed Iframes.
           </p>
         </div>
       </section>

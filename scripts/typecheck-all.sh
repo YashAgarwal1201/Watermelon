@@ -31,5 +31,17 @@ echo "  → webpack-remoteapp-2 (tsc)"
 echo "  → angular-remoteapp (tsc)"
 (cd "$ROOT_DIR/angular-remoteapp" && npx tsc --noEmit)
 
+echo "  → wc-lit-app (tsc)"
+(cd "$ROOT_DIR/wc-lit-app" && npx tsc)
+
+echo "  → wc-vue-app (vue-tsc)"
+(cd "$ROOT_DIR/wc-vue-app" && npx vue-tsc -b)
+
+echo "  → iframe-vite-app (tsc)"
+(cd "$ROOT_DIR/iframe-vite-app" && npx tsc -b)
+
+echo "  → iframe-nextjs-app (tsc)"
+(cd "$ROOT_DIR/iframe-nextjs-app" && npx tsc --noEmit)
+
 echo ""
-echo "✅ All 8 applications passed static type-checking!"
+echo "✅ All applications passed static type-checking!"

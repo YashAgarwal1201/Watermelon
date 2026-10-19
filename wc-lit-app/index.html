@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lit Web Component Remote: Notification Center</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, sans-serif;
+        padding: 40px;
+        background: #fafafa;
+        color: #18181b;
+      }
+      body.dark {
+        background: #09090b;
+        color: #f4f4f5;
+      }
+      .card {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 24px;
+        background: #ffffff;
+        border: 1px solid #e4e4e7;
+        border-radius: 12px;
+      }
+      body.dark .card {
+        background: #18181b;
+        border-color: #27272a;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      button.toggle-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+      }
+    </style>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <div class="card">
+      <div class="header">
+        <div>
+          <h2 style="margin: 0 0 4px 0;">Notification Center (Lit 3 Remote)</h2>
+          <p style="margin: 0; color: #71717a; font-size: 13px;">W3C Custom Element: &lt;wm-notification-center&gt;</p>
+        </div>
+        <wm-notification-center id="nc" theme="light"></wm-notification-center>
+      </div>
+      <p style="font-size: 14px; line-height: 1.5;">
+        This Web Component runs independently on port <code>5302</code> and is consumed by <code>vite-hostapp</code> via <code>WebComponentAdapter</code>.
+      </p>
+      <div style="margin-top: 16px;">
+        <button class="toggle-btn" id="themeBtn">Toggle Dark / Light</button>
+        <span id="badgeEventLog" style="margin-left: 12px; font-size: 13px; color: #2563eb; font-weight: 500;"></span>
+      </div>
+    </div>
+
+    <script>
+      const nc = document.getElementById('nc');
+      const btn = document.getElementById('themeBtn');
+      const log = document.getElementById('badgeEventLog');
+
+      btn.addEventListener('click', () => {
+        const isDark = document.body.classList.toggle('dark');
+        nc.setAttribute('theme', isDark ? 'dark' : 'light');
+      });
+
+      window.addEventListener('wm-badge-count', (e) => {
+        log.textContent = `Host caught composed event: wm-badge-count = ${e.detail.count}`;
+      });
+    </script>
+  </body>
+</html>

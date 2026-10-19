@@ -12,6 +12,7 @@
   "dependencies": {
     "@primeuix/themes": "^1.2.2",
     "@tailwindcss/vite": "^4.1.11",
+    "@watermelon/bridge": "file:../packages/watermelon-bridge",
     "lucide-vue-next": "^0.536.0",
     "pinia": "^3.0.3",
     "primeicons": "^7.0.0",

@@ -17,6 +17,10 @@ REMOTES=(
     "webpack-remoteapp-1"
     "webpack-remoteapp-2"
     "angular-remoteapp"
+    "wc-lit-app"
+    "wc-vue-app"
+    "iframe-vite-app"
+    "iframe-nextjs-app"
 )
 
 for REMOTE in "${REMOTES[@]}"; do
@@ -32,4 +36,4 @@ DURATION=$((END_TIME - START_TIME))
 
 echo ""
 echo "─────────────────────────────────────────────────────────────"
-echo "✅ All 8 applications built successfully in ${DURATION}s!"
+echo "✅ All applications built successfully in ${DURATION}s!"

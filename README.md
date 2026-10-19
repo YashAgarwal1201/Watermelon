@@ -1,235 +1,180 @@
-# Watermelon — Microfrontend Architecture Playground
+# Watermelon
 
-A polyglot microfrontend playground demonstrating multiple federation strategies and framework integrations under one monorepo. The Vue 3 host shell seamlessly embeds and orchestrates remote applications built with **React 19**, **Vue 3**, **Svelte 5**, **SolidJS**, and **Angular 20** — each leveraging different bundlers, build tools, and integration patterns.
-
----
-
-## Architecture Overview
-
-```
-                               ┌─────────────────────────────────┐
-                               │           vite-hostapp          │
-                               │      (Vue 3 + PrimeVue 4)       │
-                               │           Port: 5150            │
-                               └───────┬─────────────┬───────────┘
-                                       │             │
-                ┌──────────────────────┴────────┐    │ (Web Component)
-                │      Module Federation        │    ▼
-                ▼                               ▼ ┌─────────────────────┐
-  ┌───────────────────────────┐   ┌─────────────┐ │  angular-remoteapp  │
-  │     Vite Remotes (ESM)    │   │   Webpack   │ │    (Angular 20)     │
-  ├───────────────────────────┤   ├─────────────┤ │     Port: 4201      │
-  │ vite-remoteapp-1 (React)  │   │ webpack-1   │ └─────────────────────┘
-  │ vite-remoteapp-2 (Vue 3)  │   │  (React 19) │
-  │ vite-remoteapp-3 (Svelte) │   │ webpack-2   │
-  │ vite-remoteapp-4 (SolidJS)│   │   (Vue 3)   │
-  └───────────────────────────┘   └─────────────┘
-```
-
-### Integration Strategies
-
-1. **Vite Module Federation (Native ESM)**:
-   - Uses `@originjs/vite-plugin-federation` to expose dynamic ESM remotes.
-   - Unified `vite.config.ts` handles both standalone dev (`server`) and federated remote preview (`preview`) without requiring separate configuration files.
-   - Built-in CSS injection plugins (`injectCssIntoJs` and `cssInjectedByJsPlugin`) bundle component styles directly into the JS entry chunks, preventing style bleed or loss during host client-side route transitions.
-
-2. **Webpack 5 Module Federation (`var` library target)**:
-   - Uses Webpack 5's native `ModuleFederationPlugin` with a global `var` container format for maximum cross-bundler compatibility with Vite host consumers.
-   - Runs on independent Webpack dev servers (`:5161` and `:5162`).
-
-3. **Angular Custom Elements (Web Components)**:
-   - Built with Angular 20 and `@angular/elements`.
-   - Bootstrapped as custom HTML elements (`<app-angular-remote></app-angular-remote>`) that the Vue 3 host renders inside dynamic mounting wrappers.
+A comprehensive polyglot microfrontend architecture monorepo federating and orchestrating **12 independent applications and packages** across three distinct integration paradigms: **Module Federation, W3C Web Components, and Sandboxed Iframes** — featuring bidirectional Shadow DOM style isolation, postMessage bridge communication, cross-framework navigation, and low-memory developer tooling.
 
 ---
 
-## Apps, Frameworks & Ports
+## Why "Watermelon"
 
-| Application | Framework | Bundler | Port | Federation / Integration | Stored In |
-| :--- | :--- | :--- | :---: | :--- | :--- |
-| **`vite-hostapp`** | Vue 3 + Pinia | Vite 7 | `5150` | Host Shell / Consumer | [`vite-hostapp/`](./vite-hostapp) |
-| **`vite-remoteapp-1`** | React 19 + PrimeReact | Vite 7 | `5251` | Vite MF (`./ViteReactRemoteComponent`) | [`vite-remoteapp-1/`](./vite-remoteapp-1) |
-| **`vite-remoteapp-2`** | Vue 3 + PrimeVue | Vite 7 | `5252` | Vite MF (`./ViteVueRemoteComponent`) | [`vite-remoteapp-2/`](./vite-remoteapp-2) |
-| **`vite-remoteapp-3`** | Svelte 5 | Vite 7 | `5253` | Vite MF (`./ViteSvelteRemoteComponent`) | [`vite-remoteapp-3/`](./vite-remoteapp-3) |
-| **`vite-remoteapp-4`** | SolidJS | Vite 7 | `5254` | Vite MF (`./ViteSolidRemoteComponent`) | [`vite-remoteapp-4/`](./vite-remoteapp-4) |
-| **`webpack-remoteapp-1`** | React 19 | Webpack 5 | `5161` | Webpack MF (`./WebpackReactRemoteComponent`) | [`webpack-remoteapp-1/`](./webpack-remoteapp-1) |
-| **`webpack-remoteapp-2`** | Vue 3 | Webpack 5 | `5162` | Webpack MF (`./WebpackVueRemoteComponent`) | [`webpack-remoteapp-2/`](./webpack-remoteapp-2) |
-| **`angular-remoteapp`** | Angular 20 + PrimeNG | Angular CLI | `4201` | Angular Elements Web Component | [`angular-remoteapp/`](./angular-remoteapp) |
+The color palette and visual identity are inspired by the watermelon fruit — crisp emerald greens (`#10b981`) for the host shell and accents, vibrant ruby reds and pinks (`#dd0031`, `#f43f5e`) for brand badges and Angular cheat sheet highlights, with deep obsidian dark mode surfaces (`#090d16`, `#0f172a`) and clean neutrals in both light and dark variants.
+
+---
+
+## Architecture Paradigms at a Glance
+
+Watermelon serves as a production-grade blueprint comparing the three major microfrontend paradigms within a single unified host shell:
+
+```
+                                  ┌────────────────────────┐
+                                  │  vite-hostapp (Port 5150)│
+                                  │  Vue 3 + Pinia + Shell │
+                                  └───────────┬────────────┘
+                                              │
+                      ┌───────────────────────┼───────────────────────┐
+                      │                       │                       │
+                      ▼                       ▼                       ▼
+            [Module Federation]        [Web Components]        [Sandboxed Iframes]
+            Shared JS Heap / ESM     Custom Element Boundary    Hardware Process Sandbox
+            ────────────────────     ───────────────────────    ────────────────────────
+            • Vite + React 19 (5251) • Angular 20 CE (4201)     • Vite React 19 (5300)
+            • Vite + Vue 3.5  (5252) • Lit 3 CE      (5302)     • Next.js 16 App (5301)
+            • Vite + Svelte 5 (5253) • Vue 3 CE      (5303)               │
+            • Vite + SolidJS  (5254)                                      ▼
+            • Webpack + React (5161)                           [@watermelon/bridge]
+            • Webpack + Vue   (5162)                          Typed postMessage bus
+```
+
+### Architectural Paradigm Comparison Matrix
+
+| Dimension | Module Federation | W3C Web Components | Sandboxed Iframes |
+| :--- | :--- | :--- | :--- |
+| **Primary Mechanism** | Runtime ESM / dynamic import | Custom Elements & Shadow DOM | Browser browsing context (`<iframe>`) |
+| **Isolation Level** | Soft (shared window & JS heap) | Medium (DOM & CSS isolated, shared JS heap) | **Hard** (separate process, memory, & globals) |
+| **CSS Encapsulation** | Head interception (`patchHeadToShadow`) | **Native Shadow Root** | **Native Window boundary** |
+| **Cross-Boundary Comms** | Direct JS in-memory calls / store | Custom Events (`dispatchEvent` / `listen`) | **Typed postMessage (`@watermelon/bridge`)** |
+| **Fault Tolerance** | Low (unhandled throw can impact shell) | Medium (element error contained, leaks memory) | **High** (crash isolated inside iframe sandbox) |
+| **Startup / Latency** | **Fastest (~1.8 ms)** | Fast (~2.4 ms) | Moderate (~3.5–4.1 ms) |
+| **Framework Support** | Requires bundler federation plugin | Any framework supporting Custom Elements | **Universal** (Next.js SSR/RSC, Nuxt, legacy, SPA) |
+| **Deep Subrouting** | Basename handshake (`window.BASENAME`) | Basename injection (`APP_BASE_HREF`) | Completely isolated internal URL routing |
+
+---
+
+## Applications & Network Directory
+
+All 11 applications run over local HTTPS with shared trusted certificates (`certs/localhost.pem` and `certs/localhost-key.pem` generated via `mkcert`):
+
+| App Identifier | Directory | Port | Strategy | Framework & Bundler | Purpose |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`host`** | `vite-hostapp` | `5150` | Host Orchestrator | Vue 3.5 + Vite 6 + PrimeVue | Global shell, navbar, theme sync, remote loader |
+| **`v-react`** | `vite-remoteapp-1` | `5251` | Module Federation | React 19.1 + Vite 6 + Tailwind | Product showcase with interactive cart state |
+| **`v-vue`** | `vite-remoteapp-2` | `5252` | Module Federation | Vue 3.5 + Vite 6 + PrimeVue | Subrouted dashboard with localized sub-navigation |
+| **`v-svelte`** | `vite-remoteapp-3` | `5253` | Module Federation | Svelte 5.0 + Vite 6 | Compile-time rune reactivity & counter |
+| **`v-solid`** | `vite-remoteapp-4` | `5254` | Module Federation | SolidJS 1.9 + Vite 6 | Fine-grained signals & DOM benchmarking |
+| **`w-react`** | `webpack-remoteapp-1` | `5161` | Module Federation | React 19 + Webpack 5.98 | Vite-to-Webpack cross-bundler federation |
+| **`w-vue`** | `webpack-remoteapp-2` | `5162` | Module Federation | Vue 3.5 + Webpack 5.98 + SCSS | Webpack 5 Vue 3 federated remote |
+| **`angular`** | `angular-remoteapp` | `4201` | Web Component | Angular 20.3 + Zoneless Elements | 17-topic Angular developer cheat sheet |
+| **`wc-lit`** | `wc-lit-app` | `5302` | Web Component | Lit 3.3 + Vite (Custom Element) | `<wm-notification-center>` notification inbox |
+| **`wc-vue`** | `wc-vue-app` | `5303` | Web Component | Vue 3.5 `defineCustomElement` | `<wm-user-profile>` user card & status toggle |
+| **`iframe-vite`** | `iframe-vite-app` | `5300` | Sandboxed Iframe | React 19 + Vite + Bridge | Asset / Media Manager with internal routing |
+| **`iframe-nextjs`**| `iframe-nextjs-app` | `5301` | Sandboxed Iframe | Next.js 16 App Router + Turbopack | Analytics & Telemetry with SSR/SSG export |
+| **`bridge`** | `packages/watermelon-bridge` | — | Shared Library | TypeScript (ESM + CJS) | Typed postMessage host/client bridge |
+
+---
+
+## Features & Core Mechanics
+
+- **Universal Remote Adapter Pattern** — `RemoteWrapper.vue` delegates mounting and teardown to dedicated strategy adapters (`ModuleFederationAdapter`, `WebComponentAdapter`, `IframeAdapter`), maintaining zero file bloat.
+- **Bidirectional Shadow DOM Style Isolation** — isolates remote components inside an open Shadow Root to eliminate CSS collisions between disparate styling libraries (Tailwind v4, PrimeVue, PrimeReact, PrimeNG, SCSS).
+- **Runtime CSS Interception (`patchHeadToShadow`)** — monkey-patches `document.head` append methods to divert dynamically injected `<style>` and `<link>` tags into the active remote's Shadow DOM.
+- **Module-Level CSS Cache** — persists captured styles across route changes in memory to avoid repetitive style reconstruction.
+- **Universal Bridge Package (`@watermelon/bridge`)** — lightweight, zero-dependency typed postMessage communication bus handling handshake (`ready`), auto-height synchronization (`ResizeObserver`), host theme synchronization, and domain events (`ASSET_SELECTED`, `ANALYTICS_FILTER_CHANGED`).
+- **Complete Blast Radius Containment** — unhandled exceptions inside sandboxed iframes are caught by internal error boundaries, leaving host shell navigation and active tabs completely unaffected.
+- **Angular 20 Developer Cheat Sheet** — curated 17-topic standalone reference covering modern Control Flow (`@if`, `@for`, `@let`), Signals (`signal`, `computed`, `linkedSignal`, `resource`), Component I/O (`input`, `output`, `model`), and `@defer` views.
+- **Dynamic Basename Subrouting** — host injects `window.BASENAME` to enable deep linking and nested subroutes inside embedded microfrontends.
+- **Low-Memory Dev Strategies** — selective dev runner (`scripts/dev.sh`) and unified static remote server (`scripts/serve-remotes.mjs`) reducing RAM consumption from 4+ GB down to **~57 MB**.
+- **End-to-End HTTPS** — all 11 applications serve over trusted local SSL certificates generated via `mkcert`.
 
 ---
 
 ## Getting Started
 
-### ⚡ One-Step Automated Setup
+### 1. Prerequisites
+- **Node.js**: `v24.15.0+` (managed via Volta or nvm)
+- **mkcert**: Required for local trusted HTTPS certificates ([mkcert installation guide](https://github.com/FiloSottile/mkcert))
 
-To install all dependencies, generate trusted local HTTPS certificates (`mkcert`), and configure Git validation hooks:
-
-```sh
+### 2. Initial Setup
+Run the automated monorepo setup:
+```bash
 npm run setup
 ```
+This installs dependencies across all packages, builds `@watermelon/bridge`, generates local SSL certificates in `certs/`, and sets up git validation hooks.
 
-*(Alternatively, run `bash scripts/setup.sh`).*
+### 3. Development Workflows
 
----
+#### Strategy A: Selective Live Dev Mode (Recommended — ~350–650 MB RAM)
+Develop the host shell alongside only the specific remote you are working on:
+```bash
+npm run dev:angular         # Host (5150) + Angular 20 (4201)
+npm run dev:react           # Host (5150) + Vite React (5251)
+npm run dev:vue             # Host (5150) + Vite Vue (5252)
+npm run dev:wc-lit          # Host (5150) + Lit Web Component (5302)
+npm run dev:wc-vue          # Host (5150) + Vue Custom Element (5303)
+npm run dev:iframe-vite     # Host (5150) + Vite Iframe (5300)
+npm run dev:iframe-nextjs   # Host (5150) + Next.js Iframe (5301)
+```
+Or run `npm run dev` in an interactive terminal to choose from an interactive CLI menu.
 
-## Running the Federation System
-
-### Option A — Selective Development Runner (Recommended, Low Memory)
-
-Instead of running 8 heavy bundlers and compilers simultaneously (which requires 3+ GB RAM), develop only the application you are actively editing while serving the remaining remotes statically from a **single ultra-lightweight process (~40 MB RAM)**:
-
-```sh
-npm run dev
+#### Strategy B: Lightweight All-Remotes Mode (~57 MB RAM)
+Runs the live host shell while serving all 10 remotes statically in a single Node.js process:
+```bash
+npm run build:all           # Build all applications once
+npm run dev:host            # Launches unified static remotes (57 MB RAM) + live host (5150)
 ```
 
-This opens an interactive menu:
-```
-🍉 Watermelon Microfrontends — Selective Development Runner
-  [1] Host Shell Only      (All 7 remotes static)    ~200 MB RAM
-  [2] Angular Remote       (Host + Angular live)     ~650 MB RAM
-  [3] Vite React Remote    (Host + React live)       ~350 MB RAM
-  [4] Vite Vue Remote      (Host + Vue live)         ~350 MB RAM
-  [5] Vite Svelte Remote   (Host + Svelte live)      ~350 MB RAM
-  [6] Vite Solid Remote    (Host + Solid live)       ~350 MB RAM
-  [7] Webpack React Remote (Host + W-React live)     ~500 MB RAM
-  [8] Webpack Vue Remote   (Host + W-Vue live)       ~500 MB RAM
-  [9] ALL 8 Live Bundlers  (Heavy full stack mode)   ~2.5 GB RAM
-```
-
-#### Dedicated Direct Commands:
-```sh
-npm run dev:host           # Develop host app with all 7 remotes served statically (~200 MB RAM)
-npm run dev:angular        # Live Angular 20 development + Host (~650 MB RAM)
-npm run dev:react          # Live React 19 development + Host (~350 MB RAM)
-npm run dev:vue            # Live Vue 3 remote + Host (~350 MB RAM)
-npm run dev:svelte         # Live Svelte 5 remote + Host (~350 MB RAM)
-npm run dev:solid          # Live SolidJS remote + Host (~350 MB RAM)
-npm run dev:webpack-react  # Live Webpack React + Host (~500 MB RAM)
-npm run dev:webpack-vue    # Live Webpack Vue + Host (~500 MB RAM)
-```
-
----
-
-### Option B — Serve All Prebuilt Remotes Statically (Zero Watchers)
-
-If you just want all 7 remotes available on their respective ports (`5251`, `5252`, `5253`, `5254`, `5161`, `5162`, `4201`) without running 7 separate Node processes:
-
-```sh
-npm run serve:remotes
-```
-
-- Replaces 7 separate Node.js dev/preview servers with **1 single Node.js process**.
-- Serves all 7 remotes over HTTPS with proper CORS headers in **~45 MB total RAM** (98% reduction from 2.5 GB).
-
----
-
-### Option C — Launch All 8 Applications Together (Full-Stack Live Mode)
-
-If you have a machine with 16GB+ RAM and need live compilers running for every application concurrently:
-
-```sh
+#### Strategy C: Full Concurrent Mode (High RAM ~3+ GB)
+Launches all applications in preview/live mode concurrently:
+```bash
 npm run start:all
-# or
-npm run dev:all
-```
-
-- Sequentially verifies prebuilt bundles before launching to prevent initial CPU compile storms.
-- Starts host shell (`vite-hostapp`) and all 7 remotes concurrently over HTTPS.
-- Pressing `Ctrl+C` cleanly shuts down all applications without leaving orphaned processes.
-
-Then open **`https://localhost:5150`** in your browser.
-
----
-
-## Monorepo Orchestration Scripts
-
-| Command | Script | Description |
-| :--- | :--- | :--- |
-| `npm run dev` | `scripts/dev.sh` | Interactive selective development runner (70–90% RAM reduction) |
-| `npm run dev:angular` | `scripts/dev.sh --remote=angular` | Host + live Angular 20 cheat sheet, other remotes static |
-| `npm run serve:remotes` | `scripts/serve-remotes.mjs` | Unified static HTTPS server for all 7 remotes (~45 MB RAM) |
-| `npm run start:all` | `scripts/start-all.sh` | Concurrently boots host shell and all 7 remotes over HTTPS |
-| `npm run build:all` | `scripts/build-all.sh` | Builds all 8 applications for production sequentially |
-| `npm run check:all` | `scripts/typecheck-all.sh` | Runs static typechecks across all 8 applications |
-| `npm run clean:all` | `scripts/clean-all.sh` | Removes `dist/`, `.angular/`, and build artifacts across all apps |
-| `npm run kill:ports` | `scripts/kill-ports.sh` | Frees all 8 application ports if held by lingering processes |
-| `npm run generate-certs` | `scripts/generate-certs.sh` | Generates local mkcert SSL certificates in `certs/` |
-| `npm run setup-hooks` | `scripts/setup-hooks.sh` | Configures local git pre-push validation hook |
-| `npm run test:e2e` | `playwright test` | Runs automated E2E integration tests against host shell and all 7 remotes |
-
----
-
-## Memory Footprint & Architecture
-
-Running multiple independent bundlers and servers in a polyglot microfrontend monorepo is one of the heaviest workloads a local development environment can encounter.
-
-### The Memory Problem in Microfrontends
-When running in monolithic "all live" mode, the local machine runs:
-- 1 Vite Vue host instance
-- 4 Vite preview / dev servers
-- 2 Webpack 5 dev servers with in-memory ASTs, Babel transpilers, and module graphs
-- 1 Angular CLI dev server with esbuild + Angular AOT compiler
-
-This creates **8 separate Node runtimes**, easily exceeding **2.5–3.5 GB of RAM** and spiking CPU during parallel startup compilations, leading to OS swap thrashing and desktop lag.
-
-### The Solution: Targeted Development
-1. **Unified Multiplexed Static Server (`scripts/serve-remotes.mjs`)**:
-   Instead of launching 7 separate Node runtimes for remotes that are not currently being edited, a single Node process serves all prebuilt `dist/` folders across ports `5251`, `5252`, `5253`, `5254`, `5161`, `5162`, and `4201`.
-   **Memory drops from ~2,500 MB to ~45 MB.**
-
-2. **Selective Dev Runner (`scripts/dev.sh`)**:
-   Leaves the designated port open for the remote being actively developed, connecting it to live HMR while serving the rest statically.
-   **Total active RAM drops to ~350 MB – 650 MB.**
-
-3. **Graceful Host Fallback**:
-   If a remote is offline or unreachable, `RemoteWrapper.vue` displays an informative card with the exact CLI command to start that remote, rather than crashing.
-
----
-
-## Standalone Development (Isolated HMR)
-
-To develop or debug any **Vite remote** in isolation as a standalone SPA with fast unbundled HMR:
-
-```sh
-cd vite-remoteapp-N && npm run dev
-```
-
-- Runs on the app's designated port (`5251`, `5252`, `5253`, `5254`) using the unified [`vite.config.ts`](file:///home/yash-agarwal/Watermelon/vite-remoteapp-1/vite.config.ts).
-- Automatically sets local fallback routing without requiring host context.
-- Use `npm start` (`build` + `preview`) whenever integrating with the host shell.
-
----
-
-## Git Pre-Push Guard
-
-To ensure code health before any commit is pushed to the remote repository, a pre-push guard validates types, linting, and production builds across all 8 apps.
-
-### Installing the Hook Locally
-
-```sh
-bash scripts/setup-hooks.sh
-```
-
-### What Runs on `git push`
-
-The hook executes a 3-phase fail-fast verification:
-1. **Static Type Checking (All 8 apps)**: `vue-tsc -b`, `tsc -b`, and `svelte-check`.
-2. **Linting**: ESLint checks on configured workspaces.
-3. **Production Builds (All 8 apps)**: Verifies that Rollup, Webpack, and Angular CLI generate all bundles and `remoteEntry.js` contracts with exit code `0`.
-
-To run the verification manually at any time:
-```sh
-./scripts/git-hooks/pre-push
 ```
 
 ---
 
-## Monorepo Tech Stack
+## Testing & Quality Assurance
 
-- **Host Framework**: Vue 3, Vue Router, Pinia, PrimeVue 4, Tailwind CSS v4
-- **Remote Frameworks**: React 19, Vue 3, Svelte 5, SolidJS, Angular 20
-- **Build Tools**: Vite 7, Webpack 5, Angular CLI (esbuild + Karma)
-- **Federation Libraries**: `@originjs/vite-plugin-federation`, Webpack `ModuleFederationPlugin`, `@angular/elements`
-- **Styling**: Tailwind CSS v4, PostCSS, PrimeFlex, PrimeIcons
-- **TypeScript**: Strict typechecking across all sub-applications
-- **Runtime**: Node.js `>= 24.15.0` (managed via Volta)
+```bash
+# Monorepo-wide static type-checking (vue-tsc, tsc, svelte-check)
+npm run check:all
+
+# Production build across all 12 projects
+npm run build:all
+
+# Playwright end-to-end integration test suite
+npm run test:e2e
+```
+
+---
+
+## Repository Structure
+
+```
+Watermelon/
+  certs/                       # Trusted local SSL certificates (localhost.pem, localhost-key.pem)
+  e2e/                         # Playwright integration & federation test suite
+  packages/
+    watermelon-bridge/         # @watermelon/bridge typed postMessage communication bus
+  scripts/                     # Automation scripts (dev.sh, build-all.sh, typecheck-all.sh, etc.)
+  vite-hostapp/                # Vue 3 Host Shell (Port 5150)
+    src/
+      RemoteWrapper/           # Multi-paradigm mounting engine
+        adapters/              # BaseAdapter, ModuleFederationAdapter, WebComponentAdapter, IframeAdapter
+        shadow/                # Shadow DOM builder, patchHeadToShadow, CSS cache
+      components/              # Home dashboard, side menu, navigation bar
+      composables/             # Theme & UI state
+  vite-remoteapp-1/            # React 19 Remote (Vite MF, Port 5251)
+  vite-remoteapp-2/            # Vue 3.5 Remote (Vite MF, Port 5252)
+  vite-remoteapp-3/            # Svelte 5 Remote (Vite MF, Port 5253)
+  vite-remoteapp-4/            # SolidJS Remote (Vite MF, Port 5254)
+  webpack-remoteapp-1/         # Webpack 5 + React 19 Remote (Port 5161)
+  webpack-remoteapp-2/         # Webpack 5 + Vue 3.5 Remote (Port 5162)
+  angular-remoteapp/           # Angular 20 Zoneless Cheat Sheet CE (Port 4201)
+  wc-lit-app/                  # Lit 3 Notification Center CE (Port 5302)
+  wc-vue-app/                  # Vue 3 Custom Element User Profile (Port 5303)
+  iframe-vite-app/             # React 19 Asset Manager Iframe (Port 5300)
+  iframe-nextjs-app/           # Next.js 16 App Router Analytics Iframe (Port 5301)
+```
+
+---
+
+## Architecture Specifications
+
+For detailed architectural diagrams, Shadow DOM CSS interception mechanics, lifecycle teardown, and federation constraints, see [SPEC.md](./SPEC.md).

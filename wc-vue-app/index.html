@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue Custom Element Remote: User Profile Card</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, sans-serif;
+        padding: 40px;
+        background: #fafafa;
+        color: #18181b;
+      }
+      body.dark {
+        background: #09090b;
+        color: #f4f4f5;
+      }
+      .card {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 24px;
+        background: #ffffff;
+        border: 1px solid #e4e4e7;
+        border-radius: 12px;
+      }
+      body.dark .card {
+        background: #18181b;
+        border-color: #27272a;
+      }
+      .controls {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      button.btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid #d4d4d8;
+        background: #f4f4f5;
+        color: #18181b;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      body.dark button.btn {
+        background: #27272a;
+        border-color: #3f3f46;
+        color: #f4f4f5;
+      }
+      .event-log {
+        margin-top: 16px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 13px;
+        font-family: monospace;
+        display: none;
+      }
+      body.dark .event-log {
+        background: #1e293b;
+        color: #60a5fa;
+      }
+    </style>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <div class="card">
+      <div style="margin-bottom: 20px;">
+        <h2 style="margin: 0 0 4px 0;">User Profile Card (Vue 3 defineCustomElement)</h2>
+        <p style="margin: 0; color: #71717a; font-size: 13px;">W3C Custom Element: &lt;wm-user-profile&gt;</p>
+      </div>
+
+      <wm-user-profile
+        id="profile"
+        user-name="Alex Johnson"
+        user-role="Staff Software Engineer"
+        status="online"
+        theme="light"
+      ></wm-user-profile>
+
+      <div class="controls">
+        <button class="btn" id="themeBtn">Toggle Dark / Light</button>
+        <button class="btn" id="statusBtn">Cycle Status</button>
+        <button class="btn" id="nameBtn">Change User Name</button>
+      </div>
+
+      <div class="event-log" id="eventLog"></div>
+    </div>
+
+    <script>
+      const profile = document.getElementById("profile");
+      const themeBtn = document.getElementById("themeBtn");
+      const statusBtn = document.getElementById("statusBtn");
+      const nameBtn = document.getElementById("nameBtn");
+      const eventLog = document.getElementById("eventLog");
+
+      const statuses = ["online", "away", "offline"];
+      let statusIdx = 0;
+
+      const names = [
+        ["Alex Johnson", "Staff Software Engineer"],
+        ["Sarah Chen", "Principal Architect"],
+        ["Marcus Miller", "DevOps Lead"],
+      ];
+      let nameIdx = 0;
+
+      themeBtn.addEventListener("click", () => {
+        const isDark = document.body.classList.toggle("dark");
+        profile.setAttribute("theme", isDark ? "dark" : "light");
+      });
+
+      statusBtn.addEventListener("click", () => {
+        statusIdx = (statusIdx + 1) % statuses.length;
+        profile.setAttribute("status", statuses[statusIdx]);
+      });
+
+      nameBtn.addEventListener("click", () => {
+        nameIdx = (nameIdx + 1) % names.length;
+        profile.setAttribute("user-name", names[nameIdx][0]);
+        profile.setAttribute("user-role", names[nameIdx][1]);
+      });
+
+      profile.addEventListener("wm-signout", (e) => {
+        eventLog.style.display = "block";
+        eventLog.textContent = `Event caught: wm-signout from "${e.detail?.userName}" at ${new Date(e.detail?.timestamp).toLocaleTimeString()}`;
+      });
+    </script>
+  </body>
+</html>

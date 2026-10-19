@@ -26,6 +26,12 @@ test.describe("Watermelon Microfrontend Federation", () => {
     await expect(
       page.getByRole("listitem", { name: "Open Angular Remote" })
     ).toBeVisible();
+    await expect(
+      page.getByRole("listitem", { name: "Open Vite Iframe Asset Manager" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("listitem", { name: "Open Next.js Iframe Analytics" })
+    ).toBeVisible();
   });
 
   const remotes = [
@@ -57,6 +63,22 @@ test.describe("Watermelon Microfrontend Federation", () => {
       id: "angular_remoteapp",
       name: "Angular 20 Remote (Web Component)",
     },
+    {
+      id: "wc_lit_remoteapp",
+      name: "Lit 3 Remote (Web Component)",
+    },
+    {
+      id: "wc_vue_remoteapp",
+      name: "Vue 3 Custom Element Remote (Web Component)",
+    },
+    {
+      id: "iframe_vite_app",
+      name: "Vite + React 19 Iframe Remote",
+    },
+    {
+      id: "iframe_nextjs_app",
+      name: "Next.js 16 App Router Iframe Remote",
+    },
   ];
 
   for (const remote of remotes) {
@@ -86,4 +108,103 @@ test.describe("Watermelon Microfrontend Federation", () => {
       expect(childCount).toBeGreaterThan(0);
     });
   }
+
+  test("4. Iframe Remote: Asset Manager loads inside iframe and isolates errors", async ({ page }) => {
+    await page.goto("/remote/iframe_vite_app", { waitUntil: "networkidle" });
+
+    // Host heading should still be visible
+    await expect(page.locator(".remote-wrapper h1").first()).toBeVisible();
+
+    // Find the iframe inside the shadow root of .remote-container
+    const iframeElement = page.locator(".remote-container iframe");
+    await expect(iframeElement).toBeVisible();
+
+    // Access frame content
+    const frame = page.frameLocator(".remote-container iframe");
+
+    // Asset Manager title should be visible inside iframe
+    await expect(frame.getByRole("heading", { name: "Asset / Media Manager" })).toBeVisible();
+
+    // Open asset details (internal client routing demonstration)
+    const heroAsset = frame.getByText("hero-banner-v2.webp").first();
+    await expect(heroAsset).toBeVisible();
+    await heroAsset.click();
+
+    // Verify internal detail route is rendered
+    await expect(frame.getByText("Internal Route:")).toBeVisible();
+
+    // Click "Select This Asset for Host" to emit bridge message
+    const selectBtn = frame.getByRole("button", { name: /Select This Asset for Host/i });
+    await expect(selectBtn).toBeVisible();
+    await selectBtn.click();
+
+    // Verify bridge event banner is rendered
+    await expect(frame.getByText("Bridge PostMessage Emitted:")).toBeVisible();
+    await expect(frame.locator(".event-banner code")).toContainText("hero-banner-v2.webp");
+
+    // Navigate back to grid
+    const backBtn = frame.getByRole("button", { name: /Back to Asset Grid/i });
+    await expect(backBtn).toBeVisible();
+    await backBtn.click();
+
+    // Test crash isolation inside iframe
+    const crashBtn = frame.getByRole("button", { name: /Simulate Remote Crash/i });
+    await expect(crashBtn).toBeVisible();
+    await crashBtn.click();
+
+    // Internal RemoteErrorBoundary should catch the error without breaking host
+    await expect(frame.getByText("Simulated Remote Exception Caught")).toBeVisible();
+    await expect(page.locator(".remote-wrapper h1").first()).toBeVisible();
+
+    // Recover from error
+    const recoverBtn = frame.getByRole("button", { name: /Recover Remote/i });
+    await expect(recoverBtn).toBeVisible();
+    await recoverBtn.click();
+
+    // Asset manager heading returns
+    await expect(frame.getByRole("heading", { name: "Asset / Media Manager" })).toBeVisible();
+  });
+
+  test("5. Iframe Remote: Next.js Analytics Dashboard loads inside iframe and isolates errors", async ({ page }) => {
+    await page.goto("/remote/iframe_nextjs_app", { waitUntil: "networkidle" });
+
+    // Host heading should still be visible
+    await expect(page.locator(".remote-wrapper h1").first()).toBeVisible();
+
+    // Find the iframe inside the shadow root of .remote-container
+    const iframeElement = page.locator(".remote-container iframe");
+    await expect(iframeElement).toBeVisible();
+
+    // Access frame content
+    const frame = page.frameLocator(".remote-container iframe");
+
+    // Dashboard heading should be visible inside iframe
+    await expect(frame.getByRole("heading", { name: "Analytics & Telemetry Dashboard" })).toBeVisible();
+
+    // Click 30D time range selector
+    const range30d = frame.getByRole("button", { name: "30D" });
+    await expect(range30d).toBeVisible();
+    await range30d.click();
+
+    // Verify bridge event banner is rendered
+    await expect(frame.getByText("Bridge PostMessage Emitted:")).toBeVisible();
+    await expect(frame.locator(".event-banner code")).toContainText('ANALYTICS_FILTER_CHANGED: range="30d"');
+
+    // Test crash isolation inside iframe
+    const crashBtn = frame.getByRole("button", { name: /Simulate Remote Crash/i });
+    await expect(crashBtn).toBeVisible();
+    await crashBtn.click();
+
+    // Internal RemoteErrorBoundary should catch the error without breaking host
+    await expect(frame.getByText("Simulated Remote Exception Caught")).toBeVisible();
+    await expect(page.locator(".remote-wrapper h1").first()).toBeVisible();
+
+    // Recover from error
+    const recoverBtn = frame.getByRole("button", { name: /Recover Remote/i });
+    await expect(recoverBtn).toBeVisible();
+    await recoverBtn.click();
+
+    // Dashboard heading returns
+    await expect(frame.getByRole("heading", { name: "Analytics & Telemetry Dashboard" })).toBeVisible();
+  });
 });

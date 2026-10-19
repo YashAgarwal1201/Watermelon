@@ -14,7 +14,7 @@
             <div class="w-8 h-px bg-pink-500"></div>
             <span
               class="text-xs font-semibold uppercase tracking-widest text-pink-500 dark:text-pink-400"
-              >Module Federation</span
+              >Microfrontends & Isolation</span
             >
           </div>
           <h1
@@ -25,13 +25,8 @@
           <p
             class="text-base text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed"
           >
-            Seven independent remotes across four frameworks and two bundlers,
-            each exposing its component via
-            <code
-              class="text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
-              >remoteEntry.js</code
-            >
-            and loaded by this host at runtime.
+            Independent remotes across Module Federation, W3C Web Components,
+            and Sandboxed Iframes, loaded seamlessly by this host at runtime.
           </p>
         </div>
       </section>
@@ -146,22 +141,83 @@
         </div>
       </section>
 
-      <!-- ── Other Remotes ── -->
-      <section class="space-y-4" aria-labelledby="other-remotes-heading">
+      <!-- ── Web Components ── -->
+      <section class="space-y-4" aria-labelledby="wc-remotes-heading">
         <div class="space-y-1">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-px bg-pink-500"></div>
+            <div class="w-8 h-px bg-purple-500"></div>
             <span
-              id="other-remotes-heading"
-              class="text-xs font-semibold uppercase tracking-widest text-pink-500 dark:text-pink-400"
-              >Other</span
+              id="wc-remotes-heading"
+              class="text-xs font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400"
+              >Web Components</span
             >
           </div>
+          <p class="text-sm text-gray-400 dark:text-gray-600 pl-11">
+            W3C standard Custom Elements with Shadow DOM isolation
+          </p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="list">
           <button
-            v-for="app in otherRemotes"
+            v-for="app in webComponentRemotes"
+            :key="app.name"
+            role="listitem"
+            :disabled="app.disabled"
+            class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
+            :class="app.hoverBorderClass"
+            :aria-label="`Open ${app.displayName}${app.disabled ? ' – unavailable' : ''}`"
+            @click="!app.disabled && goToRemote(app.name)"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span
+                class="text-base font-semibold leading-snug"
+                :class="app.accentClass"
+              >
+                {{ app.framework }}
+                <span class="text-gray-400 dark:text-gray-600 font-normal"
+                  >/ {{ app.bundler }}</span
+                >
+              </span>
+              <span
+                v-if="app.disabled"
+                class="shrink-0 text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700"
+              >
+                WIP
+              </span>
+              <span
+                v-else
+                class="shrink-0 text-gray-400 dark:text-gray-600 transition-colors"
+                :class="app.arrowHoverClass"
+                aria-hidden="true"
+                >→</span
+              >
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {{ app.description }}
+            </p>
+          </button>
+        </div>
+      </section>
+
+      <!-- ── Sandboxed Iframes ── -->
+      <section class="space-y-4" aria-labelledby="iframe-remotes-heading">
+        <div class="space-y-1">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-px bg-amber-500"></div>
+            <span
+              id="iframe-remotes-heading"
+              class="text-xs font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400"
+              >Sandboxed Iframes</span
+            >
+          </div>
+          <p class="text-sm text-gray-400 dark:text-gray-600 pl-11">
+            Hard process & security isolation with bidirectional postMessage bridge
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="list">
+          <button
+            v-for="app in iframeRemotes"
             :key="app.name"
             role="listitem"
             :disabled="app.disabled"
@@ -287,7 +343,7 @@ const webpackRemotes = [
   },
 ];
 
-const otherRemotes = [
+const webComponentRemotes = [
   {
     name: "angular_remoteapp",
     displayName: "Angular Remote",
@@ -297,6 +353,53 @@ const otherRemotes = [
     accentClass: "text-pink-600 dark:text-pink-400",
     hoverBorderClass: "hover:border-pink-400 dark:hover:border-pink-600",
     arrowHoverClass: "group-hover:text-pink-500",
+    disabled: false,
+  },
+  {
+    name: "wc_lit_remoteapp",
+    displayName: "Lit Web Component",
+    framework: "Lit 3",
+    bundler: "Vite",
+    description: "Lit 3 · W3C Custom Element (<wm-notification-center>)",
+    accentClass: "text-cyan-600 dark:text-cyan-400",
+    hoverBorderClass: "hover:border-cyan-400 dark:hover:border-cyan-600",
+    arrowHoverClass: "group-hover:text-cyan-500",
+    disabled: false,
+  },
+  {
+    name: "wc_vue_remoteapp",
+    displayName: "Vue Custom Element",
+    framework: "Vue 3",
+    bundler: "Vite",
+    description: "Vue 3 · W3C Custom Element (<wm-user-profile>)",
+    accentClass: "text-emerald-600 dark:text-emerald-400",
+    hoverBorderClass: "hover:border-emerald-400 dark:hover:border-emerald-600",
+    arrowHoverClass: "group-hover:text-emerald-500",
+    disabled: false,
+  },
+];
+
+const iframeRemotes = [
+  {
+    name: "iframe_vite_app",
+    displayName: "Vite Iframe Asset Manager",
+    framework: "React 19",
+    bundler: "Vite (Iframe)",
+    description: "Asset / Media Manager · Hard sandbox · WatermelonBridge",
+    accentClass: "text-amber-600 dark:text-amber-400",
+    hoverBorderClass: "hover:border-amber-400 dark:hover:border-amber-600",
+    arrowHoverClass: "group-hover:text-amber-500",
+    disabled: false,
+  },
+  {
+    name: "iframe_nextjs_app",
+    displayName: "Next.js Iframe Analytics",
+    framework: "Next.js 16",
+    bundler: "Turbopack (Iframe)",
+    description: "Analytics / Metrics Dashboard · Next.js App Router · WatermelonBridge",
+    accentClass: "text-indigo-600 dark:text-indigo-400",
+    hoverBorderClass: "hover:border-indigo-400 dark:hover:border-indigo-600",
+    arrowHoverClass: "group-hover:text-indigo-500",
     disabled: false,
   },
 ];

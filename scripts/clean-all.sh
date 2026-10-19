@@ -14,10 +14,15 @@ APPS=(
     "webpack-remoteapp-1"
     "webpack-remoteapp-2"
     "angular-remoteapp"
+    "wc-lit-app"
+    "wc-vue-app"
+    "iframe-vite-app"
+    "iframe-nextjs-app"
+    "packages/watermelon-bridge"
 )
 
 for APP in "${APPS[@]}"; do
-    rm -rf "$ROOT_DIR/$APP/dist" "$ROOT_DIR/$APP/dist-ssr" "$ROOT_DIR/$APP/.angular"
+    rm -rf "$ROOT_DIR/$APP/dist" "$ROOT_DIR/$APP/dist-ssr" "$ROOT_DIR/$APP/.angular" "$ROOT_DIR/$APP/.next" "$ROOT_DIR/$APP/out"
 done
 
 echo "✅ Cleaned all dist/ and build artifact directories."

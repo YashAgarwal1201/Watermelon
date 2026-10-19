@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PORTS=(5150 5251 5252 5253 5254 5161 5162 4201)
+PORTS=(5150 5251 5252 5253 5254 5161 5162 4201 5300 5301 5302 5303)
 
 echo "🔍 Checking for processes listening on Watermelon ports: ${PORTS[*]}..."
 

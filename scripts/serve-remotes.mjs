@@ -83,6 +83,30 @@ const REMOTE_CONFIGS = [
     port: 4201,
     distDir: path.join(ROOT_DIR, 'angular-remoteapp', 'dist', 'angular-remoteapp', 'browser'),
   },
+  {
+    name: 'wc-lit-app',
+    aliases: ['wc-lit', 'lit', '5302'],
+    port: 5302,
+    distDir: path.join(ROOT_DIR, 'wc-lit-app', 'dist'),
+  },
+  {
+    name: 'wc-vue-app',
+    aliases: ['wc-vue', 'vue-wc', '5303'],
+    port: 5303,
+    distDir: path.join(ROOT_DIR, 'wc-vue-app', 'dist'),
+  },
+  {
+    name: 'iframe-vite-app',
+    aliases: ['iframe-vite', 'iframe-react', '5300'],
+    port: 5300,
+    distDir: path.join(ROOT_DIR, 'iframe-vite-app', 'dist'),
+  },
+  {
+    name: 'iframe-nextjs-app',
+    aliases: ['iframe-nextjs', 'iframe-next', 'nextjs', '5301'],
+    port: 5301,
+    distDir: path.join(ROOT_DIR, 'iframe-nextjs-app', 'out'),
+  },
 ];
 
 // Check HTTPS certificates
@@ -104,11 +128,12 @@ function isExcluded(config) {
 
 function createStaticHandler(distDir, appName, port) {
   return (req, res) => {
-    // Universal CORS headers for microfrontends
+    // Universal CORS and Framing headers for microfrontends
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
     res.setHeader('Access-Control-Allow-Headers', '*');
     res.setHeader('Timing-Allow-Origin', '*');
+    res.setHeader('Content-Security-Policy', "frame-ancestors 'self' https://localhost:5150 https://localhost:5173 *");
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
