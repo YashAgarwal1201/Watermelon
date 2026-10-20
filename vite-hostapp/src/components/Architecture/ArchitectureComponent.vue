@@ -8,7 +8,7 @@
       <!-- ── HERO ── -->
       <header class="text-center space-y-5">
         <div
-          class="inline-flex items-center gap-2 text-xs sm:text-sm font-medium px-3.5 py-1.5 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800/80 shadow-xs"
+          class="inline-flex items-center gap-2 text-sm font-semibold px-4 py-1.5 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800/80 shadow-xs"
         >
           <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
           Architectural Deep Dive · Polyglot Monorepo Case Study
@@ -40,7 +40,7 @@
             <p class="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-white">
               {{ stat.value }}
             </p>
-            <p class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
               {{ stat.label }}
             </p>
           </div>
@@ -59,7 +59,7 @@
             :data-nav-section="section.id"
             type="button"
             @click="scrollToSection(section.id)"
-            class="text-xs sm:text-sm font-medium px-3 sm:px-4 py-1.5 rounded-full border transition-all whitespace-nowrap shrink-0 cursor-pointer focus:outline-hidden"
+            class="text-sm font-medium px-3.5 sm:px-4 py-1.5 rounded-full border transition-all whitespace-nowrap shrink-0 cursor-pointer focus:outline-hidden"
             :class="
               activeSection === section.id
                 ? 'bg-pink-600 dark:bg-pink-500 border-pink-600 dark:border-pink-500 text-white shadow-xs font-semibold'
@@ -79,14 +79,14 @@
         <div class="space-y-2">
           <div class="flex items-center gap-3">
             <div class="w-8 h-px bg-pink-500"></div>
-            <span class="text-xs font-semibold uppercase tracking-widest text-pink-600 dark:text-pink-400">
+            <span class="text-sm font-semibold uppercase tracking-widest text-pink-600 dark:text-pink-400">
               Architectural Decisions
             </span>
           </div>
           <h2 class="text-2xl sm:text-4xl font-bold font-heading text-gray-900 dark:text-white">
             1. The 3-Paradigm Comparison Matrix
           </h2>
-          <p class="text-base text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
+          <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
             There is no single "silver bullet" microfrontend technology. Watermelon demonstrates how three distinct paradigms
             complement each other across real-world organizational and technical requirements.
           </p>
@@ -103,12 +103,12 @@
             <div class="space-y-4">
               <div class="flex items-center justify-between">
                 <span
-                  class="text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md"
+                  class="text-sm font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md"
                   :class="paradigm.badgeClass"
                 >
                   {{ paradigm.tag }}
                 </span>
-                <span class="text-xs font-mono text-gray-400 dark:text-gray-500">
+                <span class="text-sm font-mono text-gray-500 dark:text-gray-400">
                   {{ paradigm.remotesCount }} Remotes
                 </span>
               </div>
@@ -117,26 +117,26 @@
                 {{ paradigm.title }}
               </h3>
 
-              <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
                 {{ paradigm.description }}
               </p>
 
-              <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <div class="space-y-2.5 pt-2 border-t border-gray-100 dark:border-gray-800">
+                <p class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Key Strengths
                 </p>
-                <ul class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                <ul class="text-sm sm:text-base text-gray-700 dark:text-gray-300 space-y-2">
                   <li v-for="strength in paradigm.strengths" :key="strength" class="flex gap-2 items-start">
-                    <Check :size="16" class="text-green-500 font-bold shrink-0 mt-0.5" />
+                    <Check :size="18" class="text-green-500 font-bold shrink-0 mt-0.5" />
                     <span>{{ strength }}</span>
                   </li>
                 </ul>
               </div>
             </div>
 
-            <div class="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800 text-xs">
+            <div class="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800 text-sm">
               <span class="font-semibold text-gray-700 dark:text-gray-300">Used for: </span>
-              <span class="text-gray-500 dark:text-gray-400">{{ paradigm.usedFor }}</span>
+              <span class="text-gray-600 dark:text-gray-400">{{ paradigm.usedFor }}</span>
             </div>
           </article>
         </div>
@@ -144,13 +144,13 @@
         <!-- Comprehensive Evaluation Table -->
         <div class="rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-900/30">
           <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-            <h3 class="text-base font-semibold text-gray-900 dark:text-white font-heading">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white font-heading">
               Detailed Feature & Trade-off Matrix
             </h3>
           </div>
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead class="bg-gray-50/50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 font-medium text-xs uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">
+            <table class="w-full text-left text-sm sm:text-base">
+              <thead class="bg-gray-50/50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300 font-bold text-sm uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">
                 <tr>
                   <th scope="col" class="py-3.5 px-6">Evaluation Criteria</th>
                   <th scope="col" class="py-3.5 px-6">Module Federation</th>
@@ -163,13 +163,13 @@
                   <th scope="row" class="py-4 px-6 font-semibold text-gray-900 dark:text-white whitespace-nowrap">
                     {{ row.criteria }}
                   </th>
-                  <td class="py-4 px-6 text-gray-600 dark:text-gray-300">
+                  <td class="py-4 px-6 text-gray-700 dark:text-gray-300">
                     {{ row.mf }}
                   </td>
-                  <td class="py-4 px-6 text-gray-600 dark:text-gray-300">
+                  <td class="py-4 px-6 text-gray-700 dark:text-gray-300">
                     {{ row.wc }}
                   </td>
-                  <td class="py-4 px-6 text-gray-600 dark:text-gray-300">
+                  <td class="py-4 px-6 text-gray-700 dark:text-gray-300">
                     {{ row.iframe }}
                   </td>
                 </tr>
@@ -184,15 +184,15 @@
         <div class="space-y-2">
           <div class="flex items-center gap-3">
             <div class="w-8 h-px bg-red-500"></div>
-            <span class="text-xs font-semibold uppercase tracking-widest text-red-600 dark:text-red-400">
+            <span class="text-sm font-semibold uppercase tracking-widest text-red-600 dark:text-red-400">
               Under The Hood
             </span>
           </div>
           <h2 class="text-2xl sm:text-4xl font-bold font-heading text-gray-900 dark:text-white">
             2. Runtime Lifecycle Mechanics
           </h2>
-          <p class="text-base text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
-            The host application abstracts mounting details behind a polymorphic <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">BaseAdapter</code> contract.
+          <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
+            The host application abstracts mounting details behind a polymorphic <code class="text-xs sm:text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">BaseAdapter</code> contract.
             Here is how each paradigm executes behind the scenes.
           </p>
         </div>
@@ -200,18 +200,18 @@
         <div class="grid lg:grid-cols-3 gap-6">
           <!-- Flow 1: MF -->
           <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/30 p-6 space-y-4">
-            <div class="flex items-center gap-2">
-              <span class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center text-sm">
                 A
               </span>
-              <h3 class="text-base font-bold text-gray-900 dark:text-white font-heading">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white font-heading">
                 Module Federation Flow
               </h3>
             </div>
-            <ol class="space-y-3 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+            <ol class="space-y-3.5 text-sm sm:text-base text-gray-700 dark:text-gray-300">
               <li class="flex gap-2">
                 <span class="font-bold text-blue-500 shrink-0">1.</span>
-                <span><strong>Remote Resolution:</strong> Host dynamically requests <code class="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">remoteEntry.js</code> at runtime from remote origin.</span>
+                <span><strong>Remote Resolution:</strong> Host dynamically requests <code class="font-mono text-xs sm:text-sm bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">remoteEntry.js</code> at runtime from remote origin.</span>
               </li>
               <li class="flex gap-2">
                 <span class="font-bold text-blue-500 shrink-0">2.</span>
@@ -230,22 +230,22 @@
 
           <!-- Flow 2: Web Component -->
           <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/30 p-6 space-y-4">
-            <div class="flex items-center gap-2">
-              <span class="w-7 h-7 rounded-lg bg-pink-100 dark:bg-pink-950/80 text-pink-600 dark:text-pink-400 font-bold flex items-center justify-center text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-lg bg-pink-100 dark:bg-pink-950/80 text-pink-600 dark:text-pink-400 font-bold flex items-center justify-center text-sm">
                 B
               </span>
-              <h3 class="text-base font-bold text-gray-900 dark:text-white font-heading">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white font-heading">
                 Custom Element Flow
               </h3>
             </div>
-            <ol class="space-y-3 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+            <ol class="space-y-3.5 text-sm sm:text-base text-gray-700 dark:text-gray-300">
               <li class="flex gap-2">
                 <span class="font-bold text-pink-500 shrink-0">1.</span>
                 <span><strong>Script Injection:</strong> Host dynamically loads standalone custom element bundle (Angular, Lit, Vue CE).</span>
               </li>
               <li class="flex gap-2">
                 <span class="font-bold text-pink-500 shrink-0">2.</span>
-                <span><strong>Registry Verification:</strong> Checks <code class="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">customElements.get(tagName)</code> to avoid duplicate definitions.</span>
+                <span><strong>Registry Verification:</strong> Checks <code class="font-mono text-xs sm:text-sm bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">customElements.get(tagName)</code> to avoid duplicate definitions.</span>
               </li>
               <li class="flex gap-2">
                 <span class="font-bold text-pink-500 shrink-0">3.</span>
@@ -253,37 +253,37 @@
               </li>
               <li class="flex gap-2">
                 <span class="font-bold text-pink-500 shrink-0">4.</span>
-                <span><strong>Style Portaling:</strong> <code class="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">patchHeadToShadow.ts</code> monitors head injections and replicates styles into active shadow trees.</span>
+                <span><strong>Style Portaling:</strong> <code class="font-mono text-xs sm:text-sm bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">patchHeadToShadow.ts</code> monitors head injections and replicates styles into active shadow trees.</span>
               </li>
             </ol>
           </div>
 
           <!-- Flow 3: Sandboxed Iframe -->
           <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/30 p-6 space-y-4">
-            <div class="flex items-center gap-2">
-              <span class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center text-sm">
                 C
               </span>
-              <h3 class="text-base font-bold text-gray-900 dark:text-white font-heading">
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white font-heading">
                 Sandboxed Iframe & Bridge
               </h3>
             </div>
-            <ol class="space-y-3 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
+            <ol class="space-y-3.5 text-sm sm:text-base text-gray-700 dark:text-gray-300">
               <li class="flex gap-2">
                 <span class="font-bold text-emerald-500 shrink-0">1.</span>
-                <span><strong>Sandboxed Frame:</strong> Host renders <code class="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">&lt;iframe&gt;</code> with strict sandbox attributes and CSP validation.</span>
+                <span><strong>Sandboxed Frame:</strong> Host renders <code class="font-mono text-xs sm:text-sm bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">&lt;iframe&gt;</code> with strict sandbox attributes and CSP validation.</span>
               </li>
               <li class="flex gap-2">
                 <span class="font-bold text-emerald-500 shrink-0">2.</span>
-                <span><strong>Handshake Protocol:</strong> Remote client calls <code class="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">bridge.ready()</code> dispatching guarded <code class="font-mono text-xs">WM_READY</code>.</span>
+                <span><strong>Handshake Protocol:</strong> Remote client calls <code class="font-mono text-xs sm:text-sm bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">bridge.ready()</code> dispatching guarded <code class="font-mono text-xs sm:text-sm">WM_READY</code>.</span>
               </li>
               <li class="flex gap-2">
                 <span class="font-bold text-emerald-500 shrink-0">3.</span>
-                <span><strong>Auto-Resizing:</strong> Client-side <code class="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">ResizeObserver</code> sends <code class="font-mono text-xs">WM_RESIZE</code>; host adjusts height with zero iframe scrollbars.</span>
+                <span><strong>Auto-Resizing:</strong> Client-side <code class="font-mono text-xs sm:text-sm bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">ResizeObserver</code> sends <code class="font-mono text-xs sm:text-sm">WM_RESIZE</code>; host adjusts height with zero iframe scrollbars.</span>
               </li>
               <li class="flex gap-2">
                 <span class="font-bold text-emerald-500 shrink-0">4.</span>
-                <span><strong>Context Sync:</strong> Host broadcasts theme changes (<code class="font-mono text-xs">WM_THEME</code>) and auth tokens; remote responds seamlessly.</span>
+                <span><strong>Context Sync:</strong> Host broadcasts theme changes (<code class="font-mono text-xs sm:text-sm">WM_THEME</code>) and auth tokens; remote responds seamlessly.</span>
               </li>
             </ol>
           </div>
@@ -295,14 +295,14 @@
         <div class="space-y-2">
           <div class="flex items-center gap-3">
             <div class="w-8 h-px bg-green-500"></div>
-            <span class="text-xs font-semibold uppercase tracking-widest text-green-600 dark:text-green-400">
+            <span class="text-sm font-semibold uppercase tracking-widest text-green-600 dark:text-green-400">
               Field Discoveries
             </span>
           </div>
           <h2 class="text-2xl sm:text-4xl font-bold font-heading text-gray-900 dark:text-white">
             3. Real-World Engineering Findings & Benchmarks
           </h2>
-          <p class="text-base text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
+          <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
             Building a polyglot microfrontend platform surfaced unexpected edge cases across browsers, bundlers, and styling libraries.
             Here are the primary lessons learned and how we solved them.
           </p>
@@ -317,23 +317,23 @@
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="flex items-center gap-3">
                 <span
-                  class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                  class="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold"
                   :class="finding.iconClass"
                 >
                   {{ finding.id }}
                 </span>
-                <h3 class="text-lg sm:text-xl font-bold font-heading text-gray-900 dark:text-white">
+                <h3 class="text-xl font-bold font-heading text-gray-900 dark:text-white">
                   {{ finding.title }}
                 </h3>
               </div>
-              <span class="text-xs font-mono px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+              <span class="text-sm font-mono font-medium px-3 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
                 {{ finding.category }}
               </span>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-6 pt-2 text-sm">
-              <div class="space-y-2 border-l-2 border-red-400 dark:border-red-600 pl-4 bg-red-50/50 dark:bg-red-950/20 py-2.5 pr-3 rounded-r-lg">
-                <p class="font-semibold text-red-900 dark:text-red-300 text-xs uppercase tracking-wider">
+            <div class="grid md:grid-cols-2 gap-6 pt-2 text-base">
+              <div class="space-y-2 border-l-2 border-red-400 dark:border-red-600 pl-4 bg-red-50/50 dark:bg-red-950/20 py-3 pr-3 rounded-r-lg">
+                <p class="font-bold text-red-900 dark:text-red-300 text-sm uppercase tracking-wider">
                   The Problem & Challenge
                 </p>
                 <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -341,8 +341,8 @@
                 </p>
               </div>
 
-              <div class="space-y-2 border-l-2 border-green-400 dark:border-green-600 pl-4 bg-green-50/50 dark:bg-green-950/20 py-2.5 pr-3 rounded-r-lg">
-                <p class="font-semibold text-green-900 dark:text-green-300 text-xs uppercase tracking-wider">
+              <div class="space-y-2 border-l-2 border-green-400 dark:border-green-600 pl-4 bg-green-50/50 dark:bg-green-950/20 py-3 pr-3 rounded-r-lg">
+                <p class="font-bold text-green-900 dark:text-green-300 text-sm uppercase tracking-wider">
                   The Watermelon Solution
                 </p>
                 <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -351,8 +351,8 @@
               </div>
             </div>
 
-            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800">
-              <strong class="text-gray-700 dark:text-gray-300">Engineering Takeaway:</strong> {{ finding.takeaway }}
+            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 pt-3 border-t border-gray-100 dark:border-gray-800">
+              <strong class="text-gray-900 dark:text-white">Engineering Takeaway:</strong> {{ finding.takeaway }}
             </p>
           </article>
         </div>
@@ -363,14 +363,14 @@
         <div class="space-y-2">
           <div class="flex items-center gap-3">
             <div class="w-8 h-px bg-purple-500"></div>
-            <span class="text-xs font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
+            <span class="text-sm font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
               Knowledge Base
             </span>
           </div>
           <h2 class="text-2xl sm:text-4xl font-bold font-heading text-gray-900 dark:text-white">
             4. Architecture Q&A & FAQ
           </h2>
-          <p class="text-base text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
+          <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl leading-relaxed">
             Common questions software engineers, architects, and product leads ask when evaluating polyglot microfrontends.
           </p>
         </div>
@@ -386,19 +386,18 @@
               @click="toggleFaq(idx)"
               :aria-expanded="expandedFaq === idx"
             >
-              <span class="text-base font-semibold text-gray-900 dark:text-white">
+              <span class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                 {{ item.question }}
               </span>
-              <span
-                class="text-xs font-mono text-gray-400 transform transition-transform duration-200 shrink-0"
+              <ChevronDown
+                :size="18"
+                class="text-gray-400 transform transition-transform duration-200 shrink-0"
                 :class="{ 'rotate-180': expandedFaq === idx }"
-              >
-                ▼
-              </span>
+              />
             </button>
             <div
               v-show="expandedFaq === idx"
-              class="px-6 pb-5 pt-1 text-sm text-gray-600 dark:text-gray-300 leading-relaxed border-t border-gray-100 dark:border-gray-800"
+              class="px-6 pb-5 pt-1 text-base text-gray-700 dark:text-gray-300 leading-relaxed border-t border-gray-100 dark:border-gray-800"
             >
               {{ item.answer }}
             </div>
@@ -411,24 +410,24 @@
         class="border-t border-gray-200 dark:border-gray-800 pt-10 flex flex-col sm:flex-row items-center justify-between gap-6"
       >
         <div class="space-y-1 text-center sm:text-left">
-          <p class="text-base font-bold text-gray-900 dark:text-white font-heading">
+          <p class="text-base sm:text-lg font-bold text-gray-900 dark:text-white font-heading">
             Ready to explore the live remotes?
           </p>
-          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+          <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400">
             Switch between React, Vue, Svelte, Solid, Angular, Lit, and Next.js right in the browser.
           </p>
         </div>
         <div class="flex items-center gap-3">
           <RouterLink
             to="/remote"
-            class="px-5 py-2.5 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-medium text-sm transition-colors shadow-xs inline-flex items-center gap-1.5"
+            class="px-5 py-2.5 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-semibold text-base transition-colors shadow-xs inline-flex items-center gap-2 cursor-pointer"
           >
             <span>Launch All Remotes</span>
             <ArrowRight :size="16" />
           </RouterLink>
           <RouterLink
             to="/"
-            class="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors"
+            class="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 text-gray-700 dark:text-gray-300 text-base font-semibold transition-colors cursor-pointer"
           >
             Back to Home
           </RouterLink>
@@ -441,7 +440,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import { RouterLink } from "vue-router";
-import { ArrowRight, Check } from "lucide-vue-next";
+import { ArrowRight, Check, ChevronDown } from "lucide-vue-next";
 
 const activeSection = ref("paradigms");
 const expandedFaq = ref<number | null>(0);

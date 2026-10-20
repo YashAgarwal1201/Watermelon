@@ -13,7 +13,7 @@
           <div class="flex items-center gap-3">
             <div class="w-8 h-px bg-pink-500"></div>
             <span
-              class="text-xs font-semibold uppercase tracking-widest text-pink-500 dark:text-pink-400"
+              class="text-sm font-semibold uppercase tracking-widest text-pink-600 dark:text-pink-400"
               >Microfrontends & Isolation</span
             >
           </div>
@@ -38,48 +38,48 @@
             <div class="w-8 h-px bg-green-500"></div>
             <span
               id="vite-remotes-heading"
-              class="text-xs font-semibold uppercase tracking-widest text-green-600 dark:text-green-400"
+              class="text-sm font-semibold uppercase tracking-widest text-green-600 dark:text-green-400"
               >Vite</span
             >
           </div>
-          <p class="text-sm text-gray-400 dark:text-gray-600 pl-11">
+          <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 pl-11">
             Built with
             <code
-              class="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
+              class="text-xs sm:text-sm font-mono bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
               >@originjs/vite-plugin-federation</code
             >
           </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="list">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" role="list">
           <button
             v-for="app in viteRemotes"
             :key="app.name"
             role="listitem"
             :disabled="app.disabled"
-            class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
+            class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-2 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
             :class="app.hoverBorderClass"
             :aria-label="`Open ${app.displayName}`"
             @click="goToRemote(app.name)"
           >
             <div class="flex items-center justify-between gap-2">
               <span
-                class="text-base font-semibold leading-snug"
+                class="text-lg font-bold leading-snug"
                 :class="app.accentClass"
               >
                 {{ app.framework }}
-                <span class="text-gray-400 dark:text-gray-600 font-normal"
+                <span class="text-gray-400 dark:text-gray-500 font-normal"
                   >/ Vite</span
                 >
               </span>
               <ArrowRight
-                :size="16"
-                class="shrink-0 text-gray-400 dark:text-gray-600 transition-colors"
+                :size="18"
+                class="shrink-0 text-gray-400 dark:text-gray-500 transition-colors"
                 :class="app.arrowHoverClass"
                 aria-hidden="true"
               />
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
+            <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
               {{ app.description }}
             </p>
           </button>
@@ -93,48 +93,48 @@
             <div class="w-8 h-px bg-red-500"></div>
             <span
               id="webpack-remotes-heading"
-              class="text-xs font-semibold uppercase tracking-widest text-red-500 dark:text-red-400"
+              class="text-sm font-semibold uppercase tracking-widest text-red-600 dark:text-red-400"
               >Webpack</span
             >
           </div>
-          <p class="text-sm text-gray-400 dark:text-gray-600 pl-11">
+          <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 pl-11">
             Built with
             <code
-              class="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
+              class="text-xs sm:text-sm font-mono bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded"
               >@module-federation/enhanced</code
             >
           </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="list">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" role="list">
           <button
             v-for="app in webpackRemotes"
             :key="app.name"
             role="listitem"
             :disabled="app.disabled"
-            class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
+            class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-2 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
             :class="app.hoverBorderClass"
             :aria-label="`Open ${app.displayName}`"
             @click="goToRemote(app.name)"
           >
             <div class="flex items-center justify-between gap-2">
               <span
-                class="text-base font-semibold leading-snug"
+                class="text-lg font-bold leading-snug"
                 :class="app.accentClass"
               >
                 {{ app.framework }}
-                <span class="text-gray-400 dark:text-gray-600 font-normal"
+                <span class="text-gray-400 dark:text-gray-500 font-normal"
                   >/ Webpack</span
                 >
               </span>
               <ArrowRight
-                :size="16"
-                class="shrink-0 text-gray-400 dark:text-gray-600 transition-colors"
+                :size="18"
+                class="shrink-0 text-gray-400 dark:text-gray-500 transition-colors"
                 :class="app.arrowHoverClass"
                 aria-hidden="true"
               />
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
+            <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
               {{ app.description }}
             </p>
           </button>
@@ -148,51 +148,51 @@
             <div class="w-8 h-px bg-purple-500"></div>
             <span
               id="wc-remotes-heading"
-              class="text-xs font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400"
+              class="text-sm font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400"
               >Web Components</span
             >
           </div>
-          <p class="text-sm text-gray-400 dark:text-gray-600 pl-11">
+          <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 pl-11">
             W3C standard Custom Elements with Shadow DOM isolation
           </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="list">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" role="list">
           <button
             v-for="app in webComponentRemotes"
             :key="app.name"
             role="listitem"
             :disabled="app.disabled"
-            class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
+            class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-2 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
             :class="app.hoverBorderClass"
             :aria-label="`Open ${app.displayName}${app.disabled ? ' – unavailable' : ''}`"
             @click="!app.disabled && goToRemote(app.name)"
           >
             <div class="flex items-center justify-between gap-2">
               <span
-                class="text-base font-semibold leading-snug"
+                class="text-lg font-bold leading-snug"
                 :class="app.accentClass"
               >
                 {{ app.framework }}
-                <span class="text-gray-400 dark:text-gray-600 font-normal"
+                <span class="text-gray-400 dark:text-gray-500 font-normal"
                   >/ {{ app.bundler }}</span
                 >
               </span>
               <span
                 v-if="app.disabled"
-                class="shrink-0 text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700"
+                class="shrink-0 text-sm font-medium px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700"
               >
                 WIP
               </span>
               <ArrowRight
                 v-else
-                :size="16"
-                class="shrink-0 text-gray-400 dark:text-gray-600 transition-colors"
+                :size="18"
+                class="shrink-0 text-gray-400 dark:text-gray-500 transition-colors"
                 :class="app.arrowHoverClass"
                 aria-hidden="true"
               />
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
+            <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
               {{ app.description }}
             </p>
           </button>
@@ -206,51 +206,50 @@
             <div class="w-8 h-px bg-amber-500"></div>
             <span
               id="iframe-remotes-heading"
-              class="text-xs font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400"
+              class="text-sm font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400"
               >Sandboxed Iframes</span
             >
           </div>
-          <p class="text-sm text-gray-400 dark:text-gray-600 pl-11">
+          <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 pl-11">
             Hard process & security isolation with bidirectional postMessage bridge
           </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="list">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" role="list">
           <button
             v-for="app in iframeRemotes"
             :key="app.name"
             role="listitem"
             :disabled="app.disabled"
-            class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-4 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-1 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
+            class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-2 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
             :class="app.hoverBorderClass"
             :aria-label="`Open ${app.displayName}${app.disabled ? ' – unavailable' : ''}`"
             @click="!app.disabled && goToRemote(app.name)"
           >
             <div class="flex items-center justify-between gap-2">
               <span
-                class="text-base font-semibold leading-snug"
+                class="text-lg font-bold leading-snug"
                 :class="app.accentClass"
               >
                 {{ app.framework }}
-                <span class="text-gray-400 dark:text-gray-600 font-normal"
+                <span class="text-gray-400 dark:text-gray-500 font-normal"
                   >/ {{ app.bundler }}</span
                 >
               </span>
               <span
                 v-if="app.disabled"
-                class="shrink-0 text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-700"
+                class="shrink-0 text-sm font-medium px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700"
               >
                 WIP
               </span>
               <ArrowRight
-                v-else
-                :size="16"
-                class="shrink-0 text-gray-400 dark:text-gray-600 transition-colors"
+                :size="18"
+                class="shrink-0 text-gray-400 dark:text-gray-500 transition-colors"
                 :class="app.arrowHoverClass"
                 aria-hidden="true"
               />
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
+            <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
               {{ app.description }}
             </p>
           </button>

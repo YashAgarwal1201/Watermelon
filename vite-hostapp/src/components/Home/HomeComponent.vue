@@ -70,7 +70,7 @@
               <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                 <Zap :size="20" />
               </div>
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
+              <span class="text-sm font-semibold px-3 py-1 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
                 6 Applications
               </span>
             </div>
@@ -79,10 +79,10 @@
               <h3 class="text-xl font-bold text-gray-900 dark:text-white font-heading">
                 Module Federation
               </h3>
-              <p class="text-sm font-semibold text-blue-600 dark:text-blue-400">
+              <p class="text-base font-semibold text-blue-600 dark:text-blue-400">
                 Runtime ESM · Vite 7 & Webpack 5
               </p>
-              <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
                 Direct JavaScript module sharing in the browser. Deduplicates shared runtime libraries (React, Vue) and executes natively without wrapper overhead.
               </p>
             </div>
@@ -96,7 +96,7 @@
               <div class="w-10 h-10 rounded-xl bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-400 flex items-center justify-center">
                 <ShieldCheck :size="20" />
               </div>
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300">
+              <span class="text-sm font-semibold px-3 py-1 rounded-lg bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300">
                 3 Applications
               </span>
             </div>
@@ -105,10 +105,10 @@
               <h3 class="text-xl font-bold text-gray-900 dark:text-white font-heading">
                 W3C Custom Elements
               </h3>
-              <p class="text-sm font-semibold text-pink-600 dark:text-pink-400">
+              <p class="text-base font-semibold text-pink-600 dark:text-pink-400">
                 Shadow DOM · Angular, Lit & Vue CE
               </p>
-              <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
                 Native browser custom elements. The Shadow DOM boundary encapsulates CSS styles completely, preventing styling bleed between different framework versions.
               </p>
             </div>
@@ -122,7 +122,7 @@
               <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <Box :size="20" />
               </div>
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
+              <span class="text-sm font-semibold px-3 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
                 2 Applications
               </span>
             </div>
@@ -131,10 +131,10 @@
               <h3 class="text-xl font-bold text-gray-900 dark:text-white font-heading">
                 Sandboxed Iframes
               </h3>
-              <p class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+              <p class="text-base font-semibold text-emerald-600 dark:text-emerald-400">
                 Process Isolation · @watermelon/bridge
               </p>
-              <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
                 Absolute thread and process boundary with 100% crash immunity. Dynamic height resizing and event sync powered by a typed postMessage bridge.
               </p>
             </div>
@@ -159,10 +159,10 @@
 
           <RouterLink
             to="/remote"
-            class="text-sm font-semibold text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 inline-flex items-center gap-1.5 shrink-0"
+            class="text-base font-semibold text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 inline-flex items-center gap-1.5 shrink-0"
           >
             <span>View Full Remote Gallery</span>
-            <ArrowRight :size="16" />
+            <ArrowRight :size="18" />
           </RouterLink>
         </div>
 
@@ -175,36 +175,36 @@
                 Module Federation Remotes
               </h3>
             </div>
-            <span class="text-xs sm:text-sm font-mono text-gray-500 dark:text-gray-400">
+            <span class="text-sm sm:text-base font-medium text-gray-500 dark:text-gray-400">
               Vite 7 & Webpack 5
             </span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             <RouterLink
               v-for="app in mfRemotes"
               :key="app.route"
               :to="app.route"
-              class="group rounded-2xl border border-gray-200 dark:border-gray-800 p-5 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all bg-white dark:bg-gray-900/40 space-y-3 flex flex-col justify-between"
+              class="group rounded-2xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all bg-white dark:bg-gray-900/40 space-y-4 flex flex-col justify-between"
             >
-              <div class="space-y-1.5">
+              <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-lg font-bold" :class="app.titleClass">
+                  <span class="text-xl font-bold" :class="app.titleClass">
                     {{ app.name }}
                   </span>
-                  <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+                  <span class="text-sm font-mono font-bold px-2.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
                     :{{ app.port }}
                   </span>
                 </div>
-                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <p class="text-base font-semibold text-gray-800 dark:text-gray-200">
                   {{ app.bundler }}
                 </p>
-                <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-normal">
+                <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
                   {{ app.description }}
                 </p>
               </div>
 
-              <div class="pt-2 flex items-center justify-between text-xs font-semibold text-blue-600 dark:text-blue-400 border-t border-gray-100 dark:border-gray-800/80">
+              <div class="pt-3 flex items-center justify-between text-sm font-semibold text-blue-600 dark:text-blue-400 border-t border-gray-100 dark:border-gray-800/80">
                 <span>Launch Remote</span>
                 <ArrowRight :size="16" class="transform group-hover:translate-x-1 transition-transform" />
               </div>
@@ -221,36 +221,36 @@
                 W3C Custom Element Remotes
               </h3>
             </div>
-            <span class="text-xs sm:text-sm font-mono text-gray-500 dark:text-gray-400">
+            <span class="text-sm sm:text-base font-medium text-gray-500 dark:text-gray-400">
               Shadow DOM Isolation
             </span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <RouterLink
               v-for="app in wcRemotes"
               :key="app.route"
               :to="app.route"
-              class="group rounded-2xl border border-gray-200 dark:border-gray-800 p-5 hover:border-pink-500 dark:hover:border-pink-500 hover:shadow-md transition-all bg-white dark:bg-gray-900/40 space-y-3 flex flex-col justify-between"
+              class="group rounded-2xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 hover:border-pink-500 dark:hover:border-pink-500 hover:shadow-md transition-all bg-white dark:bg-gray-900/40 space-y-4 flex flex-col justify-between"
             >
-              <div class="space-y-1.5">
+              <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-lg font-bold" :class="app.titleClass">
+                  <span class="text-xl font-bold" :class="app.titleClass">
                     {{ app.name }}
                   </span>
-                  <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+                  <span class="text-sm font-mono font-bold px-2.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
                     :{{ app.port }}
                   </span>
                 </div>
-                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <p class="text-base font-semibold text-gray-800 dark:text-gray-200">
                   {{ app.bundler }}
                 </p>
-                <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-normal">
+                <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
                   {{ app.description }}
                 </p>
               </div>
 
-              <div class="pt-2 flex items-center justify-between text-xs font-semibold text-pink-600 dark:text-pink-400 border-t border-gray-100 dark:border-gray-800/80">
+              <div class="pt-3 flex items-center justify-between text-sm font-semibold text-pink-600 dark:text-pink-400 border-t border-gray-100 dark:border-gray-800/80">
                 <span>Launch Remote</span>
                 <ArrowRight :size="16" class="transform group-hover:translate-x-1 transition-transform" />
               </div>
@@ -267,36 +267,36 @@
                 Sandboxed Iframe Remotes
               </h3>
             </div>
-            <span class="text-xs sm:text-sm font-mono text-gray-500 dark:text-gray-400">
+            <span class="text-sm sm:text-base font-medium text-gray-500 dark:text-gray-400">
               Hard Process Boundary
             </span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <RouterLink
               v-for="app in iframeRemotes"
               :key="app.route"
               :to="app.route"
-              class="group rounded-2xl border border-gray-200 dark:border-gray-800 p-5 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-md transition-all bg-white dark:bg-gray-900/40 space-y-3 flex flex-col justify-between"
+              class="group rounded-2xl border border-gray-200 dark:border-gray-800 p-5 sm:p-6 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-md transition-all bg-white dark:bg-gray-900/40 space-y-4 flex flex-col justify-between"
             >
-              <div class="space-y-1.5">
+              <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-lg font-bold" :class="app.titleClass">
+                  <span class="text-xl font-bold" :class="app.titleClass">
                     {{ app.name }}
                   </span>
-                  <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+                  <span class="text-sm font-mono font-bold px-2.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
                     :{{ app.port }}
                   </span>
                 </div>
-                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <p class="text-base font-semibold text-gray-800 dark:text-gray-200">
                   {{ app.bundler }}
                 </p>
-                <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-normal">
+                <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
                   {{ app.description }}
                 </p>
               </div>
 
-              <div class="pt-2 flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400 border-t border-gray-100 dark:border-gray-800/80">
+              <div class="pt-3 flex items-center justify-between text-sm font-semibold text-emerald-600 dark:text-emerald-400 border-t border-gray-100 dark:border-gray-800/80">
                 <span>Launch Remote</span>
                 <ArrowRight :size="16" class="transform group-hover:translate-x-1 transition-transform" />
               </div>
@@ -311,8 +311,8 @@
           class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs"
         >
           <div class="space-y-2">
-            <div class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400">
-              <BookOpen :size="14" />
+            <div class="inline-flex items-center gap-1.5 text-sm font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400">
+              <BookOpen :size="16" />
               <span>Technical Deep Dive</span>
             </div>
             <h3
@@ -321,7 +321,7 @@
             >
               Engineering Case Study & Decision Matrix
             </h3>
-            <p class="text-base text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed">
+            <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed">
               Explore our comprehensive 3-paradigm evaluation matrix, runtime lifecycles, and real-world findings
               covering Shadow DOM portal styling, CSP security headers, and 80%+ RAM reduction.
             </p>

@@ -258,10 +258,10 @@ test.describe("Watermelon Microfrontend Federation", () => {
 
     // Going back should directly return to home page without getting trapped by in-page pill clicks
     await page.goBack();
-    expect(page.url()).toBe("https://localhost:5150/");
+    await expect(page).toHaveURL("https://localhost:5150/");
 
     // Going forward returns to architecture
     await page.goForward();
-    expect(page.url()).toBe("https://localhost:5150/architecture");
+    await expect(page).toHaveURL("https://localhost:5150/architecture");
   });
 });
