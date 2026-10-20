@@ -12,6 +12,11 @@ const routes = [
     component: () => import("../src/RemoteWrapper/RemoteList.vue"),
   },
   {
+    path: "/architecture",
+    name: "Architecture",
+    component: () => import("../src/components/Architecture/ArchitectureComponent.vue"),
+  },
+  {
     path: "/remote/:appName/:pathMatch(.*)*",
     name: "RemoteApp",
     component: () => import("../src/RemoteWrapper/RemoteWrapper.vue"),

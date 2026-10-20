@@ -12,7 +12,8 @@ test.describe("Watermelon Microfrontend Federation", () => {
 
     // Home navigation links should be visible
     await expect(page.getByRole("link", { name: "Home" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Apps" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Apps", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Insights" })).toBeVisible();
   });
 
   test("2. Remote list displays all remotes", async ({ page }) => {
@@ -206,5 +207,61 @@ test.describe("Watermelon Microfrontend Federation", () => {
 
     // Dashboard heading returns
     await expect(frame.getByRole("heading", { name: "Analytics & Telemetry Dashboard" })).toBeVisible();
+  });
+
+  test("16. Architecture & Insights page loads successfully with 3-paradigm matrix and engineering findings", async ({ page }) => {
+    await page.goto("/architecture");
+
+    // Main heading
+    await expect(
+      page.getByRole("heading", { name: "Microfrontend Architecture & Insights", level: 1 })
+    ).toBeVisible();
+
+    // Section 1 heading & comparison table
+    await expect(
+      page.getByRole("heading", { name: "1. The 3-Paradigm Comparison Matrix", level: 2 })
+    ).toBeVisible();
+    await expect(page.getByText("Detailed Feature & Trade-off Matrix")).toBeVisible();
+
+    // Section 2 heading
+    await expect(
+      page.getByRole("heading", { name: "2. Runtime Lifecycle Mechanics", level: 2 })
+    ).toBeVisible();
+
+    // Section 3 heading & engineering finding
+    await expect(
+      page.getByRole("heading", { name: "3. Real-World Engineering Findings & Benchmarks", level: 2 })
+    ).toBeVisible();
+    await expect(page.getByText("Shadow DOM Portal Leaks with UI Libraries")).toBeVisible();
+    await expect(page.getByText("Monorepo RAM Explosion vs Unified Static Serving")).toBeVisible();
+
+    // Section 4 Architecture Q&A
+    await expect(
+      page.getByRole("heading", { name: "4. Architecture Q&A & FAQ", level: 2 })
+    ).toBeVisible();
+
+    // Verify in-page pill buttons scroll without modifying URL hash or polluting browser history
+    const findingsPill = page.locator('[data-nav-section="findings"]');
+    await expect(findingsPill).toBeVisible();
+    await findingsPill.click();
+
+    // URL must not contain any '#' hash
+    expect(page.url()).toBe("https://localhost:5150/architecture");
+
+    // Verify clean browser Back/Forward navigation
+    await page.goto("/");
+    await page.goto("/architecture");
+    const faqPill = page.locator('[data-nav-section="faq"]');
+    await expect(faqPill).toBeVisible();
+    await faqPill.click();
+    expect(page.url()).toBe("https://localhost:5150/architecture");
+
+    // Going back should directly return to home page without getting trapped by in-page pill clicks
+    await page.goBack();
+    expect(page.url()).toBe("https://localhost:5150/");
+
+    // Going forward returns to architecture
+    await page.goForward();
+    expect(page.url()).toBe("https://localhost:5150/architecture");
   });
 });

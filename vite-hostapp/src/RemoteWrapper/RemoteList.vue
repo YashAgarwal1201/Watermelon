@@ -18,12 +18,12 @@
             >
           </div>
           <h1
-            class="font-heading text-4xl md:text-5xl bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent leading-tight"
+            class="font-heading text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight"
           >
             Remote Apps
           </h1>
           <p
-            class="text-base text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed"
+            class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed"
           >
             Independent remotes across Module Federation, W3C Web Components,
             and Sandboxed Iframes, loaded seamlessly by this host at runtime.
@@ -72,12 +72,12 @@
                   >/ Vite</span
                 >
               </span>
-              <span
+              <ArrowRight
+                :size="16"
                 class="shrink-0 text-gray-400 dark:text-gray-600 transition-colors"
                 :class="app.arrowHoverClass"
                 aria-hidden="true"
-                >→</span
-              >
+              />
             </div>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ app.description }}
@@ -127,12 +127,12 @@
                   >/ Webpack</span
                 >
               </span>
-              <span
+              <ArrowRight
+                :size="16"
                 class="shrink-0 text-gray-400 dark:text-gray-600 transition-colors"
                 :class="app.arrowHoverClass"
                 aria-hidden="true"
-                >→</span
-              >
+              />
             </div>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ app.description }}
@@ -184,13 +184,13 @@
               >
                 WIP
               </span>
-              <span
+              <ArrowRight
                 v-else
+                :size="16"
                 class="shrink-0 text-gray-400 dark:text-gray-600 transition-colors"
                 :class="app.arrowHoverClass"
                 aria-hidden="true"
-                >→</span
-              >
+              />
             </div>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ app.description }}
@@ -242,13 +242,13 @@
               >
                 WIP
               </span>
-              <span
+              <ArrowRight
                 v-else
+                :size="16"
                 class="shrink-0 text-gray-400 dark:text-gray-600 transition-colors"
                 :class="app.arrowHoverClass"
                 aria-hidden="true"
-                >→</span
-              >
+              />
             </div>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ app.description }}
@@ -273,6 +273,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import { ArrowRight } from "lucide-vue-next";
 import GoBackBtn from "../components/GoBack/GoBackBtn.vue";
 
 const router = useRouter();

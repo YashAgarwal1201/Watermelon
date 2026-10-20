@@ -10,7 +10,7 @@
       <template #header>
         <div class="flex justify-between items-center w-full font-heading">
           <h3
-            class="text-lg sm:text-xl md:text-2xl bg-linear-to-r from-pink-500 via-red-500 to-green-500 bg-clip-text text-transparent"
+            class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white"
           >
             Menu
           </h3>
@@ -20,8 +20,21 @@
       <div class="w-full font-content">
         <div class="flex flex-col">
           <div
-            class="w-full flex flex-col rounded-xl bg-linear-to-br from-pink-50 to-red-50 dark:from-gray-900 dark:to-gray-800 p-4 border border-pink-200 dark:border-gray-700"
+            class="w-full flex flex-col rounded-xl bg-gray-50 dark:bg-gray-900 p-4 border border-gray-200 dark:border-gray-800"
           >
+            <RouterLink
+              :class="buttonStyles"
+              to="/architecture"
+              @click="navbarStore.showSideMenu = false"
+            >
+              <BookOpen :size="16" class="text-pink-600! dark:text-pink-400!" />
+              <span>Architecture & Insights</span>
+            </RouterLink>
+
+            <div
+              class="mx-2 my-1 p-0 max-w-full h-[1.5px] bg-pink-200 dark:bg-red-800"
+            ></div>
+
             <Panel
               :class="buttonStyles"
               :collapsed="isPanelCollapsed"
@@ -128,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { Blocks, Folder, Folders, Palette, UserCircle } from "lucide-vue-next";
+import { Blocks, BookOpen, Folder, Folders, Palette, UserCircle } from "lucide-vue-next";
 import { Drawer, Panel, Select } from "primevue";
 import { useNavbarStore } from "../../stores/navbarStore";
 import { RouterLink } from "vue-router";
@@ -144,13 +157,17 @@ const { theme, updateTheme } = useTheme();
 const isPanelCollapsed = ref(true);
 
 const remoteApps = [
-  { key: "vite_react_remoteapp", label: "Vite + React" },
-  { key: "vite_vue_remoteapp", label: "Vite + Vue" },
-  { key: "vite_svelte_remoteapp", label: "Vite + Svelte" },
-  { key: "vite_solidjs_remoteapp", label: "Vite + SolidJs" },
-  { key: "webpack_react_remoteapp", label: "Webpack + React" },
-  { key: "webpack_vue_remoteapp", label: "Webpack + VueJs" },
-  { key: "angular_remoteapp", label: "Webpack + Angular" },
+  { key: "vite_react_remoteapp", label: "Vite + React (MF)" },
+  { key: "vite_vue_remoteapp", label: "Vite + Vue (MF)" },
+  { key: "vite_svelte_remoteapp", label: "Vite + Svelte (MF)" },
+  { key: "vite_solidjs_remoteapp", label: "Vite + SolidJs (MF)" },
+  { key: "webpack_react_remoteapp", label: "Webpack + React (MF)" },
+  { key: "webpack_vue_remoteapp", label: "Webpack + Vue (MF)" },
+  { key: "angular_remoteapp", label: "Angular 20 (Web Component)" },
+  { key: "wc_lit_remoteapp", label: "Lit 3 (Web Component)" },
+  { key: "wc_vue_remoteapp", label: "Vue 3 (Custom Element)" },
+  { key: "iframe_vite_app", label: "Vite React (Iframe)" },
+  { key: "iframe_nextjs_app", label: "Next.js 16 (Iframe)" },
 ];
 
 const buttonStyles =

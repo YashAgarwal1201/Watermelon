@@ -1,7 +1,7 @@
 <!-- vite-hostapp/src/components/Navbar/NavBar.vue -->
 
 <script lang="ts" setup>
-import { Blocks, Home, Menu } from "lucide-vue-next";
+import { Blocks, BookOpen, Home, Menu } from "lucide-vue-next";
 import { useNavbarStore } from "../../stores/navbarStore";
 import { RouterLink } from "vue-router";
 
@@ -11,23 +11,30 @@ const navOptions = [
   {
     route: "/",
     title: "Go to home page",
-    ariaLabel: "Home page",
+    ariaLabel: "Home",
     label: "Home",
     icon: Home,
   },
   {
     route: "/remote",
     title: "All remote apps",
-    ariaLabel: "Remote apps list",
+    ariaLabel: "Apps",
     label: "Apps",
     icon: Blocks,
+  },
+  {
+    route: "/architecture",
+    title: "Architecture & Insights",
+    ariaLabel: "Insights",
+    label: "Insights",
+    icon: BookOpen,
   },
 ];
 </script>
 
 <template>
   <div
-    class="w-full h-full grid grid-cols-3 md:flex md:flex-col justify-center gap-3 text-black dark:text-white py-1 md:py-2 px-1"
+    class="w-full h-full grid grid-cols-4 md:flex md:flex-col justify-center gap-3 text-black dark:text-white py-1 md:py-2 px-1"
   >
     <RouterLink
       v-for="item in navOptions"
