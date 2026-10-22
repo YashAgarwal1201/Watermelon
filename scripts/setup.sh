@@ -32,7 +32,7 @@ echo "════════════════════════�
 echo "🎉 Watermelon environment setup is complete!"
 echo ""
 echo "To launch all applications over HTTPS in a single terminal:"
-echo "   npm run start:all"
+echo "   npm run dev:all"
 echo ""
 echo "Or start them individually:"
 echo "   vite-hostapp:         https://localhost:5150"

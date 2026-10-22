@@ -47,7 +47,7 @@ const navOptions = [
     >
       <!-- ICON PILL -->
       <span
-        class="rounded-full px-3 py-1 transition-all duration-200 bg-slate-100 dark:bg-slate-800 group-[&.nav-active]:bg-green-600 dark:group-[&.nav-active]:bg-green-500"
+        class="rounded-full px-3 py-1 transition-all duration-200 bg-slate-100 dark:bg-slate-800 group-[&.nav-active]:bg-pink-600 dark:group-[&.nav-active]:bg-pink-500"
       >
         <component
           :is="item.icon"
@@ -58,7 +58,7 @@ const navOptions = [
 
       <!-- LABEL -->
       <span
-        class="mt-1 text-xs font-medium transition-colors duration-200 text-slate-600 dark:text-slate-300 group-[&.nav-active]:text-green-700 dark:group-[&.nav-active]:text-green-400"
+        class="mt-1 text-xs font-medium transition-colors duration-200 text-slate-600 dark:text-slate-300 group-[&.nav-active]:text-pink-600 dark:group-[&.nav-active]:text-pink-400"
       >
         {{ item.label }}
       </span>
@@ -71,7 +71,7 @@ const navOptions = [
       aria-label="Open menu"
     >
       <span
-        class="rounded-full px-3 py-1 transition-all duration-200 bg-slate-100 dark:bg-slate-800 group-active:bg-green-600 dark:group-active:bg-green-500"
+        class="rounded-full px-3 py-1 transition-all duration-200 bg-slate-100 dark:bg-slate-800 group-active:bg-pink-600 dark:group-active:bg-pink-500"
       >
         <Menu
           :size="16"

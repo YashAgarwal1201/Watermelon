@@ -1,32 +1,36 @@
-# React + TypeScript + Vite
+# iframe-vite-app: React 19 Asset and Media Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+An isolated microfrontend built with **React 19**, **TypeScript**, and **Vite 8**, running inside a sandboxed iframe.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Architecture and Isolation Details
 
-## React Compiler
+- **Isolation Strategy**: Hardened iframe sandboxing (`sandbox="allow-scripts allow-same-origin allow-forms allow-popups"`)
+- **Port**: `5300`
+- **Protocol**: HTTPS (local certs via mkcert)
+- **Host Integration**: Mounted via `IframeAdapter` within the host shell
+- **Cross-Boundary Communication**: `@watermelon/bridge` bidirectional `postMessage` protocol
+- **Event Validation**: Strict origin whitelisting (`allowedOrigins`) and `event.source === iframe.contentWindow` verification
+- **Supported Bridge Events**:
+  - `ASSET_SELECTED`: Emits selected asset payload to host
+  - `NAVIGATE`: Coordinates routing transitions with host
+  - `THEME_CHANGED`: Receives host theme updates (`dark` / `light`)
+  - `AUTH_TOKEN_SYNC`: Receives authenticated session tokens
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## Ports and Scripts
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+| Command | Description | Port |
+| :--- | :--- | :---: |
+| `npm run dev` | Runs Vite dev server with HTTPS | `5300` |
+| `npm run build` | Compiles TypeScript (`tsc -b`) and bundles production assets | N/A |
+| `npm run preview` | Serves production build preview | `5300` |
+| `npm run lint` | Runs Oxlint linter checks | N/A |
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+---
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Fault Isolation Guarantee
+
+Exceptions occurring within this remote are completely contained within its browser browsing context. If an uncaught runtime exception triggers in the React tree, the host shell remains fully operational, and the internal `RemoteErrorBoundary` catches and displays recovery actions without impacting sibling microfrontends.

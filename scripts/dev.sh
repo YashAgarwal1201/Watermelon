@@ -85,7 +85,7 @@ if [ -z "$TARGET" ]; then
   if [ -t 0 ]; then
     echo ""
     echo "🍉 ─────────────────────────────────────────────────────────────"
-    echo "   Watermelon Microfrontends — Selective Development Runner"
+    echo "   Watermelon Microfrontends: Selective Development Runner"
     echo "   Save 70-90% RAM by developing only what you're working on!"
     echo "───────────────────────────────────────────────────────────────"
     echo "  [1] Host Shell Only        (All 7 remotes static)    ~200 MB RAM"

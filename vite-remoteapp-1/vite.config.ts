@@ -21,7 +21,7 @@ const httpsConfig = hasCerts
   : undefined;
 
 // Custom plugin: collects ALL generated CSS from the bundle and injects
-// it as a <style> tag via JS — replaces cssInjectedByJsPlugin entirely.
+// it as a <style> tag via JS: replaces cssInjectedByJsPlugin entirely.
 function injectCssIntoJs(): Plugin {
   const cssChunks = new Map<string, string>();
 

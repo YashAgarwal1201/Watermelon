@@ -38,7 +38,7 @@ import LandingComponent from "../components/LandingComponent.vue";
 import SubPage1 from "../components/SubPage1.vue";
 import SubPage2 from "../components/SubPage2.vue";
 
-// Routes are defined without a basename — the basename is applied at
+// Routes are defined without a basename : the basename is applied at
 // router creation time in bootstrap.js (hosted) or main.ts (standalone).
 export const routes = [
   {
@@ -58,7 +58,7 @@ export const routes = [
   },
 ];
 
-// Default router for standalone mode — reads BASENAME from window if set
+// Default router for standalone mode : reads BASENAME from window if set
 const basename =
   typeof window !== "undefined" ? (window as any).BASENAME || "/" : "/";
 

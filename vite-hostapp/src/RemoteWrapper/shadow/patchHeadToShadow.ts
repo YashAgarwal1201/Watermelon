@@ -2,7 +2,7 @@
 
 // ─── CSS Head → Shadow DOM Interception ───────────────────────────────────────
 // Bundlers (Vite, Webpack style-loader, Angular) inject <style> and <link> tags
-// into document.head at runtime. Since we mount remotes inside a Shadow DOM,
+// into document.head at runtime. Since remotes are mounted inside a Shadow DOM,
 // those global styles are invisible to the remote's DOM tree.
 //
 // This module intercepts every head insertion method and diverts style/link
@@ -150,7 +150,7 @@ export function patchHeadToShadow(
   });
   mo.observe(document.head, { childList: true });
 
-  // Returns a restore function — call on unmount or before next loadRemote()
+  // Returns a restore function: call on unmount or before next loadRemote()
   return () => {
     mo.disconnect();
     head.appendChild = origAppendChild;

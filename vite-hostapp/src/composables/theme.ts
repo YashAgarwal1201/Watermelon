@@ -1,6 +1,7 @@
 // File: composables/theme.ts
 
 import { onMounted, ref, watch } from "vue";
+import { eventBus } from "../services/eventBus";
 
 export const useTheme = () => {
   const theme = ref<"light" | "dark" | "system">("system");
@@ -21,13 +22,16 @@ export const useTheme = () => {
     if (!isClient) return;
 
     const root = document.documentElement;
+    let effectiveTheme: "light" | "dark";
 
     if (selectedTheme === "dark") {
       root.classList.add("dark");
       isDark.value = true;
+      effectiveTheme = "dark";
     } else if (selectedTheme === "light") {
       root.classList.remove("dark");
       isDark.value = false;
+      effectiveTheme = "light";
     } else {
       // System preference
       const systemDark = window.matchMedia(
@@ -36,11 +40,15 @@ export const useTheme = () => {
       if (systemDark) {
         root.classList.add("dark");
         isDark.value = true;
+        effectiveTheme = "dark";
       } else {
         root.classList.remove("dark");
         isDark.value = false;
+        effectiveTheme = "light";
       }
     }
+
+    eventBus.emit("wm:theme", { theme: effectiveTheme });
   };
 
   const initTheme = () => {

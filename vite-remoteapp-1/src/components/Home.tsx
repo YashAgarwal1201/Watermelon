@@ -87,7 +87,7 @@ const Home = () => {
           Question Bank
         </h1>
         <p className="text-stone-500 text-base max-w-xl pt-1">
-          {TOTAL_QUESTIONS} questions across {CATEGORIES.length} eras — from the
+          {TOTAL_QUESTIONS} questions across {CATEGORIES.length} eras: from the
           first rivers of civilization to the Cold War.
         </p>
       </div>
@@ -245,7 +245,7 @@ const Home = () => {
       {/* ── Footer nudge ── */}
       <div className="pt-2 pb-6 flex gap-3 flex-wrap">
         <Button
-          label="Study mode — browse all questions"
+          label="Study mode: browse all questions"
           icon="pi pi-book"
           onClick={() => navigate("/sub-page-1")}
           severity="secondary"

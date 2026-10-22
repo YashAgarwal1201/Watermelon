@@ -1,4 +1,4 @@
-# angular-remoteapp — Angular 20 Interactive Cheat Sheet
+# angular-remoteapp : Angular 20 Interactive Cheat Sheet
 
 An interactive, responsive developer reference application and microfrontend built with **Angular 20**, **Angular Elements**, **PrimeNG 20** (Aura theme), and **PrimeFlex**, packaged as a standard W3C Custom Element (`<angular-remote-app>`).
 
@@ -59,6 +59,6 @@ Unlike the Vite and Webpack remotes that use Module Federation, the Angular remo
 | Command | Description | Port |
 | :--- | :--- | :---: |
 | `npm start` | Runs Angular CLI development server with HTTPS (mkcert) | `4201` |
-| `npm run build` | Compiles production bundle with budget verification | — |
-| `npm run watch` | Builds and watches for changes in development mode | — |
-| `npm run test` | Runs unit tests using Karma | — |
+| `npm run build` | Compiles production bundle with budget verification | N/A |
+| `npm run watch` | Builds and watches for changes in development mode | N/A |
+| `npm run test` | Runs unit tests using Karma | N/A |

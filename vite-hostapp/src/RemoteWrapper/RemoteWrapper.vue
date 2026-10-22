@@ -76,8 +76,7 @@
               $ npm run dev -- --remote={{ getCliFlag(appName) }}
             </p>
             <p class="font-sans text-zinc-600 dark:text-zinc-400">
-              Or serve all prebuilt remotes in 1 lightweight process (~40 MB
-              RAM):
+              Or serve all prebuilt remotes in 1 lightweight static server process:
             </p>
             <p class="text-blue-600 dark:text-blue-400 font-semibold mt-1">
               $ npm run serve:remotes
@@ -115,6 +114,7 @@ import { useRoute } from "vue-router";
 import GoBackBtn from "../components/GoBack/GoBackBtn.vue";
 import { buildShadow } from "./shadow";
 import { resolveAdapter, type RemoteAdapter } from "./adapters";
+import { eventBus } from "../services/eventBus";
 
 const route = useRoute();
 const appName = ref(String(route.params.appName ?? ""));
@@ -166,13 +166,28 @@ async function loadRemote() {
     const adapter = resolveAdapter(appName.value);
     currentAdapter = adapter;
 
-    await adapter.mount({
-      mountPoint,
-      shadowRoot,
-      appName: appName.value,
-      basename: `/remote/${appName.value}`,
-      isCancelled: () => currentId !== loadId,
+    const MOUNT_TIMEOUT_MS = 10000;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(
+          new Error(
+            `Connection timed out after ${MOUNT_TIMEOUT_MS / 1000}s while mounting remote "${appName.value}"`,
+          ),
+        );
+      }, MOUNT_TIMEOUT_MS);
     });
+
+    await Promise.race([
+      adapter.mount({
+        mountPoint,
+        shadowRoot,
+        appName: appName.value,
+        basename: `/remote/${appName.value}`,
+        eventBus,
+        isCancelled: () => currentId !== loadId,
+      }),
+      timeoutPromise,
+    ]);
 
     console.info(
       `[RemoteWrapper] "${appName.value}" loaded OK via ${adapter.strategy}`,

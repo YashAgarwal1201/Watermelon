@@ -1,5 +1,33 @@
-# Vue 3 + TypeScript + Vite
+# wc-vue-app: Vue 3 User Profile Custom Element
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A microfrontend component authored in **Vue 3** and compiled into a standalone W3C Custom Element using `@vitejs/plugin-vue` with `{ customElement: true }`.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+---
+
+## Architecture and Integration Details
+
+- **Isolation Strategy**: Native Shadow DOM (W3C Custom Element standard)
+- **Custom Element Tag**: `<wm-user-profile>`
+- **Port**: `5303`
+- **Protocol**: HTTPS (local certs via mkcert)
+- **Host Integration**: Dynamically imported and mounted by `WebComponentAdapter`
+- **CSS Strategy**: Scoped encapsulated styles within the custom element ShadowRoot
+- **Cross-Boundary Communication**:
+  - Properties / Attributes: Accepts `theme` (`"dark"` or `"light"`)
+  - DOM Custom Events: Dispatches `wm-signout` when the user clicks sign out
+
+---
+
+## Ports and Scripts
+
+| Command | Description | Port |
+| :--- | :--- | :---: |
+| `npm run dev` | Runs Vite dev server with middleware rewriting `/main.js` | `5303` |
+| `npm run build` | Compiles TypeScript and packages ES library bundle to `dist/main.js` | N/A |
+| `npm run preview` | Serves compiled ES library over HTTPS | `5303` |
+
+---
+
+## Lifecycle Guarantee
+
+The custom element implementation utilizes Vue 3 custom element definition lifecycle hooks to unmount the reactive application context and detach all listeners when disconnected from the DOM tree.

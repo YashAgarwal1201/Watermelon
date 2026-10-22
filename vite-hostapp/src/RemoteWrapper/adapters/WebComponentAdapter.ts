@@ -7,6 +7,7 @@
 // ──────────────────────────────────────────────────────────────────────────────
 
 import type { RemoteAdapter, RemoteAdapterConfig } from "./BaseAdapter";
+import type { EventBus } from "../../services/eventBus";
 import { patchHeadToShadow, replayCssIntoShadow } from "../shadow";
 
 export interface WebComponentConfig {
@@ -21,9 +22,42 @@ export class WebComponentAdapter implements RemoteAdapter {
   private config: WebComponentConfig;
   private element: HTMLElement | null = null;
   private restoreHeadPatch: (() => void) | null = null;
+  private eventUnsub: (() => void) | null = null;
 
   constructor(config: WebComponentConfig) {
     this.config = config;
+  }
+
+  private setupElement(
+    el: HTMLElement,
+    appName: string,
+    eventBus?: EventBus,
+  ): void {
+    const isDark = document.documentElement.classList.contains("dark");
+    el.setAttribute("theme", isDark ? "dark" : "light");
+    if (this.config.attributes) {
+      for (const [key, val] of Object.entries(this.config.attributes)) {
+        el.setAttribute(key, val);
+      }
+    }
+    el.addEventListener("wm-signout", (e: any) => {
+      console.info(`[WebComponentAdapter:${appName}] wm-signout caught:`, e.detail);
+      eventBus?.emit("wm:signout", e.detail);
+    });
+    el.addEventListener("wm-badge-count", (e: any) => {
+      eventBus?.emit("wm:badge-count", e.detail);
+    });
+    el.addEventListener("wm-event", (e: any) => {
+      eventBus?.emit(e.detail?.type || "wm:event", e.detail);
+    });
+
+    if (eventBus) {
+      this.eventUnsub = eventBus.on("wm:theme", (payload: any) => {
+        if (payload?.theme) {
+          el.setAttribute("theme", payload.theme);
+        }
+      });
+    }
   }
 
   async mount(adapterConfig: RemoteAdapterConfig): Promise<void> {
@@ -31,6 +65,7 @@ export class WebComponentAdapter implements RemoteAdapter {
       mountPoint,
       shadowRoot,
       appName,
+      eventBus,
       isCancelled = () => false,
     } = adapterConfig;
 
@@ -43,16 +78,7 @@ export class WebComponentAdapter implements RemoteAdapter {
     if (customElements.get(tag)) {
       if (isCancelled()) return;
       const el = document.createElement(tag);
-      const isDark = document.documentElement.classList.contains("dark");
-      el.setAttribute("theme", isDark ? "dark" : "light");
-      if (this.config.attributes) {
-        for (const [key, val] of Object.entries(this.config.attributes)) {
-          el.setAttribute(key, val);
-        }
-      }
-      el.addEventListener("wm-signout", (e: any) => {
-        console.info(`[WebComponentAdapter:${appName}] wm-signout caught:`, e.detail);
-      });
+      this.setupElement(el, appName, eventBus);
       mountPoint.appendChild(el);
       this.element = el;
       return;
@@ -78,23 +104,26 @@ export class WebComponentAdapter implements RemoteAdapter {
           resolve();
           return;
         }
-        // Give the web component runtime a tick to register the custom element
-        await new Promise((r) => setTimeout(r, 50));
+        // Deterministically wait for custom element registration with safety timeout
+        try {
+          await Promise.race([
+            customElements.whenDefined(tag),
+            new Promise((_, reject) =>
+              setTimeout(
+                () => reject(new Error(`Timeout waiting for custom element <${tag}> definition`)),
+                5000,
+              ),
+            ),
+          ]);
+        } catch (err) {
+          console.warn(`[WebComponentAdapter:${appName}] customElements.whenDefined:`, err);
+        }
         if (isCancelled()) {
           resolve();
           return;
         }
         const el = document.createElement(tag);
-        const isDark = document.documentElement.classList.contains("dark");
-        el.setAttribute("theme", isDark ? "dark" : "light");
-        if (this.config.attributes) {
-          for (const [key, val] of Object.entries(this.config.attributes)) {
-            el.setAttribute(key, val);
-          }
-        }
-        el.addEventListener("wm-signout", (e: any) => {
-          console.info(`[WebComponentAdapter:${appName}] wm-signout caught:`, e.detail);
-        });
+        this.setupElement(el, appName, eventBus);
         mountPoint.appendChild(el);
         this.element = el;
         resolve();
@@ -106,6 +135,12 @@ export class WebComponentAdapter implements RemoteAdapter {
   }
 
   unmount(): void {
+    if (this.eventUnsub) {
+      try {
+        this.eventUnsub();
+      } catch {}
+      this.eventUnsub = null;
+    }
     if (this.element) {
       try {
         this.element.remove();

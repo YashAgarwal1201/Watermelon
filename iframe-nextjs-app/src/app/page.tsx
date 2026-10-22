@@ -31,8 +31,8 @@ class RemoteErrorBoundary extends Component<
             Simulated Remote Exception Caught
           </h3>
           <p style={{ color: "var(--text-secondary)", maxWidth: "500px", margin: "0 auto 16px auto", fontSize: "0.9rem" }}>
-            This error was contained completely inside the <code>iframe-nextjs-app</code> process.
-            The Vue 3 host shell, navigation bar, and state remain completely safe.
+            This error was contained inside the <code>iframe-nextjs-app</code> frame.
+            The Vue 3 host shell, navigation bar, and state remain responsive and unaffected.
           </p>
           <pre style={{
             background: "rgba(0,0,0,0.1)",
@@ -294,7 +294,7 @@ function AnalyticsDashboard() {
             {current.latency}
           </div>
           <div style={{ fontSize: "0.8rem", color: "#10b981", fontWeight: "600" }}>
-            ✓ Zero event bottleneck
+            ✓ Asynchronous event dispatch
           </div>
         </div>
 
@@ -310,7 +310,7 @@ function AnalyticsDashboard() {
             {current.messages}
           </div>
           <div style={{ fontSize: "0.8rem", color: "var(--accent)", fontWeight: "600" }}>
-            ● Handshake & sync 99.99%
+            ● Bridge synchronized
           </div>
         </div>
 
@@ -323,7 +323,7 @@ function AnalyticsDashboard() {
             Process Security Isolation
           </div>
           <div style={{ fontSize: "1.75rem", fontWeight: "bold", color: "#10b981", marginBottom: "4px" }}>
-            100% Isolated
+            Fully Sandboxed
           </div>
           <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
             No window/DOM pollution

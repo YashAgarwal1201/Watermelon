@@ -1,4 +1,4 @@
-# webpack-remoteapp-1 — React 19 (Webpack 5)
+# webpack-remoteapp-1: React 19 (Webpack 5)
 
 A federated microfrontend built with **React 19**, **TypeScript**, **Tailwind CSS v4**, and **Webpack 5 Module Federation**.
 
@@ -26,8 +26,8 @@ A federated microfrontend built with **React 19**, **TypeScript**, **Tailwind CS
 | :--- | :--- | :---: |
 | `npm start` | Runs Webpack Dev Server (ready for host federation) | `5161` |
 | `npm run dev` | Runs Webpack Dev Server and opens browser | `5161` |
-| `npm run build` | Compiles production bundle to `dist/` | — |
-| `npm run type-check` | Runs TypeScript type checking (`tsc --noEmit`) | — |
+| `npm run build` | Compiles production bundle to `dist/` | N/A |
+| `npm run type-check` | Runs TypeScript type checking (`tsc --noEmit`) | N/A |
 
 ---
 

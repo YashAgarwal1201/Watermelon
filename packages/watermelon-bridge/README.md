@@ -67,7 +67,8 @@ import { WatermelonBridgeHost } from '@watermelon/bridge';
 const bridge = new WatermelonBridgeHost({
   remoteId: 'iframe_nextjs_app',
   iframe: iframeElement,
-  targetOrigin: 'https://localhost:5301', // or '*'
+  targetOrigin: 'https://localhost:5301',
+  allowedOrigins: ['https://localhost:5301'], // Whitelist protecting against origin spoofing
   onReady: () => {
     console.log('Remote ready');
     // Send current host theme on initial connection
@@ -145,11 +146,17 @@ window.addEventListener('beforeunload', () => {
 
 ## 5. Security & CSP Guidelines
 
-When embedding iframes, ensure production headers permit framing:
+When embedding iframes, ensure production headers and origin checks permit secure communication:
 
-### Content Security Policy (CSP)
+### 5.1 Content Security Policy (CSP)
 In `next.config.ts` or Vite HTTP headers:
 ```http
 Content-Security-Policy: frame-ancestors 'self' https://localhost:5150
 ```
 *(Avoid `X-Frame-Options: DENY` or `X-Frame-Options: SAMEORIGIN` as they prevent cross-origin embedding).*
+
+### 5.2 Origin Whitelisting & Source Window Validation
+To prevent message spoofing from malicious scripts or third-party extensions:
+1. Always configure `allowedOrigins` on `WatermelonBridgeHost`. Messages arriving from unauthorized origins are automatically discarded.
+2. The host verifies `event.source === iframe.contentWindow` to guarantee that messages originate exclusively from the intended remote frame.
+3. Configure `sandbox="allow-scripts allow-same-origin allow-forms allow-popups"` on the `<iframe>` element to limit remote privilege escalation.

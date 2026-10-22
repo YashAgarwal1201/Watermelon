@@ -60,7 +60,7 @@ const LandingSection: React.FC = () => {
         </h1>
         <p className="text-base text-gray-400 max-w-lg leading-relaxed">
           {QUOTES.length} quotes across {CHARACTERS.length} characters from the
-          Star Wars universe — a federated React remote loaded at runtime by the
+          Star Wars universe: a federated React remote loaded at runtime by the
           Watermelon host.
         </p>
       </section>

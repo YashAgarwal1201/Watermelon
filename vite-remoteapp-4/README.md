@@ -1,4 +1,4 @@
-# vite-remoteapp-4 — SolidJS Remote
+# vite-remoteapp-4: SolidJS Remote
 
 A federated microfrontend built with **SolidJS**, **TypeScript**, and **Vite 7** (`vite-plugin-solid`).
 
@@ -25,6 +25,6 @@ A federated microfrontend built with **SolidJS**, **TypeScript**, and **Vite 7**
 | Command | Description | Port |
 | :--- | :--- | :---: |
 | `npm run dev` | Runs standalone SolidJS SPA with HMR | `5254` |
-| `npm run build` | Compiles typechecks (`tsc -b`) and bundles federation output | — |
+| `npm run build` | Compiles typechecks (`tsc -b`) and bundles federation output | N/A |
 | `npm run preview` | Serves `dist/` production preview | `5254` |
 | `npm start` | Builds then serves preview for host integration | `5254` |

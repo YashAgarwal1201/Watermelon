@@ -70,6 +70,7 @@ export interface WatermelonBridgeHostConfig {
   remoteId: string;
   iframe: HTMLIFrameElement;
   targetOrigin?: string; // Default: '*' or specific origin
+  allowedOrigins?: string[]; // Allowed event.origin allowlist for incoming messages
   onReady?: () => void;
   onResize?: (height: number) => void;
   onNavigate?: (path: string) => void;

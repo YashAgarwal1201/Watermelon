@@ -29,6 +29,23 @@ export class WatermelonBridgeHost {
 
   private handleMessage = (event: MessageEvent): void => {
     if (this.isDestroyed) return;
+
+    // Strict security check: verify message source matches iframe content window
+    if (this.config.iframe?.contentWindow && event.source !== this.config.iframe.contentWindow) {
+      return;
+    }
+
+    // Strict security check: verify event origin against allowlist
+    if (this.config.allowedOrigins && this.config.allowedOrigins.length > 0) {
+      const isAllowed = this.config.allowedOrigins.some(
+        (origin) => origin === "*" || origin === event.origin
+      );
+      if (!isAllowed) {
+        console.warn(`[WatermelonBridgeHost] Dropped message from unauthorized origin: ${event.origin}`);
+        return;
+      }
+    }
+
     const data = event.data;
     if (!data || typeof data !== "object") return;
     if (data.__wm !== true) return;

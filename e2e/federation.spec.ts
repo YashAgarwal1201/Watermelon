@@ -232,8 +232,8 @@ test.describe("Watermelon Microfrontend Federation", () => {
     await expect(
       page.getByRole("heading", { name: "3. Real-World Engineering Findings & Benchmarks", level: 2 })
     ).toBeVisible();
-    await expect(page.getByText("Shadow DOM Portal Leaks with UI Libraries")).toBeVisible();
-    await expect(page.getByText("Monorepo RAM Explosion vs Unified Static Serving")).toBeVisible();
+    await expect(page.getByText("Shadow DOM & Head Stylesheet Diversion")).toBeVisible();
+    await expect(page.getByText("Unmount Lifecycle Hygiene & Memory Leaks")).toBeVisible();
 
     // Section 4 Architecture Q&A
     await expect(

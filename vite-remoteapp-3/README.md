@@ -1,4 +1,4 @@
-# vite-remoteapp-3 — Svelte 5 Remote
+# vite-remoteapp-3 : Svelte 5 Remote
 
 A federated microfrontend built with **Svelte 5**, **TypeScript**, **Sass**, and **Vite 7**.
 
@@ -25,7 +25,7 @@ A federated microfrontend built with **Svelte 5**, **TypeScript**, **Sass**, and
 | Command | Description | Port |
 | :--- | :--- | :---: |
 | `npm run dev` | Runs standalone Svelte 5 SPA with HMR | `5253` |
-| `npm run build` | Compiles production federation bundle | — |
-| `npm run check` | Runs `svelte-check` diagnostics and TypeScript typechecks | — |
+| `npm run build` | Compiles production federation bundle | N/A |
+| `npm run check` | Runs `svelte-check` diagnostics and TypeScript typechecks | N/A |
 | `npm run preview` | Serves `dist/` production preview | `5253` |
 | `npm start` | Builds then serves preview for host integration | `5253` |

@@ -1,4 +1,4 @@
-# webpack-remoteapp-2 — Vue 3 (Webpack 5)
+# webpack-remoteapp-2 : Vue 3 (Webpack 5)
 
 A federated microfrontend built with **Vue 3**, **TypeScript**, **Sass**, and **Webpack 5 Module Federation**.
 
@@ -25,8 +25,8 @@ A federated microfrontend built with **Vue 3**, **TypeScript**, **Sass**, and **
 | Command | Description | Port |
 | :--- | :--- | :---: |
 | `npm run dev` | Runs Webpack Dev Server with HMR (ready for host federation) | `5162` |
-| `npm run build` | Compiles production bundle to `dist/` | — |
-| `npm run preview` | Serves `dist/` production preview | — |
+| `npm run build` | Compiles production bundle to `dist/` | N/A |
+| `npm run preview` | Serves `dist/` production preview | N/A |
 
 ---
 

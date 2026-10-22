@@ -12,6 +12,7 @@ import { WatermelonBridgeHost } from "@watermelon/bridge";
 export interface IframeConfig {
   url: string | (() => string);
   targetOrigin?: string;
+  allowedOrigins?: string[];
   onEvent?: (eventType: string, detail: unknown) => void;
 }
 
@@ -21,25 +22,46 @@ export class IframeAdapter implements RemoteAdapter {
   private config: IframeConfig;
   private iframe: HTMLIFrameElement | null = null;
   private bridge: WatermelonBridgeHost | null = null;
+  private eventUnsub: (() => void) | null = null;
 
   constructor(config: IframeConfig) {
     this.config = config;
   }
 
   async mount(adapterConfig: RemoteAdapterConfig): Promise<void> {
-    const { mountPoint, appName, isCancelled = () => false } = adapterConfig;
+    const { mountPoint, appName, eventBus, isCancelled = () => false } = adapterConfig;
     if (isCancelled()) return;
 
-    const url =
+    const resolvedUrl =
       typeof this.config.url === "function"
         ? this.config.url()
         : this.config.url;
 
+    let targetOrigin = this.config.targetOrigin;
+    let allowedOrigins = this.config.allowedOrigins;
+
+    if (!targetOrigin) {
+      try {
+        const parsed = new URL(resolvedUrl, window.location.href);
+        targetOrigin = parsed.origin;
+      } catch {
+        targetOrigin = "*";
+      }
+    }
+
+    if (!allowedOrigins) {
+      allowedOrigins = targetOrigin !== "*" ? [targetOrigin] : ["*"];
+    }
+
     const iframe = document.createElement("iframe");
-    iframe.src = url;
+    iframe.src = resolvedUrl;
     iframe.style.cssText =
       "width:100%;height:100%;border:none;display:block;min-height:500px;transition:height 0.15s ease;";
     iframe.setAttribute("data-remote-iframe", appName);
+    iframe.setAttribute(
+      "sandbox",
+      "allow-scripts allow-same-origin allow-forms allow-popups",
+    );
 
     // Detect current host theme setting
     const isDark = document.documentElement.classList.contains("dark");
@@ -47,7 +69,8 @@ export class IframeAdapter implements RemoteAdapter {
     this.bridge = new WatermelonBridgeHost({
       remoteId: appName,
       iframe,
-      targetOrigin: this.config.targetOrigin ?? "*",
+      targetOrigin,
+      allowedOrigins,
       onReady: () => {
         // Broadcast theme context to remote immediately upon handshake
         this.bridge?.sendTheme(isDark ? "dark" : "light");
@@ -65,8 +88,17 @@ export class IframeAdapter implements RemoteAdapter {
       },
       onEvent: (eventType, detail) => {
         this.config.onEvent?.(eventType, detail);
+        eventBus?.emit(eventType, detail);
       },
     });
+
+    if (eventBus) {
+      this.eventUnsub = eventBus.on("wm:theme", (payload: any) => {
+        if (payload?.theme) {
+          this.bridge?.sendTheme(payload.theme);
+        }
+      });
+    }
 
     mountPoint.appendChild(iframe);
     this.iframe = iframe;
@@ -80,6 +112,12 @@ export class IframeAdapter implements RemoteAdapter {
   }
 
   unmount(): void {
+    if (this.eventUnsub) {
+      try {
+        this.eventUnsub();
+      } catch {}
+      this.eventUnsub = null;
+    }
     if (this.bridge) {
       try {
         this.bridge.destroy();

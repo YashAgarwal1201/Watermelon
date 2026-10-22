@@ -1,34 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# iframe-nextjs-app: Next.js 16 App Router Analytics Dashboard
 
-## Getting Started
+An isolated microfrontend built with **Next.js 16 (App Router)**, **React 19**, **Tailwind CSS v4**, and **TypeScript**, running inside a sandboxed iframe.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Architecture and Isolation Details
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Isolation Strategy**: Hardened iframe sandboxing (`sandbox="allow-scripts allow-same-origin allow-forms allow-popups"`)
+- **Port**: `5301`
+- **Protocol**: HTTPS (local certs via mkcert)
+- **Host Integration**: Mounted via `IframeAdapter` within the host shell
+- **Cross-Boundary Communication**: `@watermelon/bridge` bidirectional `postMessage` protocol
+- **Event Validation**: Strict origin whitelisting (`allowedOrigins`) and `event.source === iframe.contentWindow` verification
+- **Supported Bridge Events**:
+  - `ANALYTICS_FILTER_CHANGED`: Emits active filter and date range selections to the host
+  - `THEME_CHANGED`: Receives theme updates (`dark` / `light`) synchronized from the host
+  - `AUTH_TOKEN_SYNC`: Receives authenticated session tokens
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-## Learn More
+## Ports and Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command | Description | Port |
+| :--- | :--- | :---: |
+| `npm run dev` | Runs Next.js Turbopack dev server with HTTPS | `5301` |
+| `npm run build` | Compiles Next.js production build | N/A |
+| `npm start` | Starts Next.js production server | `5301` |
+| `npm run preview` | Serves exported static output over HTTPS | `5301` |
+| `npm run lint` | Runs Next.js ESLint analysis | N/A |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Fault Isolation Guarantee
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+As an independent browser execution context, Next.js hydration failures, runtime exceptions, or memory leaks cannot compromise the host shell. Internal crash simulation demonstrates recovery via an in-frame error boundary without disrupting the outer application lifecycle.

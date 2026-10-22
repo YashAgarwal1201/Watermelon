@@ -1,4 +1,4 @@
-# vite-remoteapp-2 — Vue 3 Remote
+# vite-remoteapp-2 : Vue 3 Remote
 
 A federated microfrontend built with **Vue 3**, **PrimeVue 4**, **Tailwind CSS v4**, and **Vite 7**.
 
@@ -25,7 +25,7 @@ A federated microfrontend built with **Vue 3**, **PrimeVue 4**, **Tailwind CSS v
 | Command | Description | Port |
 | :--- | :--- | :---: |
 | `npm run dev` | Runs standalone Vue 3 SPA with HMR | `5252` |
-| `npm run build` | Runs typecheck (`vue-tsc -b`) and builds federation bundle | — |
+| `npm run build` | Runs typecheck (`vue-tsc -b`) and builds federation bundle | N/A |
 | `npm run preview` | Serves `dist/` production preview | `5252` |
 | `npm start` | Builds then serves preview for host integration | `5252` |
 

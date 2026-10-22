@@ -1,12 +1,12 @@
 # Watermelon
 
-A comprehensive polyglot microfrontend architecture monorepo federating and orchestrating **12 independent applications and packages** across three distinct integration paradigms: **Module Federation, W3C Web Components, and Sandboxed Iframes** — featuring bidirectional Shadow DOM style isolation, postMessage bridge communication, cross-framework navigation, and low-memory developer tooling.
+A comprehensive polyglot microfrontend architecture monorepo federating and orchestrating **12 independent applications and packages** across three distinct integration paradigms: **Module Federation, W3C Web Components, and Sandboxed Iframes** : featuring bidirectional Shadow DOM style isolation, postMessage bridge communication, cross-framework navigation, fault isolation, and low-memory developer tooling.
 
 ---
 
 ## Why "Watermelon"
 
-The color palette and visual identity are inspired by the watermelon fruit — crisp emerald greens (`#10b981`) for the host shell and accents, vibrant ruby reds and pinks (`#dd0031`, `#f43f5e`) for brand badges and Angular cheat sheet highlights, with deep obsidian dark mode surfaces (`#090d16`, `#0f172a`) and clean neutrals in both light and dark variants.
+The color palette and visual identity are inspired by the watermelon fruit : crisp emerald greens (`#10b981`) for the host shell and accents, vibrant ruby reds and pinks (`#dd0031`, `#f43f5e`) for brand badges and Angular cheat sheet highlights, with deep obsidian dark mode surfaces (`#090d16`, `#0f172a`) and clean neutrals in both light and dark variants.
 
 ---
 
@@ -42,8 +42,8 @@ Watermelon serves as a production-grade blueprint comparing the three major micr
 | **Isolation Level** | Soft (shared window & JS heap) | Medium (DOM & CSS isolated, shared JS heap) | **Hard** (separate process, memory, & globals) |
 | **CSS Encapsulation** | Head interception (`patchHeadToShadow`) | **Native Shadow Root** | **Native Window boundary** |
 | **Cross-Boundary Comms** | Direct JS in-memory calls / store | Custom Events (`dispatchEvent` / `listen`) | **Typed postMessage (`@watermelon/bridge`)** |
-| **Fault Tolerance** | Low (unhandled throw can impact shell) | Medium (element error contained, leaks memory) | **High** (crash isolated inside iframe sandbox) |
-| **Startup / Latency** | **Fastest (~1.8 ms)** | Fast (~2.4 ms) | Moderate (~3.5–4.1 ms) |
+| **Fault Tolerance** | High (React ErrorBoundary + Vue handler) | Medium (element error contained) | **Highest** (crash isolated inside iframe sandbox) |
+| **Startup / Latency** | **Fastest (~1.8 ms)** | Fast (~2.4 ms) | Moderate (~3.5 to 4.1 ms) |
 | **Framework Support** | Requires bundler federation plugin | Any framework supporting Custom Elements | **Universal** (Next.js SSR/RSC, Nuxt, legacy, SPA) |
 | **Deep Subrouting** | Basename handshake (`window.BASENAME`) | Basename injection (`APP_BASE_HREF`) | Completely isolated internal URL routing |
 
@@ -55,11 +55,11 @@ All 11 applications run over local HTTPS with shared trusted certificates (`cert
 
 | App Identifier | Directory | Port | Strategy | Framework & Bundler | Purpose |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`host`** | `vite-hostapp` | `5150` | Host Orchestrator | Vue 3.5 + Vite 6 + PrimeVue | Global shell, navbar, theme sync, remote loader |
-| **`v-react`** | `vite-remoteapp-1` | `5251` | Module Federation | React 19.1 + Vite 6 + Tailwind | Product showcase with interactive cart state |
-| **`v-vue`** | `vite-remoteapp-2` | `5252` | Module Federation | Vue 3.5 + Vite 6 + PrimeVue | Subrouted dashboard with localized sub-navigation |
-| **`v-svelte`** | `vite-remoteapp-3` | `5253` | Module Federation | Svelte 5.0 + Vite 6 | Compile-time rune reactivity & counter |
-| **`v-solid`** | `vite-remoteapp-4` | `5254` | Module Federation | SolidJS 1.9 + Vite 6 | Fine-grained signals & DOM benchmarking |
+| **`host`** | `vite-hostapp` | `5150` | Host Orchestrator | Vue 3.5 + Vite 7 + PrimeVue | Global shell, navbar, theme sync, remote loader |
+| **`v-react`** | `vite-remoteapp-1` | `5251` | Module Federation | React 19.1 + Vite 7 + Tailwind | Product showcase with interactive cart state |
+| **`v-vue`** | `vite-remoteapp-2` | `5252` | Module Federation | Vue 3.5 + Vite 7 + PrimeVue | Subrouted dashboard with localized sub-navigation |
+| **`v-svelte`** | `vite-remoteapp-3` | `5253` | Module Federation | Svelte 5.0 + Vite 7 | Compile-time rune reactivity & counter |
+| **`v-solid`** | `vite-remoteapp-4` | `5254` | Module Federation | SolidJS 1.9 + Vite 7 | Fine-grained signals & DOM benchmarking |
 | **`w-react`** | `webpack-remoteapp-1` | `5161` | Module Federation | React 19 + Webpack 5.98 | Vite-to-Webpack cross-bundler federation |
 | **`w-vue`** | `webpack-remoteapp-2` | `5162` | Module Federation | Vue 3.5 + Webpack 5.98 + SCSS | Webpack 5 Vue 3 federated remote |
 | **`angular`** | `angular-remoteapp` | `4201` | Web Component | Angular 20.3 + Zoneless Elements | 17-topic Angular developer cheat sheet |
@@ -67,22 +67,25 @@ All 11 applications run over local HTTPS with shared trusted certificates (`cert
 | **`wc-vue`** | `wc-vue-app` | `5303` | Web Component | Vue 3.5 `defineCustomElement` | `<wm-user-profile>` user card & status toggle |
 | **`iframe-vite`** | `iframe-vite-app` | `5300` | Sandboxed Iframe | React 19 + Vite + Bridge | Asset / Media Manager with internal routing |
 | **`iframe-nextjs`**| `iframe-nextjs-app` | `5301` | Sandboxed Iframe | Next.js 16 App Router + Turbopack | Analytics & Telemetry with SSR/SSG export |
-| **`bridge`** | `packages/watermelon-bridge` | — | Shared Library | TypeScript (ESM + CJS) | Typed postMessage host/client bridge |
+| **`bridge`** | `packages/watermelon-bridge` | N/A | Shared Library | TypeScript (ESM + CJS) | Typed postMessage host/client bridge |
 
 ---
 
 ## Features & Core Mechanics
 
-- **Universal Remote Adapter Pattern** — `RemoteWrapper.vue` delegates mounting and teardown to dedicated strategy adapters (`ModuleFederationAdapter`, `WebComponentAdapter`, `IframeAdapter`), maintaining zero file bloat.
-- **Bidirectional Shadow DOM Style Isolation** — isolates remote components inside an open Shadow Root to eliminate CSS collisions between disparate styling libraries (Tailwind v4, PrimeVue, PrimeReact, PrimeNG, SCSS).
-- **Runtime CSS Interception (`patchHeadToShadow`)** — monkey-patches `document.head` append methods to divert dynamically injected `<style>` and `<link>` tags into the active remote's Shadow DOM.
-- **Module-Level CSS Cache** — persists captured styles across route changes in memory to avoid repetitive style reconstruction.
-- **Universal Bridge Package (`@watermelon/bridge`)** — lightweight, zero-dependency typed postMessage communication bus handling handshake (`ready`), auto-height synchronization (`ResizeObserver`), host theme synchronization, and domain events (`ASSET_SELECTED`, `ANALYTICS_FILTER_CHANGED`).
-- **Complete Blast Radius Containment** — unhandled exceptions inside sandboxed iframes are caught by internal error boundaries, leaving host shell navigation and active tabs completely unaffected.
-- **Angular 20 Developer Cheat Sheet** — curated 17-topic standalone reference covering modern Control Flow (`@if`, `@for`, `@let`), Signals (`signal`, `computed`, `linkedSignal`, `resource`), Component I/O (`input`, `output`, `model`), and `@defer` views.
-- **Dynamic Basename Subrouting** — host injects `window.BASENAME` to enable deep linking and nested subroutes inside embedded microfrontends.
-- **Low-Memory Dev Strategies** — selective dev runner (`scripts/dev.sh`) and unified static remote server (`scripts/serve-remotes.mjs`) reducing RAM consumption from 4+ GB down to **~57 MB**.
-- **End-to-End HTTPS** — all 11 applications serve over trusted local SSL certificates generated via `mkcert`.
+- **Universal Remote Adapter Pattern** : `RemoteWrapper.vue` delegates mounting and teardown to dedicated strategy adapters (`ModuleFederationAdapter`, `WebComponentAdapter`, `IframeAdapter`), maintaining zero file bloat.
+- **Cross-Paradigm Resilient Event Bus** : In-memory pub/sub engine with automatic `window.dispatchEvent(CustomEvent)` interop, keeping theme, auth, and state synchronized across Module Federation, Web Components, and Iframes without tight coupling.
+- **Blast Radius Containment & Error Boundaries** : React remotes mount inside dynamic `createReactErrorBoundary` components; Vue remotes bind `errorHandler`; iframes run with strict sandbox flags. Remote runtime crashes never bring down the host shell.
+- **10-Second Mount Circuit Breaker** : Host wrapper enforces a deterministic mount timeout via `Promise.race`, preventing hanging loaders if a remote script fails to initialize.
+- **Standardized Remote Lifecycle Contract** : Formalized `StandardRemoteLifecycle` (`mount`, `unmount`) and `RemoteMountOptions` interface across all federated modules with polymorphic fallbacks.
+- **Bidirectional Shadow DOM Style Isolation** : Isolates remote components inside an open Shadow Root to eliminate CSS collisions between disparate styling libraries (Tailwind v4, PrimeVue, PrimeReact, PrimeNG, SCSS).
+- **Runtime CSS Interception (`patchHeadToShadow`)** : Monkey-patches `document.head` append methods to divert dynamically injected `<style>` and `<link>` tags into the active remote's Shadow DOM.
+- **Module-Level CSS Cache** : Persists captured styles across route changes in memory to avoid repetitive style reconstruction.
+- **Universal Bridge Package (`@watermelon/bridge`)** : Lightweight, zero-dependency typed postMessage communication bus with origin whitelisting (`allowedOrigins`), `contentWindow` verification, auto-height synchronization (`ResizeObserver`), and domain events (`ASSET_SELECTED`).
+- **Angular 20 Developer Cheat Sheet** : Curated 17-topic standalone reference covering modern Control Flow (`@if`, `@for`, `@let`), Signals (`signal`, `computed`, `linkedSignal`, `resource`), Component I/O (`input`, `output`, `model`), and `@defer` views.
+- **Dynamic Basename Subrouting** : Host injects `window.BASENAME` to enable deep linking and nested subroutes inside embedded microfrontends.
+- **Low-Memory Dev Strategies** : Selective dev runner (`scripts/dev.sh`) and unified static remote server (`scripts/serve-remotes.mjs`) reducing RAM consumption from 4+ GB down to **~57 MB**.
+- **End-to-End HTTPS** : All 11 applications serve over trusted local SSL certificates generated via `mkcert`.
 
 ---
 
@@ -101,12 +104,12 @@ This installs dependencies across all packages, builds `@watermelon/bridge`, gen
 
 ### 3. Development Workflows
 
-#### Strategy A: Selective Live Dev Mode (Recommended — ~350–650 MB RAM)
+#### Strategy A: Selective Live Dev Mode (Recommended : ~350 to 650 MB RAM)
 Develop the host shell alongside only the specific remote you are working on:
 ```bash
 npm run dev:angular         # Host (5150) + Angular 20 (4201)
-npm run dev:react           # Host (5150) + Vite React (5251)
-npm run dev:vue             # Host (5150) + Vite Vue (5252)
+npm run dev:vite-react      # Host (5150) + Vite React (5251)
+npm run dev:vite-vue        # Host (5150) + Vite Vue (5252)
 npm run dev:wc-lit          # Host (5150) + Lit Web Component (5302)
 npm run dev:wc-vue          # Host (5150) + Vue Custom Element (5303)
 npm run dev:iframe-vite     # Host (5150) + Vite Iframe (5300)
@@ -117,14 +120,14 @@ Or run `npm run dev` in an interactive terminal to choose from an interactive CL
 #### Strategy B: Lightweight All-Remotes Mode (~57 MB RAM)
 Runs the live host shell while serving all 10 remotes statically in a single Node.js process:
 ```bash
-npm run build:all           # Build all applications once
+npm run build               # Build all applications once
 npm run dev:host            # Launches unified static remotes (57 MB RAM) + live host (5150)
 ```
 
 #### Strategy C: Full Concurrent Mode (High RAM ~3+ GB)
 Launches all applications in preview/live mode concurrently:
 ```bash
-npm run start:all
+npm run dev:all
 ```
 
 ---
@@ -158,8 +161,9 @@ Watermelon/
       RemoteWrapper/           # Multi-paradigm mounting engine
         adapters/              # BaseAdapter, ModuleFederationAdapter, WebComponentAdapter, IframeAdapter
         shadow/                # Shadow DOM builder, patchHeadToShadow, CSS cache
-      components/              # Home dashboard, side menu, navigation bar
+      components/              # Home dashboard, side menu, navigation bar, architecture insights
       composables/             # Theme & UI state
+      services/                # Cross-paradigm eventBus singleton
   vite-remoteapp-1/            # React 19 Remote (Vite MF, Port 5251)
   vite-remoteapp-2/            # Vue 3.5 Remote (Vite MF, Port 5252)
   vite-remoteapp-3/            # Svelte 5 Remote (Vite MF, Port 5253)

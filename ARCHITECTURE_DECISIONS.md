@@ -118,3 +118,94 @@ Next.js 16 applications by default run as Node.js servers. Furthermore, modern b
 ### Consequences
 * **Positive**: Next.js runs seamlessly within the unified static server and supports instant static previewing.
 * **Trade-off**: Dynamic server-side runtime features (e.g. `cookies()`, dynamic SSR headers) are compiled at build time for the export artifact.
+
+---
+
+## ADR-007: Origin Whitelisting and Frame Sandbox Hardening
+
+### Status
+Accepted
+
+### Context
+`postMessage` listeners that do not validate `event.origin` and `event.source` are vulnerable to message spoofing from malicious tabs, browser extensions, or third-party scripts. Furthermore, framing iframes without explicit `sandbox` attributes allows remotes unrestricted access to top-level navigation, modals, and plugins.
+
+### Decision
+1. In `@watermelon/bridge` (`host.ts`), add `allowedOrigins` configuration. Check both `allowedOrigins.includes(event.origin)` and verify `event.source === this.iframe.contentWindow`. Reject and discard all unauthorized postMessage events.
+2. In `IframeAdapter.ts`, configure `sandbox="allow-scripts allow-same-origin allow-forms allow-popups"` on created iframe elements to enforce the principle of least privilege.
+
+### Consequences
+* **Positive**: Complete defense against cross-origin postMessage spoofing and unauthorized iframe escalation.
+* **Trade-off**: Requires parent host shell to explicitly specify remote origins.
+
+---
+
+## ADR-008: Blast Radius Containment via Dynamic Error Boundaries & Mount Circuit Breakers
+
+### Status
+Accepted
+
+### Context
+In Module Federation, remotes execute in the same JavaScript thread and heap as the host shell. An uncaught rendering error in a remote React or Vue component unmounts the host component tree, producing a blank screen. Additionally, if a remote bundle network request hangs indefinitely, the host shell gets stuck in a perpetual loading state.
+
+### Decision
+1. In `ModuleFederationAdapter.ts`, wrap React remotes in a dynamically constructed `ErrorBoundary` component that renders a localized fallback UI with a retry action.
+2. Configure `app.config.errorHandler` on Vue remote applications to catch unhandled errors inside the remote.
+3. In `RemoteWrapper.vue`, wrap adapter mount execution in a 10-second `Promise.race` timeout circuit breaker. If the remote fails to mount within 10 seconds, the promise rejects and renders a clean offline recovery screen with CLI troubleshooting commands.
+
+### Consequences
+* **Positive**: Eliminates single points of failure. Remote runtime crashes are trapped within their container; the host shell remains fully interactive.
+* **Trade-off**: Slightly more verbose mounting pipeline in `ModuleFederationAdapter`.
+
+---
+
+## ADR-009: Decoupled Cross-Paradigm Resilient Event Bus
+
+### Status
+Accepted
+
+### Context
+Microfrontends running across three distinct paradigms (Module Federation in-memory, Web Components in Shadow DOM, and Iframes in sandboxed browsing contexts) require coordinated state (e.g. dark/light theme shifts, user session invalidation, badge notifications). Directly coupling the host to each paradigm's communication mechanism creates an unmaintainable web of dependencies.
+
+### Decision
+Implement a central `EventBus` singleton (`src/services/eventBus.ts`):
+1. In-memory pub/sub (`on`, `off`, `emit`, `clear`) with defensive `try/catch` execution of handlers.
+2. Dual dispatch: every `eventBus.emit(event, payload)` automatically fires `window.dispatchEvent(new CustomEvent(event, { detail: payload }))` for framework-agnostic browser-level interoperability.
+3. Adapters bridge to their respective paradigm:
+   * `IframeAdapter` pushes `wm:theme` and `wm:auth` over `@watermelon/bridge`.
+   * `WebComponentAdapter` reflects `theme` attribute updates and forwards `wm-signout` and `wm-badge-count` onto `eventBus`.
+   * `ModuleFederationAdapter` injects `eventBus` into remote component props and Vue provide contexts.
+
+### Consequences
+* **Positive**: Unified cross-paradigm state propagation without tight coupling. Any remote can emit or listen to events regardless of its integration paradigm.
+* **Trade-off**: Developers must adhere to semantic event names (`wm:*`).
+
+---
+
+## ADR-010: Standardized Remote Contract (`StandardRemoteLifecycle`)
+
+### Status
+Accepted
+
+### Context
+Different microfrontends historically exported varying interfaces: some exported standard `mount(el, options)` and `unmount()` functions, while others exported bare components (React default export, Svelte class, Solid function). The host had to maintain bespoke mounting blocks for each remote.
+
+### Decision
+Define `StandardRemoteLifecycle` and `RemoteMountOptions` in `BaseAdapter.ts`:
+```typescript
+export interface RemoteMountOptions {
+  basename: string;
+  memory?: boolean;
+  eventBus?: EventBus;
+  [key: string]: any;
+}
+
+export interface StandardRemoteLifecycle {
+  mount(element: HTMLElement, options?: RemoteMountOptions): Promise<any> | any;
+  unmount?(): Promise<void> | void;
+}
+```
+In `ModuleFederationAdapter.ts`, standardize the mount lifecycle dispatcher so that if a remote exports `mount`/`unmount`, it executes it directly. A dynamic federation fallback handles any third-party remote implementing this contract.
+
+### Consequences
+* **Positive**: Clean polymorphic interface with backward-compatible framework fallbacks.
+* **Trade-off**: Remotes must agree on the `RemoteMountOptions` argument format.

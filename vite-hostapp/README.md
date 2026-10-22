@@ -1,4 +1,4 @@
-# vite-hostapp — Vue 3 Host Shell
+# vite-hostapp : Vue 3 Host Shell
 
 The main container shell application for the Watermelon microfrontend playground. Built with **Vue 3**, **Vite 7**, **Pinia**, **Vue Router**, **PrimeVue 4**, and **Tailwind CSS v4**.
 
@@ -7,9 +7,10 @@ The main container shell application for the Watermelon microfrontend playground
 ## Role & Responsibilities
 
 - **Host Shell**: Provides top navigation, theme toggling (light/dark mode), tab routing, and responsive layouts.
-- **Remote Orchestration**: Dynamically loads and renders remote microfrontends built with React, Vue, Svelte, SolidJS, and Angular.
+- **Cross-Paradigm Event Bus**: Dispatches events (`wm:theme`, `wm:auth`, `wm:signout`) across Module Federation, Web Components, and Iframes via typed pub/sub and window CustomEvents.
+- **Remote Orchestration**: Dynamically loads and renders remote microfrontends across three paradigms via dedicated adapters (`ModuleFederationAdapter`, `WebComponentAdapter`, `IframeAdapter`).
 - **Shared Dependencies**: Provides singleton instances of `vue`, `vue-router`, `react`, and `react-dom` to avoid duplicate bundles across federated boundaries.
-- **Error Boundaries & Fallbacks**: Handles remote connection timeouts, loading states, and recovery wrappers.
+- **Fault Isolation & Error Boundaries**: Wraps React remotes in `createReactErrorBoundary`, Vue remotes in `errorHandler`, and enforces a 10-second mount circuit breaker timeout to prevent cascading crashes.
 
 ---
 
@@ -62,8 +63,11 @@ cp .env.example .env
 ```
 vite-hostapp/
 ├── src/
-│   ├── components/     # UI widgets, Navigation, Home dashboard
-│   ├── RemoteWrapper/  # Framework-agnostic remote mounting wrappers
+│   ├── components/     # UI widgets, Navigation, Home dashboard, Architecture insights
+│   ├── RemoteWrapper/  # Framework-agnostic multi-paradigm mounting engine
+│   │   ├── adapters/   # BaseAdapter, ModuleFederationAdapter, WebComponentAdapter, IframeAdapter
+│   │   └── shadow/     # buildShadow, patchHeadToShadow, cssCache
+│   ├── services/       # EventBus singleton with CustomEvent browser dispatch
 │   ├── stores/         # Pinia stores (theme, layout, navigation)
 │   ├── router/         # Vue Router configuration
 │   ├── App.vue         # Main application container

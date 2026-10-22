@@ -612,7 +612,7 @@ export class CheatSheetComponent {
     <span class="badge muted">Unknown</span>
   }
 }`,
-      proTip: 'Unlike JavaScript switch, @case does NOT require a "break;" statement — fall-through is impossible.',
+      proTip: 'Unlike JavaScript switch, @case does NOT require a "break;" statement : fall-through is impossible.',
       tags: ['switch', 'case', 'default', 'control flow', 'ngswitch'],
     },
     {
@@ -675,7 +675,7 @@ export class CartComponent {
   total = computed(() => this.quantity() * this.price());
   isFreeShipping = computed(() => this.total() >= 50);
 }`,
-      proTip: 'computed() is lazily evaluated — it only executes when read, and caches the result until dependencies change.',
+      proTip: 'computed() is lazily evaluated : it only executes when read, and caches the result until dependencies change.',
       tags: ['computed', 'memoized', 'derived', 'signals', 'reactivity'],
     },
     {
@@ -764,7 +764,7 @@ export class RxjsInteropComponent {
   search = signal('');
   search$ = toObservable(this.search);
 }`,
-      proTip: 'toSignal automatically handles subscription lifecycle on component destroy — no takeUntil() needed.',
+      proTip: 'toSignal automatically handles subscription lifecycle on component destroy : no takeUntil() needed.',
       tags: ['toSignal', 'toObservable', 'rxjs', 'interop', 'observable'],
     },
 

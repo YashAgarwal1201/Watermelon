@@ -1,4 +1,4 @@
-# vite-remoteapp-1 — React 19 Remote
+# vite-remoteapp-1: React 19 Remote
 
 A federated microfrontend built with **React 19**, **PrimeReact**, **Tailwind CSS v4**, and **Vite 7**.
 
@@ -25,10 +25,10 @@ A federated microfrontend built with **React 19**, **PrimeReact**, **Tailwind CS
 | Command | Description | Port |
 | :--- | :--- | :---: |
 | `npm run dev` | Runs standalone SPA with fast unbundled HMR | `5251` |
-| `npm run build` | Runs TypeScript check (`tsc -b`) and bundles federation output | — |
+| `npm run build` | Runs TypeScript check (`tsc -b`) and bundles federation output | N/A |
 | `npm run preview` | Serves `dist/` production preview | `5251` |
 | `npm start` | Builds then serves preview (ready for host integration) | `5251` |
-| `npm run lint` | Runs ESLint analysis across TypeScript & React components | — |
+| `npm run lint` | Runs ESLint analysis across TypeScript & React components | N/A |
 
 ---
 

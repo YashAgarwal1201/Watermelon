@@ -14,7 +14,7 @@ import SideMenu from "./components/SideMenu/SideMenu.vue";
       <Navbar />
     </div>
 
-    <div class="h-full grow overflow-y-auto flex justify-center items-center">
+    <div class="h-full grow overflow-hidden">
       <RouterView />
     </div>
 

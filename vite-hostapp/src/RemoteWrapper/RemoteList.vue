@@ -165,7 +165,7 @@
             :disabled="app.disabled"
             class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-2 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
             :class="app.hoverBorderClass"
-            :aria-label="`Open ${app.displayName}${app.disabled ? ' – unavailable' : ''}`"
+            :aria-label="`Open ${app.displayName}${app.disabled ? ' - unavailable' : ''}`"
             @click="!app.disabled && goToRemote(app.name)"
           >
             <div class="flex items-center justify-between gap-2">
@@ -223,7 +223,7 @@
             :disabled="app.disabled"
             class="group text-left rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:shadow-md transition-all bg-white dark:bg-gray-900/30 space-y-2 cursor-pointer disabled:pointer-events-none disabled:opacity-40"
             :class="app.hoverBorderClass"
-            :aria-label="`Open ${app.displayName}${app.disabled ? ' – unavailable' : ''}`"
+            :aria-label="`Open ${app.displayName}${app.disabled ? ' - unavailable' : ''}`"
             @click="!app.disabled && goToRemote(app.name)"
           >
             <div class="flex items-center justify-between gap-2">
@@ -262,7 +262,7 @@
         role="note"
       >
         <p class="text-base text-green-800 dark:text-green-300">
-          Each remote runs on its own port and is loaded independently — the
+          Each remote runs on its own port and is loaded independently: the
           host picks up remote changes on next load with no redeployment.
         </p>
       </div>

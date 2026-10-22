@@ -3,7 +3,7 @@
 // ─── MODULE-LEVEL CSS cache ────────────────────────────────────────────────────
 // Lives at module scope (not component scope) so it survives across component
 // mount/unmount cycles. Navigating away from a remote destroys its component
-// instance — if this were inside <script setup>, the cache would be lost on
+// instance: if this were inside <script setup>, the cache would be lost on
 // the way back and replayCssIntoShadow would have nothing to replay.
 // ──────────────────────────────────────────────────────────────────────────────
 
